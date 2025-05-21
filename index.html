@@ -2,11 +2,76 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Neji Hyūga 3D – Mobile+Poderes</title>
+  <title>Naruto Characters 3D</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     body,html{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;}
     canvas{display:block;}
+    @keyframes ninja-scroll {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes chakra-pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 0.4; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+    #loading{
+      position:fixed;width:100%;height:100%;
+      background:#000 url('https://i.imgur.com/XqwUZ0r.jpg') center/cover;
+      color:#ff4500;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      z-index:100;
+      font-family: 'ninja', Arial, sans-serif;
+      text-shadow: 0 0 10px #ff4500;
+    }
+    #loading-bar{
+      width:200px;height:20px;
+      border:2px solid #ff4500;
+      margin-top:20px;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0,0,0,0.5);
+    }
+    #loading-progress{
+      width:0%;height:100%;
+      background: linear-gradient(90deg, #ff4500, #ffa500);
+      transition:width 0.3s;
+      position: relative;
+    }
+    #loading-progress::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: ninja-scroll 1s infinite;
+    }
+    #char-select{
+      position:fixed;width:100%;height:100%;
+      background:rgba(0,0,0,0.9);
+      display:none;
+      align-items:center;justify-content:center;
+      z-index:50;
+    }
+    .char-card{
+      width:200px;margin:20px;
+      background:rgba(255,255,255,0.1);
+      border:2px solid #fff;
+      padding:15px;
+      text-align:center;
+      color:#fff;
+      cursor:pointer;
+      transition:transform 0.2s;
+    }
+    .char-card:hover{
+      transform:scale(1.05);
+    }
+    .char-img{
+      width:150px;height:150px;
+      background:#333;
+      margin:10px auto;
+    }
     #joystick{position:absolute;bottom:20px;left:20px;width:120px;height:120px;touch-action:none;z-index:10;}
     #joy-base,#joy-thumb{position:absolute;border-radius:50%;pointer-events:none;}
     #joy-base{width:100%;height:100%;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);}
@@ -20,6 +85,27 @@
   </style>
 </head>
 <body>
+  <!-- Pantalla de carga -->
+  <div id="loading">
+    <h2>Cargando...</h2>
+    <div id="loading-bar">
+      <div id="loading-progress"></div>
+    </div>
+  </div>
+
+  <!-- Selección de personaje -->
+  <div id="char-select">
+    <div class="char-card" onclick="selectCharacter('neji')">
+      <h3>Neji Hyūga</h3>
+      <div class="char-img"></div>
+      <p>Poderes: Byakugan, Jūken, 64 Palmas, 128 Palmas, Kaiten</p>
+    </div>
+    <div class="char-card" onclick="selectCharacter('itachi')">
+      <h3>Itachi Uchiha</h3>
+      <div class="char-img"></div>
+      <p>Poderes: Sharingan, Amaterasu, Tsukuyomi, Susanoo</p>
+    </div>
+  </div>
 
   <!-- Joystick -->
   <div id="joystick">
@@ -27,26 +113,69 @@
     <div id="joy-thumb"></div>
   </div>
 
-  <!-- Botones -->
-  <div id="actions">
-    <div id="jump" class="action-btn">Jump</div>
-    <div id="btn-byak" class="action-btn">Byakugan</div>
-    <div id="btn-juken" class="action-btn">Jūken</div>
-    <div id="btn-64" class="action-btn">64P</div>
-    <div id="btn-128" class="action-btn">128P</div>
-    <div id="btn-kaiten" class="action-btn">Kaiten</div>
-    <div id="btn-kusho" class="action-btn">Kūshō</div>
-    <div id="btn-det" class="action-btn">Detect</div>
-  </div>
+  <!-- Botones (se actualizarán según el personaje) -->
+  <div id="actions"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
   <script>
-  // -- Inicialización Three.js (igual que antes) --
-  let scene, camera, renderer, neji, floor;
+  // Variables globales
+  let scene, camera, renderer, player, floor;
   let enemies = [], powers = [], moveDir={x:0,z:0}, velY=0, onGround=true;
   const GRAV=-0.02, enemyHUD={};
+  let currentCharacter = '';
 
-  init(); animate();
+  // Simular carga
+  window.onload = () => {
+    let progress = 0;
+    const loadingBar = document.getElementById('loading-progress');
+    const interval = setInterval(() => {
+      progress += 5;
+      loadingBar.style.width = progress + '%';
+      if(progress >= 100) {
+        clearInterval(interval);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('char-select').style.display = 'flex';
+      }
+    }, 100);
+  };
+
+  function selectCharacter(char) {
+    currentCharacter = char;
+    document.getElementById('char-select').style.display = 'none';
+
+    // Configurar botones según el personaje
+    const actions = document.getElementById('actions');
+    actions.innerHTML = '';
+
+    const addButton = (id, text) => {
+      const btn = document.createElement('div');
+      btn.id = id;
+      btn.className = 'action-btn';
+      btn.textContent = text;
+      actions.appendChild(btn);
+      return btn;
+    };
+
+    addButton('jump', 'Jump');
+
+    if(char === 'neji') {
+      addButton('btn-byak', 'Byakugan').addEventListener('touchstart', activateByakugan);
+      addButton('btn-juken', 'Jūken').addEventListener('touchstart', activateJuken);
+      addButton('btn-64', '64P').addEventListener('touchstart', activate64Palms);
+      addButton('btn-128', '128P').addEventListener('touchstart', activate128Palms);
+      addButton('btn-kaiten', 'Kaiten').addEventListener('touchstart', activateKaiten);
+      addButton('btn-kusho', 'Kūshō').addEventListener('touchstart', activateKusho);
+      addButton('btn-det', 'Detect').addEventListener('touchstart', activateDetect);
+    } else if(char === 'itachi') {
+      addButton('btn-sharingan', 'Sharingan').addEventListener('touchstart', activateSharingan);
+      addButton('btn-amaterasu', 'Amaterasu').addEventListener('touchstart', activateAmaterasu);
+      addButton('btn-tsukuyomi', 'Tsukuyomi').addEventListener('touchstart', activateTsukuyomi);
+      addButton('btn-susanoo', 'Susanoo').addEventListener('touchstart', activateSusanoo);
+    }
+
+    init();
+    animate();
+  }
 
   function init(){
     scene=new THREE.Scene(); scene.background=new THREE.Color(0x87CEEB);
@@ -86,8 +215,8 @@
       new THREE.MeshStandardMaterial({color:0xdddddd})
     );
     head.position.y=1.8;
-    neji=new THREE.Group(); neji.add(body,head);
-    neji.position.set(0,1.25,0); scene.add(neji);
+    player=new THREE.Group(); player.add(body,head);
+    player.position.set(0,1.25,0); scene.add(player);
 
     // enemigos
     for(let i=0;i<5;i++) addEnemy();
@@ -122,13 +251,6 @@
     // botones
     document.getElementById('jump')
       .addEventListener('touchstart',_=>{ if(onGround){velY=0.5;onGround=false;}});
-    document.getElementById('btn-byak').addEventListener('touchstart',activateByakugan);
-    document.getElementById('btn-juken').addEventListener('touchstart',activateJuken);
-    document.getElementById('btn-64').addEventListener('touchstart',activate64Palms);
-    document.getElementById('btn-128').addEventListener('touchstart',activate128Palms);
-    document.getElementById('btn-kaiten').addEventListener('touchstart',activateKaiten);
-    document.getElementById('btn-kusho').addEventListener('touchstart',activateKusho);
-    document.getElementById('btn-det').addEventListener('touchstart',activateDetect);
 
     window.addEventListener('resize',()=>{
       camera.aspect=innerWidth/innerHeight;
@@ -163,12 +285,12 @@
   function animate(){
     requestAnimationFrame(animate);
     // movimiento + salto
-    neji.position.x+=moveDir.x; neji.position.z+=moveDir.z;
-    velY+=GRAV; neji.position.y+=velY;
-    if(neji.position.y<=1.25){neji.position.y=1.25;velY=0;onGround=true;}
+    player.position.x+=moveDir.x; player.position.z+=moveDir.z;
+    velY+=GRAV; player.position.y+=velY;
+    if(player.position.y<=1.25){player.position.y=1.25;velY=0;onGround=true;}
     // cámara
-    camera.position.set(neji.position.x+6,neji.position.y+4,neji.position.z+8);
-    camera.lookAt(neji.position);
+    camera.position.set(player.position.x+6,player.position.y+4,player.position.z+8);
+    camera.lookAt(player.position);
     // poderes y colisiones (como antes)...
     powers.forEach((p,i)=>{
       p.mesh.position.add(p.vel);
@@ -182,7 +304,7 @@
     });
     // IA enemigos + HUD + muerte
     enemies.forEach((e,i)=>{
-      let dir=neji.position.clone().sub(e.position).setY(0).normalize().multiplyScalar(0.005);
+      let dir=player.position.clone().sub(e.position).setY(0).normalize().multiplyScalar(0.005);
       e.position.add(dir);
       let {back,bar}=enemyHUD[e.userData.id],
           vp=e.position.clone().project(camera),
@@ -239,7 +361,7 @@
       new THREE.SphereGeometry(0.5,16,16),
       new THREE.MeshBasicMaterial({color:0xffa500,transparent:true,opacity:0.8})
     );
-    p.position.copy(neji.position).add(new THREE.Vector3(0,1,0));
+    p.position.copy(player.position).add(new THREE.Vector3(0,1,0));
     scene.add(p);
     powers.push({mesh:p,vel:new THREE.Vector3(0,0,-1),life:40,damage:50});
   }
@@ -251,7 +373,7 @@
         new THREE.SphereGeometry(0.15,8,8),
         new THREE.MeshBasicMaterial({color:0x66ccff})
       );
-      orb.position.copy(neji.position).add(new THREE.Vector3(0,1,0));
+      orb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
       scene.add(orb);
       powers.push({
         mesh:orb,
@@ -268,7 +390,7 @@
         new THREE.SphereGeometry(0.12,8,8),
         new THREE.MeshBasicMaterial({color:0x00ffff})
       );
-      orb.position.copy(neji.position).add(new THREE.Vector3(0,1,0));
+      orb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
       scene.add(orb);
       powers.push({
         mesh:orb,
@@ -283,14 +405,14 @@
       new THREE.TorusGeometry(3,0.4,16,100),
       new THREE.MeshBasicMaterial({color:0x99ccff,transparent:true,opacity:0.4})
     );
-    t.rotation.x=Math.PI/2; neji.add(t);
+    t.rotation.x=Math.PI/2; player.add(t);
     let cnt=0, iv=setInterval(()=>{
       t.rotation.z+=0.6;
       enemies.forEach(e=>{
         if(t.getWorldPosition(new THREE.Vector3()).distanceTo(e.position)<3)
           e.userData.hp-=3;
       });
-      if(++cnt>30){ clearInterval(iv); neji.remove(t); }
+      if(++cnt>30){ clearInterval(iv); player.remove(t); }
     },40);
   }
 
@@ -301,14 +423,14 @@
       new THREE.MeshBasicMaterial({color:0xff00ff,side:THREE.DoubleSide,transparent:true,opacity:0.6})
     );
     ring.rotation.x=-Math.PI/2;
-    ring.position.copy(neji.position);
+    ring.position.copy(player.position);
     scene.add(ring);
     let scale=1, iv=setInterval(()=>{
       scale+=0.5;
       ring.scale.set(scale,scale,scale);
       ring.material.opacity-=0.05;
       enemies.forEach(e=>{
-        if(e.position.distanceTo(neji.position)<scale*1.2)
+        if(e.position.distanceTo(player.position)<scale*1.2)
           e.userData.hp-=4;
       });
       if(scale>6){ clearInterval(iv); scene.remove(ring); }
@@ -326,6 +448,150 @@
       scene.add(highlight);
       setTimeout(()=>scene.remove(highlight),1500);
     });
+  }
+
+  // Nuevos poderes de Itachi
+  function activateSharingan() {
+    // Efecto visual de ojos rojos
+    let overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(255,0,0,0.1);
+      pointer-events:none;mix-blend-mode:overlay;
+      mask: radial-gradient(circle at 50% 40%, transparent 20%, black 30%);
+    `;
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 1200);
+
+    // Marcar enemigos
+    enemies.forEach(e => {
+      let aura = new THREE.Mesh(
+        new THREE.RingGeometry(1.5,2.5,32),
+        new THREE.MeshBasicMaterial({color:0xff0000,side:THREE.DoubleSide,transparent:true,opacity:0.3})
+      );
+      aura.rotation.x = -Math.PI/2;
+      aura.position.copy(e.position).add(new THREE.Vector3(0,1,0));
+      scene.add(aura);
+      setTimeout(() => scene.remove(aura), 1200);
+    });
+  }
+
+  function activateAmaterasu() {
+    let flame = new THREE.Mesh(
+      new THREE.SphereGeometry(0.5),
+      new THREE.MeshBasicMaterial({color:0x000000})
+    );
+    flame.position.copy(player.position).add(new THREE.Vector3(0,1,0));
+    scene.add(flame);
+    powers.push({
+      mesh: flame,
+      vel: new THREE.Vector3(0,0,-1),
+      life: 60,
+      damage: 100
+    });
+  }
+
+  function activateTsukuyomi() {
+    // Efecto visual mejorado de Tsukuyomi
+    let overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background: url('https://i.imgur.com/XqwUZ0r.jpg') center/cover;
+      opacity:0;pointer-events:none;
+      transition:all 0.5s;
+      animation: tsukuyomi-world 2s forwards;
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes tsukuyomi-world {
+        0% { filter: hue-rotate(0deg) invert(0); transform: scale(1); }
+        50% { filter: hue-rotate(180deg) invert(1); transform: scale(1.1); }
+        100% { filter: hue-rotate(360deg) invert(0); transform: scale(1); }
+      }
+      @keyframes sharingan-spin {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Añadir Sharingan giratorio
+    let sharingan = document.createElement('div');
+    sharingan.style.cssText = `
+      position:fixed;
+      top:50%;left:50%;
+      width:200px;height:200px;
+      background: url('https://i.imgur.com/1234567.png') center/cover;
+      animation: sharingan-spin 2s linear infinite;
+      z-index:1000;
+      pointer-events:none;
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(sharingan);
+    
+    // Efecto de sonido
+    let tsukuyomiSound = new Audio('https://example.com/tsukuyomi.mp3');
+    tsukuyomiSound.play();
+    
+    setTimeout(() => {
+      overlay.style.opacity = '0.9';
+      // Efecto de distorsión de tiempo
+      scene.fog = new THREE.FogExp2(0xff0000, 0.1);
+    }, 100);
+    
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      sharingan.remove();
+      scene.fog = null;
+      setTimeout(() => {
+        overlay.remove();
+        style.remove();
+      }, 500);
+    }, 2000);
+
+    // Daño mejorado a enemigos
+    enemies.forEach(e => {
+      if(e.position.distanceTo(player.position) < 5) {
+        e.userData.hp -= 150;
+        // Efecto visual de daño
+        let flash = new THREE.Mesh(
+          new THREE.SphereGeometry(2),
+          new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.5
+          })
+        );
+        flash.position.copy(e.position);
+        scene.add(flash);
+        setTimeout(() => scene.remove(flash), 500);
+      }
+    });
+  }
+
+  function activateSusanoo() {
+    let susanoo = new THREE.Group();
+    // Crear forma básica del Susanoo
+    let body = new THREE.Mesh(
+      new THREE.CylinderGeometry(2,2,4),
+      new THREE.MeshBasicMaterial({color:0xff0000,transparent:true,opacity:0.3})
+    );
+    susanoo.add(body);
+    player.add(susanoo);
+
+    let cnt = 0, iv = setInterval(() => {
+      enemies.forEach(e => {
+        if(e.position.distanceTo(player.position) < 4) {
+          e.userData.hp -= 5;
+        }
+      });
+      if(++cnt > 50) {
+        clearInterval(iv);
+        player.remove(susanoo);
+      }
+    }, 100);
   }
   </script>
 </body>
