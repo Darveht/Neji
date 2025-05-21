@@ -107,6 +107,33 @@
     #jump{border-color:#0f0;color:#0f0;}
     .health-back,.health-bar{position:absolute;width:50px;height:6px;transform:translate(-50%,-120%);pointer-events:none;}
     .health-back{background:rgba(0,0,0,0.5);} .health-bar{background:lime;}
+    #player-hud {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-family: Arial, sans-serif;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #health-bar-container {
+      width: 200px;
+      height: 10px;
+      background-color: gray;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    #health-bar {
+      width: 100%;
+      height: 100%;
+      background-color: red;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -161,12 +188,27 @@
   <!-- Botones (se actualizarán según el personaje) -->
   <div id="actions"></div>
 
+  <!-- Player HUD -->
+  <div id="player-hud">
+    <div id="health-bar-container">
+      <div id="health-bar"></div>
+    </div>
+    <div id="player-level">Nivel 1</div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
   <script>
   // Variables globales
   let scene, camera, renderer, player, floor;
   let enemies = [], powers = [], moveDir={x:0,z:0}, velY=0, onGround=true;
   const GRAV=-0.02, enemyHUD={};
+  let playerHealth = 100;
+  let playerLevel = 1;
+
+  function updatePlayerHUD() {
+    document.getElementById('health-bar').style.width = playerHealth + '%';
+    document.getElementById('player-level').textContent = 'Nivel ' + playerLevel;
+  }
   let currentCharacter = '';
 
   // Simular carga
@@ -187,6 +229,7 @@
   function selectCharacter(char) {
     currentCharacter = char;
     document.getElementById('char-select').style.display = 'none';
+    updatePlayerHUD();
 
     // Configurar botones según el personaje
     const actions = document.getElementById('actions');
@@ -244,7 +287,7 @@
     // Crear textura para las paredes
     const textureLoader = new THREE.TextureLoader();
     const wallTexture = textureLoader.load('https://wallpapers.com/images/hd/hidden-leaf-village-96kizz8o1c5ev6sf.jpg');
-    
+
     // Crear paredes
     const wallGeometry = new THREE.PlaneGeometry(200, 20);
     const wallMaterial = new THREE.MeshStandardMaterial({ 
@@ -313,21 +356,21 @@
       new THREE.MeshStandardMaterial({color:0xdddddd})
     );
     head.position.y=1.8;
-    
+
     // Brazos
     let armGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1.5);
     let leftArm = new THREE.Mesh(armGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
     let rightArm = new THREE.Mesh(armGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
     leftArm.position.set(-0.8, 0.5, 0);
     rightArm.position.set(0.8, 0.5, 0);
-    
+
     // Piernas más visibles
     let legGeometry = new THREE.CylinderGeometry(0.25, 0.25, 2);
     let leftLeg = new THREE.Mesh(legGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
     let rightLeg = new THREE.Mesh(legGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
     leftLeg.position.set(-0.4, -0.8, 0);
     rightLeg.position.set(0.4, -0.8, 0);
-    
+
     player=new THREE.Group(); 
     player.add(body, head, leftArm, rightArm, leftLeg, rightLeg);
     player.position.set(0,1.25,0); scene.add(player);
@@ -392,7 +435,7 @@
       })
     );
     h.position.y=1.25;
-    
+
     // Garras y detalles monstruosos
     let clawGeometry = new THREE.ConeGeometry(0.1, 0.3, 4);
     for(let i = 0; i < 3; i++) {
@@ -401,7 +444,7 @@
       b.add(claw);
     }
     g.add(b,h);
-    
+
     // Efecto de distorsión en Tsukuyomi
     g.userData.originalScale = g.scale.clone();
     g.userData.tsukuyomiActive = false;
@@ -429,12 +472,12 @@
     // movimiento + salto + colisiones con paredes
     let nextX = player.position.x + moveDir.x;
     let nextZ = player.position.z + moveDir.z;
-    
+
     // Límites de las paredes
     const WALL_LIMIT = 95;
     if(Math.abs(nextX) < WALL_LIMIT) player.position.x = nextX;
     if(Math.abs(nextZ) < WALL_LIMIT) player.position.z = nextZ;
-    
+
     velY+=GRAV; player.position.y+=velY;
     if(player.position.y<=1.25){player.position.y=1.25;velY=0;onGround=true;}
     // cámara
@@ -654,7 +697,7 @@
       transform-style: preserve-3d;
       perspective: 1000px;
     `;
-    
+
     const style = document.createElement('style');
     style.textContent = `
       @keyframes tsukuyomi-world {
@@ -668,7 +711,7 @@
       }
     `;
     document.head.appendChild(style);
-    
+
     // Añadir Sharingan giratorio
     let sharingan = document.createElement('div');
     sharingan.style.cssText = `
@@ -680,20 +723,20 @@
       z-index:1000;
       pointer-events:none;
     `;
-    
+
     document.body.appendChild(overlay);
     document.body.appendChild(sharingan);
-    
+
     // Efecto de sonido
     let tsukuyomiSound = new Audio('https://example.com/tsukuyomi.mp3');
     tsukuyomiSound.play();
-    
+
     setTimeout(() => {
       overlay.style.opacity = '0.9';
       // Efecto de distorsión de tiempo
       scene.fog = new THREE.FogExp2(0xff0000, 0.1);
     }, 100);
-    
+
     setTimeout(() => {
       overlay.style.opacity = '0';
       sharingan.remove();
@@ -819,7 +862,7 @@
     healingField.rotation.x = -Math.PI/2;
     healingField.position.copy(player.position);
     scene.add(healingField);
-    
+
     let particles = [];
     for(let i = 0; i < 20; i++) {
       let particle = new THREE.Mesh(
@@ -852,7 +895,7 @@
     let shadowSegments = [];
     const SEGMENTS = 20;
     const MAX_DISTANCE = 15;
-    
+
     function createShadowSegment() {
       let segment = new THREE.Mesh(
         new THREE.BoxGeometry(0.8, 0.1, 0.5),
@@ -875,7 +918,7 @@
 
     let targetEnemy = null;
     let minDist = Infinity;
-    
+
     // Encontrar el enemigo más cercano en la dirección frontal
     enemies.forEach(e => {
       let dirToEnemy = e.position.clone().sub(player.position);
@@ -894,7 +937,7 @@
     let growInterval = setInterval(() => {
       shadowLength += 1;
       let progress = shadowLength / SEGMENTS;
-      
+
       // Actualizar cada segmento
       shadowSegments.forEach((segment, i) => {
         if(i <= shadowLength) {
@@ -907,7 +950,7 @@
           segment.position.copy(pos);
           segment.lookAt(targetEnemy.position);
           segment.material.opacity = Math.min(0.7, (1 - t) * 0.7);
-          
+
           // Efecto de emergencia
           segment.position.y = Math.sin(t * Math.PI) * 0.5;
           segment.scale.y = 1 + Math.sin(t * Math.PI) * 0.5;
@@ -921,7 +964,7 @@
         targetEnemy.userData.controlled = true;
         targetEnemy.userData.originalPosition = targetEnemy.position.clone();
         targetEnemy.material.color.set(0x000000);
-        
+
         // Limpiar después de 5 segundos
         setTimeout(() => {
           shadowSegments.forEach(s => scene.remove(s));
@@ -1118,13 +1161,13 @@
     // Leones más grandes y más detallados
     for(let i = 0; i < 2; i++) {
       let lionGroup = new THREE.Group();
-      
+
       // Cuerpo del león
       let body = new THREE.Mesh(
         new THREE.SphereGeometry(0.7),
         new THREE.MeshBasicMaterial({color: 0x4B0082})
       );
-      
+
       // Melena
       for(let j = 0; j < 8; j++) {
         let hair = new THREE.Mesh(
@@ -1139,7 +1182,7 @@
         hair.lookAt(new THREE.Vector3(0, 0, 1));
         lionGroup.add(hair);
       }
-      
+
       lionGroup.add(body);
       lionGroup.position.copy(player.position).add(new THREE.Vector3(i ? 1.5 : -1.5, 1, 0));
       scene.add(lionGroup);
@@ -1158,7 +1201,7 @@
         );
         lion.position.add(target.multiplyScalar(0.15));
         lion.rotation.z = Math.sin(cnt * 0.1) * 0.2;
-        
+
         // Efecto de chakra
         if(cnt % 3 === 0) {
           let chakraSpark = new THREE.Mesh(
@@ -1170,7 +1213,7 @@
           setTimeout(() => scene.remove(chakraSpark), 300);
         }
       });
-      
+
       enemies.forEach(e => {
         lions.forEach(lion => {
           if(lion.position.distanceTo(e.position) < 1.5) {
