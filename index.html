@@ -158,6 +158,15 @@
       background-color: red;
       border-radius: 5px;
     }
+    #loading-status {
+      margin-top: 10px;
+      font-size: 1.2em;
+    }
+
+    #loading-size {
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
@@ -168,6 +177,8 @@
   <!-- Pantalla de carga -->
   <div id="loading">
     <h2>Cargando...</h2>
+    <div id="loading-status">Iniciando...</div>
+    <div id="loading-size">0 MB / 100 MB</div>
     <div id="loading-bar">
       <div id="loading-progress"></div>
     </div>
@@ -175,6 +186,7 @@
 
   <!-- Selección de personaje -->
   <div id="char-select">
+  <h2 style="color: white; text-align: center;">Selecciona tu Personaje</h2>
     <div class="char-card" onclick="selectCharacter('neji')">
       <h3>Neji Hyūga</h3>
       <div class="char-img" style="background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_JLthZ20l4C_V-G8cKVR_3hOqAyrTOVTLaw&s') center/contain no-repeat;"></div>
@@ -242,6 +254,13 @@
   const GRAV=-0.02, enemyHUD={};
   let playerHealth = 100;
   let playerLevel = 1;
+  let currentStage = 1;
+  const STAGES = {
+    1: {name: 'Bosque de Konoha', enemies: 3, enemyHealth: 200, enemyDamage: 5},
+    2: {name: 'Aldea de la Lluvia', enemies: 4, enemyHealth: 250, enemyDamage: 8},
+    3: {name: 'Valle del Fin', enemies: 5, enemyHealth: 300, enemyDamage: 10},
+    4: {name: 'Cueva Akatsuki', enemies: 6, enemyHealth: 350, enemyDamage: 15}
+  };
 
   function updatePlayerHUD() {
     document.getElementById('health-bar').style.width = playerHealth + '%';
@@ -251,18 +270,41 @@
 
   // Simular carga
   window.onload = () => {
-    let progress = 0;
-    const loadingBar = document.getElementById('loading-progress');
-    const interval = setInterval(() => {
-      progress += 5;
-      loadingBar.style.width = progress + '%';
-      if(progress >= 100) {
-        clearInterval(interval);
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('char-select').style.display = 'flex';
-      }
-    }, 100);
-  };
+      let progress = 0;
+      const loadingBar = document.getElementById('loading-progress');
+      const loadingStatus = document.getElementById('loading-status');
+      const loadingSize = document.getElementById('loading-size');
+      const totalSize = 100;
+      const loadingSteps = [
+        {progress: 20, message: "Cargando modelos 3D...", size: 25},
+        {progress: 40, message: "Extrayendo texturas...", size: 45},
+        {progress: 60, message: "Cargando jutsu y poderes...", size: 65},
+        {progress: 80, message: "Inicializando física del juego...", size: 85},
+        {progress: 100, message: "¡Completado!", size: 100}
+      ];
+
+      let currentStep = 0;
+      const interval = setInterval(() => {
+        if(currentStep < loadingSteps.length) {
+          let step = loadingSteps[currentStep];
+          if(progress < step.progress) {
+            progress += 1;
+            loadingBar.style.width = progress + '%';
+            loadingSize.textContent = `${Math.floor(progress * totalSize / 100)} MB / ${totalSize} MB`;
+          } else {
+            loadingStatus.textContent = step.message;
+            currentStep++;
+          }
+        }
+        if(progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('char-select').style.display = 'flex';
+          }, 1000);
+        }
+      }, 50);
+    };
 
   function selectCharacter(char) {
     currentCharacter = char;
@@ -317,8 +359,90 @@
     animate();
   }
 
+  function changeStage(level) {
+    // Limpiar enemigos actuales
+    enemies.forEach(e => {
+      scene.remove(e);
+      enemyHUD[e.userData.id].back.remove();
+      enemyHUD[e.userData.id].bar.remove();
+      delete enemyHUD[e.userData.id];
+    });
+    enemies = [];
+
+    // Cambiar escenario según el nivel
+    switch(level) {
+      case 1: // Bosque
+        scene.background = new THREE.Color(0x2E8B57);
+        floor.material.color.setHex(0x228B22);
+        break;
+      case 2: // Lluvia
+        scene.background = new THREE.Color(0x4A708B);
+        floor.material.color.setHex(0x4F666A);
+        // Efecto de lluvia
+        addRainEffect();
+        break;
+      case 3: // Valle del Fin
+        scene.background = new THREE.Color(0xCD853F);
+        floor.material.color.setHex(0x8B4513);
+        break;
+      case 4: // Cueva
+        scene.background = new THREE.Color(0x2F4F4F);
+        floor.material.color.setHex(0x363636);
+        break;
+    }
+
+    // Añadir nuevos enemigos
+    for(let i = 0; i < STAGES[level].enemies; i++) {
+      addEnemy();
+    }
+
+    // Restaurar algo de vida al jugador
+    playerHealth = Math.min(playerHealth + 30, 100);
+    updatePlayerHUD();
+  }
+
+  function addRainEffect() {
+    const rainCount = 1000;
+    const rainGeometry = new THREE.BufferGeometry();
+    const rainPositions = [];
+    
+    for(let i = 0; i < rainCount; i++) {
+      rainPositions.push(
+        Math.random() * 200 - 100,
+        Math.random() * 50,
+        Math.random() * 200 - 100
+      );
+    }
+    
+    rainGeometry.setAttribute('position', 
+      new THREE.Float32BufferAttribute(rainPositions, 3)
+    );
+    
+    const rainMaterial = new THREE.PointsMaterial({
+      color: 0x99ccff,
+      size: 0.1,
+      transparent: true,
+      opacity: 0.6
+    });
+    
+    const rain = new THREE.Points(rainGeometry, rainMaterial);
+    scene.add(rain);
+    
+    // Animación de lluvia
+    function animateRain() {
+      const positions = rain.geometry.attributes.position.array;
+      for(let i = 0; i < positions.length; i += 3) {
+        positions[i + 1] -= 0.5;
+        if(positions[i + 1] < 0) positions[i + 1] = 50;
+      }
+      rain.geometry.attributes.position.needsUpdate = true;
+      requestAnimationFrame(animateRain);
+    }
+    animateRain();
+  }
+
   function init(){
-    scene=new THREE.Scene(); 
+    scene=new THREE.Scene();
     scene.background = new THREE.Color(0x87CEEB);
     camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,500);
 
@@ -464,6 +588,11 @@
         metalness: 0.5
       })
     );
+    
+    g.userData = {
+      hp: STAGES[currentStage].enemyHealth,
+      id: THREE.MathUtils.generateUUID()
+    };
     let h=new THREE.Mesh(
       new THREE.SphereGeometry(0.5, 32, 32),
       new THREE.MeshStandardMaterial({
@@ -532,19 +661,54 @@
       });
       if(p.life<=0){ scene.remove(p.mesh); powers.splice(i,1); }
     });
-    // IA enemigos + HUD + muerte
+    // IA enemigos + HUD + muerte + daño al jugador
     enemies.forEach((e,i)=>{
       let dir=player.position.clone().sub(e.position).setY(0).normalize().multiplyScalar(0.005);
       e.position.add(dir);
+      
+      // Actualizar barra de vida del enemigo
       let {back,bar}=enemyHUD[e.userData.id],
           vp=e.position.clone().project(camera),
           x=(vp.x*0.5+0.5)*innerWidth,
-          y=(-vp.y*0.5+0.5)*innerHeight;
+          y=(-vp.y*0.5+0.5)*innerHeight - 50; // Ajustado para que aparezca arriba
       back.style.transform=`translate(${x}px,${y}px)`;
-      bar.style.transform=`translate(${x}px,${y}px) scaleX(${e.userData.hp/200})`;
+      bar.style.transform=`translate(${x}px,${y}px) scaleX(${e.userData.hp/STAGES[currentStage].enemyHealth})`;
+      
+      // Daño al jugador cuando está cerca
+      if(e.position.distanceTo(player.position) < 2) {
+        playerHealth -= STAGES[currentStage].enemyDamage;
+        // Efecto visual de daño
+        let dmgFlash = document.createElement('div');
+        dmgFlash.style.cssText = `
+          position:fixed;top:0;left:0;width:100%;height:100%;
+          background:rgba(255,0,0,0.3);pointer-events:none;
+          animation:flash 0.5s forwards;
+        `;
+        document.body.appendChild(dmgFlash);
+        setTimeout(() => dmgFlash.remove(), 500);
+        
+        updatePlayerHUD();
+        if(playerHealth <= 0) {
+          alert('¡Game Over! - Nivel ' + currentStage);
+          location.reload();
+        }
+      }
+
       if(e.userData.hp<=0){
         scene.remove(e); back.remove(); bar.remove();
         enemies.splice(i,1); delete enemyHUD[e.userData.id];
+        
+        // Verificar si pasamos de nivel
+        if(enemies.length === 0) {
+          currentStage++;
+          if(currentStage in STAGES) {
+            alert('¡Nivel ' + currentStage + ' - ' + STAGES[currentStage].name + '!');
+            changeStage(currentStage);
+          } else {
+            alert('¡Felicidades! ¡Has completado todos los niveles!');
+            location.reload();
+          }
+        }
       }
     });
     renderer.render(scene,camera);
@@ -615,8 +779,7 @@
   }
 
   function activate128Palms(){
-    for(let i=0;i<128;i++){
-      let a=(i/128)*Math.PI*2;
+    for(let i=0;i<128;i++){      let a=(i/128)*Math.PI*2;
       let orb=new THREE.Mesh(
         new THREE.SphereGeometry(0.12,8,8),
         new THREE.MeshBasicMaterial({color:0x00ffff})
@@ -691,7 +854,7 @@
       pointer-events:none;mix-blend-mode:overlay;
       mask: radial-gradient(circle at 50% 40%, transparent 20%, black 30%);
     `;
-    document.body.appendChild(overlay);
+    document.body.appendChild(ov);
     setTimeout(() => overlay.remove(), 1200);
 
     // Marcar enemigos
