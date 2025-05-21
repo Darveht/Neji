@@ -55,7 +55,8 @@
       z-index:50;
     }
     .char-card{
-      width:200px;margin:20px;
+      width:280px;
+      margin:10px;
       background:rgba(255,255,255,0.1);
       border:2px solid #fff;
       padding:15px;
@@ -63,14 +64,38 @@
       color:#fff;
       cursor:pointer;
       transition:transform 0.2s;
+      flex-shrink: 0;
     }
     .char-card:hover{
       transform:scale(1.05);
     }
     .char-img{
-      width:150px;height:150px;
+      width:100%;
+      height:200px;
       background:#333;
       margin:10px auto;
+      background-size: contain !important;
+    }
+    #char-select {
+      overflow-y: auto;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px 10px;
+    }
+    @media (max-width: 600px) {
+      .char-card {
+        width: 90%;
+        margin: 10px auto;
+      }
+      .char-img {
+        height: 180px;
+      }
+      h3 {
+        font-size: 1.2em;
+      }
+      p {
+        font-size: 0.9em;
+      }
     }
     #joystick{position:absolute;bottom:20px;left:20px;width:120px;height:120px;touch-action:none;z-index:10;}
     #joy-base,#joy-thumb{position:absolute;border-radius:50%;pointer-events:none;}
@@ -822,31 +847,88 @@
 
   // Habilidades de Shikamaru
   function activateShadowPossession() {
-    // Animación de sombra emergiendo del suelo
-    let shadowHeight = 0;
-    let shadow = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 0.1, 10),
-      new THREE.MeshBasicMaterial({color: 0x000000, transparent: true, opacity: 0.7})
-    );
-    shadow.position.copy(player.position).add(new THREE.Vector3(0, -0.5, 0));
-    scene.add(shadow);
+    // Animación de sombra emergiendo y extendiéndose
+    let shadowLength = 0;
+    let shadowSegments = [];
+    const SEGMENTS = 20;
+    const MAX_DISTANCE = 15;
+    
+    function createShadowSegment() {
+      let segment = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.1, 0.5),
+        new THREE.MeshBasicMaterial({
+          color: 0x000000, 
+          transparent: true, 
+          opacity: 0
+        })
+      );
+      segment.position.copy(player.position);
+      segment.position.y = 0.01; // Ligeramente sobre el suelo
+      scene.add(segment);
+      return segment;
+    }
+
+    // Crear segmentos iniciales
+    for(let i = 0; i < SEGMENTS; i++) {
+      shadowSegments.push(createShadowSegment());
+    }
+
+    let targetEnemy = null;
+    let minDist = Infinity;
+    
+    // Encontrar el enemigo más cercano en la dirección frontal
+    enemies.forEach(e => {
+      let dirToEnemy = e.position.clone().sub(player.position);
+      let angle = dirToEnemy.angleTo(new THREE.Vector3(0, 0, -1));
+      if(angle < Math.PI/4 && dirToEnemy.length() < minDist) {
+        minDist = dirToEnemy.length();
+        targetEnemy = e;
+      }
+    });
+
+    if(!targetEnemy) {
+      shadowSegments.forEach(s => scene.remove(s));
+      return;
+    }
 
     let growInterval = setInterval(() => {
-      shadowHeight += 0.1;
-      shadow.scale.y = shadowHeight;
-      shadow.position.y += 0.05;
-      if(shadowHeight >= 1) {
+      shadowLength += 1;
+      let progress = shadowLength / SEGMENTS;
+      
+      // Actualizar cada segmento
+      shadowSegments.forEach((segment, i) => {
+        if(i <= shadowLength) {
+          let t = i / SEGMENTS;
+          let pos = new THREE.Vector3().lerpVectors(
+            player.position,
+            targetEnemy.position,
+            t
+          );
+          segment.position.copy(pos);
+          segment.lookAt(targetEnemy.position);
+          segment.material.opacity = Math.min(0.7, (1 - t) * 0.7);
+          
+          // Efecto de emergencia
+          segment.position.y = Math.sin(t * Math.PI) * 0.5;
+          segment.scale.y = 1 + Math.sin(t * Math.PI) * 0.5;
+        }
+      });
+
+      // Cuando la sombra alcanza al enemigo
+      if(shadowLength >= SEGMENTS) {
         clearInterval(growInterval);
-        // La sombra está completamente emergida
-        enemies.forEach(e => {
-          if(e.position.distanceTo(player.position) < 10) {
-            e.userData.frozen = true;
-            e.material.color.set(0x000000);
-            // Detener completamente al enemigo
-            e.userData.originalPosition = e.position.clone();
-            e.userData.controlled = true;
-          }
-        });
+        targetEnemy.userData.frozen = true;
+        targetEnemy.userData.controlled = true;
+        targetEnemy.userData.originalPosition = targetEnemy.position.clone();
+        targetEnemy.material.color.set(0x000000);
+        
+        // Limpiar después de 5 segundos
+        setTimeout(() => {
+          shadowSegments.forEach(s => scene.remove(s));
+          targetEnemy.userData.frozen = false;
+          targetEnemy.userData.controlled = false;
+          targetEnemy.material.color.set(0xAA0000);
+        }, 5000);
       }
     }, 50);
 
