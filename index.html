@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Neji Hyūga 3D – Mobile+Poderes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body,html{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;}
+    canvas{display:block;}
+    #joystick{position:absolute;bottom:20px;left:20px;width:120px;height:120px;touch-action:none;z-index:10;}
+    #joy-base,#joy-thumb{position:absolute;border-radius:50%;pointer-events:none;}
+    #joy-base{width:100%;height:100%;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);}
+    #joy-thumb{width:50px;height:50px;top:35px;left:35px;background:rgba(255,255,255,0.6);border:2px solid #fff;}
+    #actions{position:absolute;bottom:20px;right:20px;display:flex;flex-direction:column;gap:10px;z-index:10;user-select:none;}
+    .action-btn{width:60px;height:60px;border-radius:50%;text-align:center;line-height:60px;color:#fff;font-size:12px;
+               background:rgba(0,0,0,0.4);border:2px solid #fff;touch-action:none;}
+    #jump{border-color:#0f0;color:#0f0;}
+    .health-back,.health-bar{position:absolute;width:50px;height:6px;transform:translate(-50%,-120%);pointer-events:none;}
+    .health-back{background:rgba(0,0,0,0.5);} .health-bar{background:lime;}
+  </style>
+</head>
+<body>
+
+  <!-- Joystick -->
+  <div id="joystick">
+    <div id="joy-base"></div>
+    <div id="joy-thumb"></div>
+  </div>
+
+  <!-- Botones -->
+  <div id="actions">
+    <div id="jump" class="action-btn">Jump</div>
+    <div id="btn-byak" class="action-btn">Byakugan</div>
+    <div id="btn-juken" class="action-btn">Jūken</div>
+    <div id="btn-64" class="action-btn">64P</div>
+    <div id="btn-128" class="action-btn">128P</div>
+    <div id="btn-kaiten" class="action-btn">Kaiten</div>
+    <div id="btn-kusho" class="action-btn">Kūshō</div>
+    <div id="btn-det" class="action-btn">Detect</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+  <script>
+  // -- Inicialización Three.js (igual que antes) --
+  let scene, camera, renderer, neji, floor;
+  let enemies = [], powers = [], moveDir={x:0,z:0}, velY=0, onGround=true;
+  const GRAV=-0.02, enemyHUD={};
+
+  init(); animate();
+
+  function init(){
+    scene=new THREE.Scene(); scene.background=new THREE.Color(0x87CEEB);
+    camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,500);
+    camera.position.set(0,5,10);
+    renderer=new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(innerWidth,innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // luces
+    scene.add(new THREE.HemisphereLight(0xffffff,0x444444,1.2));
+    let dl=new THREE.DirectionalLight(0xffffff,0.8);
+    dl.position.set(5,10,7); scene.add(dl);
+
+    // suelo + hierba (idéntico)
+    floor=new THREE.Mesh(
+      new THREE.PlaneGeometry(200,200),
+      new THREE.MeshStandardMaterial({color:0x228B22})
+    ); floor.rotation.x=-Math.PI/2; scene.add(floor);
+    for(let i=0;i<500;i++){
+      let b=new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02,0.02,0.6),
+        new THREE.MeshStandardMaterial({color:0x00aa00})
+      );
+      b.position.set(Math.random()*180-90,0.3,Math.random()*180-90);
+      b.rotation.z=(Math.random()-0.5)*0.5;
+      scene.add(b);
+    }
+
+    // personaje
+    let body=new THREE.Mesh(
+      new THREE.CylinderGeometry(0.6,0.6,2.5),
+      new THREE.MeshStandardMaterial({color:0xeeeeee})
+    );
+    let head=new THREE.Mesh(
+      new THREE.SphereGeometry(0.6),
+      new THREE.MeshStandardMaterial({color:0xdddddd})
+    );
+    head.position.y=1.8;
+    neji=new THREE.Group(); neji.add(body,head);
+    neji.position.set(0,1.25,0); scene.add(neji);
+
+    // enemigos
+    for(let i=0;i<5;i++) addEnemy();
+
+    // joystick
+    const joy=document.getElementById('joystick'),
+          thumb=document.getElementById('joy-thumb');
+    let origin={x:0,y:0}, tracking=false;
+    joy.addEventListener('touchstart',e=>{
+      let t=e.touches[0];
+      const rect=joy.getBoundingClientRect();
+      origin={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
+      tracking=true;
+    });
+    joy.addEventListener('touchmove',e=>{
+      if(!tracking) return;
+      let t=e.touches[0],
+          dx=t.clientX-origin.x,
+          dy=t.clientY-origin.y,
+          dist=Math.hypot(dx,dy),
+          max=50;
+      if(dist>max){ dx*=max/dist; dy*=max/dist; }
+      thumb.style.transform=`translate(${dx}px,${dy}px)`;
+      moveDir.x=dx/max*0.15; moveDir.z=dy/max*0.15;
+    });
+    joy.addEventListener('touchend',()=>{
+      tracking=false;
+      thumb.style.transform='translate(0,0)';
+      moveDir={x:0,z:0};
+    });
+
+    // botones
+    document.getElementById('jump')
+      .addEventListener('touchstart',_=>{ if(onGround){velY=0.5;onGround=false;}});
+    document.getElementById('btn-byak').addEventListener('touchstart',activateByakugan);
+    document.getElementById('btn-juken').addEventListener('touchstart',activateJuken);
+    document.getElementById('btn-64').addEventListener('touchstart',activate64Palms);
+    document.getElementById('btn-128').addEventListener('touchstart',activate128Palms);
+    document.getElementById('btn-kaiten').addEventListener('touchstart',activateKaiten);
+    document.getElementById('btn-kusho').addEventListener('touchstart',activateKusho);
+    document.getElementById('btn-det').addEventListener('touchstart',activateDetect);
+
+    window.addEventListener('resize',()=>{
+      camera.aspect=innerWidth/innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth,innerHeight);
+    });
+  }
+
+  function addEnemy(){
+    let g=new THREE.Group();
+    let b=new THREE.Mesh(
+      new THREE.BoxGeometry(1,1.5,1),
+      new THREE.MeshStandardMaterial({color:0xAA0000})
+    );
+    let h=new THREE.Mesh(
+      new THREE.SphereGeometry(0.5),
+      new THREE.MeshStandardMaterial({color:0xFF4444})
+    );
+    h.position.y=1.25;
+    g.add(b,h);
+    g.position.set(Math.random()*40-20,0.75,Math.random()*40-20);
+    g.userData={hp:200,id:THREE.MathUtils.generateUUID()};
+    scene.add(g); enemies.push(g);
+    // HUD
+    let back=document.createElement('div'),
+        bar=document.createElement('div');
+    back.className='health-back'; bar.className='health-bar';
+    document.body.appendChild(back); document.body.appendChild(bar);
+    enemyHUD[g.userData.id]={back,bar};
+  }
+
+  function animate(){
+    requestAnimationFrame(animate);
+    // movimiento + salto
+    neji.position.x+=moveDir.x; neji.position.z+=moveDir.z;
+    velY+=GRAV; neji.position.y+=velY;
+    if(neji.position.y<=1.25){neji.position.y=1.25;velY=0;onGround=true;}
+    // cámara
+    camera.position.set(neji.position.x+6,neji.position.y+4,neji.position.z+8);
+    camera.lookAt(neji.position);
+    // poderes y colisiones (como antes)...
+    powers.forEach((p,i)=>{
+      p.mesh.position.add(p.vel);
+      p.life--;
+      enemies.forEach(e=>{
+        if(p.life>0 && p.mesh.position.distanceTo(e.position)<1.2){
+          e.userData.hp-=p.damage; p.life=0; flash(e.position);
+        }
+      });
+      if(p.life<=0){ scene.remove(p.mesh); powers.splice(i,1); }
+    });
+    // IA enemigos + HUD + muerte
+    enemies.forEach((e,i)=>{
+      let dir=neji.position.clone().sub(e.position).setY(0).normalize().multiplyScalar(0.005);
+      e.position.add(dir);
+      let {back,bar}=enemyHUD[e.userData.id],
+          vp=e.position.clone().project(camera),
+          x=(vp.x*0.5+0.5)*innerWidth,
+          y=(-vp.y*0.5+0.5)*innerHeight;
+      back.style.transform=`translate(${x}px,${y}px)`;
+      bar.style.transform=`translate(${x}px,${y}px) scaleX(${e.userData.hp/200})`;
+      if(e.userData.hp<=0){
+        scene.remove(e); back.remove(); bar.remove();
+        enemies.splice(i,1); delete enemyHUD[e.userData.id];
+      }
+    });
+    renderer.render(scene,camera);
+  }
+
+  function flash(pos){
+    let m=new THREE.Mesh(
+      new THREE.SphereGeometry(0.5,8,8),
+      new THREE.MeshBasicMaterial({color:0xffff00})
+    );
+    m.position.copy(pos); scene.add(m);
+    setTimeout(()=>scene.remove(m),200);
+  }
+
+  // ─── TÉCNICAS ───
+
+  function activateByakugan(){
+    // pupilas blancas + venas (overlay CSS)
+    let ov=document.createElement('div');
+    ov.style.cssText=`
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(255,255,255,0.2);
+      pointer-events:none;mix-blend-mode:overlay;
+      mask: radial-gradient(circle at 50% 40%, transparent 20%, black 30%);
+    `;
+    document.body.appendChild(ov);
+    setTimeout(()=>ov.remove(),1200);
+    // auras en enemigos
+    enemies.forEach(e=>{
+      let aura=new THREE.Mesh(
+        new THREE.RingGeometry(1.5,2.5,32),
+        new THREE.MeshBasicMaterial({color:0x00ffff,side:THREE.DoubleSide,transparent:true,opacity:0.3})
+      );
+      aura.rotation.x=-Math.PI/2;
+      aura.position.copy(e.position).add(new THREE.Vector3(0,1,0));
+      scene.add(aura);
+      setTimeout(()=>scene.remove(aura),1200);
+    });
+  }
+
+  function activateJuken(){
+    // golpe suave: pulso puntual
+    let p=new THREE.Mesh(
+      new THREE.SphereGeometry(0.5,16,16),
+      new THREE.MeshBasicMaterial({color:0xffa500,transparent:true,opacity:0.8})
+    );
+    p.position.copy(neji.position).add(new THREE.Vector3(0,1,0));
+    scene.add(p);
+    powers.push({mesh:p,vel:new THREE.Vector3(0,0,-1),life:40,damage:50});
+  }
+
+  function activate64Palms(){
+    for(let i=0;i<64;i++){
+      let a=(i/64)*Math.PI*2;
+      let orb=new THREE.Mesh(
+        new THREE.SphereGeometry(0.15,8,8),
+        new THREE.MeshBasicMaterial({color:0x66ccff})
+      );
+      orb.position.copy(neji.position).add(new THREE.Vector3(0,1,0));
+      scene.add(orb);
+      powers.push({
+        mesh:orb,
+        vel:new THREE.Vector3(Math.cos(a)*0.7,0,Math.sin(a)*0.7),
+        life:50,damage:10
+      });
+    }
+  }
+
+  function activate128Palms(){
+    for(let i=0;i<128;i++){
+      let a=(i/128)*Math.PI*2;
+      let orb=new THREE.Mesh(
+        new THREE.SphereGeometry(0.12,8,8),
+        new THREE.MeshBasicMaterial({color:0x00ffff})
+      );
+      orb.position.copy(neji.position).add(new THREE.Vector3(0,1,0));
+      scene.add(orb);
+      powers.push({
+        mesh:orb,
+        vel:new THREE.Vector3(Math.cos(a)*0.9,0,Math.sin(a)*0.9),
+        life:40,damage:8
+      });
+    }
+  }
+
+  function activateKaiten(){
+    let t=new THREE.Mesh(
+      new THREE.TorusGeometry(3,0.4,16,100),
+      new THREE.MeshBasicMaterial({color:0x99ccff,transparent:true,opacity:0.4})
+    );
+    t.rotation.x=Math.PI/2; neji.add(t);
+    let cnt=0, iv=setInterval(()=>{
+      t.rotation.z+=0.6;
+      enemies.forEach(e=>{
+        if(t.getWorldPosition(new THREE.Vector3()).distanceTo(e.position)<3)
+          e.userData.hp-=3;
+      });
+      if(++cnt>30){ clearInterval(iv); neji.remove(t); }
+    },40);
+  }
+
+  function activateKusho(){
+    // onda de vacío
+    let ring=new THREE.Mesh(
+      new THREE.RingGeometry(0.5,0.7,32),
+      new THREE.MeshBasicMaterial({color:0xff00ff,side:THREE.DoubleSide,transparent:true,opacity:0.6})
+    );
+    ring.rotation.x=-Math.PI/2;
+    ring.position.copy(neji.position);
+    scene.add(ring);
+    let scale=1, iv=setInterval(()=>{
+      scale+=0.5;
+      ring.scale.set(scale,scale,scale);
+      ring.material.opacity-=0.05;
+      enemies.forEach(e=>{
+        if(e.position.distanceTo(neji.position)<scale*1.2)
+          e.userData.hp-=4;
+      });
+      if(scale>6){ clearInterval(iv); scene.remove(ring); }
+    },50);
+  }
+
+  function activateDetect(){
+    // identifica clones/ilusiones: parpadea a los enemigos ocultos
+    enemies.forEach(e=>{
+      let highlight=new THREE.Mesh(
+        new THREE.SphereGeometry(1.8,16,16),
+        new THREE.MeshBasicMaterial({color:0xffff00,wireframe:true,transparent:true,opacity:0.5})
+      );
+      highlight.position.copy(e.position);
+      scene.add(highlight);
+      setTimeout(()=>scene.remove(highlight),1500);
+    });
+  }
+  </script>
+</body>
+</html>
