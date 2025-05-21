@@ -6,6 +6,30 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     body,html{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;}
+    #intro-screen {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #naruto-logo {
+      width: 80%;
+      max-width: 600px;
+      filter: drop-shadow(0 0 10px #ff4500);
+      animation: glow 2s infinite;
+    }
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 10px #ff4500); }
+      50% { filter: drop-shadow(0 0 20px #ff4500); }
+    }
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
     canvas{display:block;}
     @keyframes ninja-scroll {
       0% { transform: translateX(-100%); }
@@ -137,6 +161,10 @@
   </style>
 </head>
 <body>
+  <!-- Pantalla de inicio -->
+  <div id="intro-screen">
+    <img id="naruto-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Logo_Naruto_Shipp%C5%ABden.svg/2560px-Logo_Naruto_Shipp%C5%ABden.svg.png" alt="Naruto Shippuden">
+  </div>
   <!-- Pantalla de carga -->
   <div id="loading">
     <h2>Cargando...</h2>
@@ -198,6 +226,16 @@
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
   <script>
+  // Transición de pantalla de inicio
+  setTimeout(() => {
+    const introScreen = document.getElementById('intro-screen');
+    introScreen.style.opacity = '0';
+    introScreen.style.transition = 'opacity 1s';
+    setTimeout(() => {
+      introScreen.style.display = 'none';
+    }, 1000);
+  }, 3000);
+
   // Variables globales
   let scene, camera, renderer, player, floor;
   let enemies = [], powers = [], moveDir={x:0,z:0}, velY=0, onGround=true;
