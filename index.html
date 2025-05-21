@@ -97,13 +97,33 @@
   <div id="char-select">
     <div class="char-card" onclick="selectCharacter('neji')">
       <h3>Neji Hyūga</h3>
-      <div class="char-img"></div>
+      <div class="char-img" style="background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_JLthZ20l4C_V-G8cKVR_3hOqAyrTOVTLaw&s') center/contain no-repeat;"></div>
       <p>Poderes: Byakugan, Jūken, 64 Palmas, 128 Palmas, Kaiten</p>
     </div>
     <div class="char-card" onclick="selectCharacter('itachi')">
       <h3>Itachi Uchiha</h3>
-      <div class="char-img"></div>
+      <div class="char-img" style="background: url('https://officialpsds.com/imageview/r0/68/r068ny_large.png?1521316545') center/contain no-repeat;"></div>
       <p>Poderes: Sharingan, Amaterasu, Tsukuyomi, Susanoo</p>
+    </div>
+    <div class="char-card" onclick="selectCharacter('ino')">
+      <h3>Ino Yamanaka</h3>
+      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/c/cc/Ino_Segunda_Guerra_Mundial_Shinobi_HD.png') center/contain no-repeat;"></div>
+      <p>Poderes: Transferencia de Mente, Bomba de Chakra, Control Mental, Curación</p>
+    </div>
+    <div class="char-card" onclick="selectCharacter('shikamaru')">
+      <h3>Shikamaru Nara</h3>
+      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/9a/Shikamaru_Nara.png') center/contain no-repeat;"></div>
+      <p>Poderes: Posesión de Sombra, Estrangulación de Sombra, Costura de Sombra, Imitación de Sombra</p>
+    </div>
+    <div class="char-card" onclick="selectCharacter('tenten')">
+      <h3>Tenten</h3>
+      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/92/Tenten_Part_2.png') center/contain no-repeat;"></div>
+      <p>Poderes: Invocación de Armas, Lluvia de Kunais, Pergamino Gigante, Barrera de Armas</p>
+    </div>
+    <div class="char-card" onclick="selectCharacter('hinata')">
+      <h3>Hinata Hyūga</h3>
+      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/97/Hinata.png') center/contain no-repeat;"></div>
+      <p>Poderes: Byakugan, Puño Suave, León Gemelo, Protección de 8 Trigramas</p>
     </div>
   </div>
 
@@ -171,6 +191,20 @@
       addButton('btn-amaterasu', 'Amaterasu').addEventListener('touchstart', activateAmaterasu);
       addButton('btn-tsukuyomi', 'Tsukuyomi').addEventListener('touchstart', activateTsukuyomi);
       addButton('btn-susanoo', 'Susanoo').addEventListener('touchstart', activateSusanoo);
+    } else if(char === 'ino') {
+      addButton('btn-mind-transfer', 'Transferencia').addEventListener('touchstart', activateMindTransfer);
+      addButton('btn-chakra-bomb', 'Bomba').addEventListener('touchstart', activateChakraBomb);
+      addButton('btn-mind-control', 'Control').addEventListener('touchstart', activateMindControl);
+      addButton('btn-healing', 'Curación').addEventListener('touchstart', activateHealing);
+    } else if(char === 'shikamaru') {
+      addButton('btn-shadow-possession', 'Posesión').addEventListener('touchstart', activateShadowPossession);
+      addButton('btn-shadow-strangle', 'Estrangular').addEventListener('touchstart', activateShadowStrangle);
+    } else if(char === 'tenten') {
+      addButton('btn-weapon-summon', 'Invocar').addEventListener('touchstart', activateWeaponSummoning);
+      addButton('btn-kunai-rain', 'Lluvia').addEventListener('touchstart', activateKunaiRain);
+    } else if(char === 'hinata') {
+      addButton('btn-gentle-fist', 'Puño Suave').addEventListener('touchstart', activateGentleFist);
+      addButton('btn-twin-lions', 'Leones').addEventListener('touchstart', activateTwinLionFists);
     }
 
     init();
@@ -178,8 +212,47 @@
   }
 
   function init(){
-    scene=new THREE.Scene(); scene.background=new THREE.Color(0x87CEEB);
+    scene=new THREE.Scene(); 
+    scene.background = new THREE.Color(0x87CEEB);
     camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,500);
+
+    // Crear textura para las paredes
+    const textureLoader = new THREE.TextureLoader();
+    const wallTexture = textureLoader.load('https://wallpapers.com/images/hd/hidden-leaf-village-96kizz8o1c5ev6sf.jpg');
+    
+    // Crear paredes
+    const wallGeometry = new THREE.PlaneGeometry(200, 20);
+    const wallMaterial = new THREE.MeshStandardMaterial({ 
+      map: wallTexture,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.9,
+      emissive: 0x444444,
+      emissiveIntensity: 0.2
+    });
+
+    // Pared Norte
+    const wallNorth = new THREE.Mesh(wallGeometry, wallMaterial);
+    wallNorth.position.set(0, 10, -100);
+    scene.add(wallNorth);
+
+    // Pared Sur
+    const wallSouth = new THREE.Mesh(wallGeometry, wallMaterial);
+    wallSouth.position.set(0, 10, 100);
+    wallSouth.rotation.y = Math.PI;
+    scene.add(wallSouth);
+
+    // Pared Este
+    const wallEast = new THREE.Mesh(wallGeometry, wallMaterial);
+    wallEast.position.set(100, 10, 0);
+    wallEast.rotation.y = -Math.PI/2;
+    scene.add(wallEast);
+
+    // Pared Oeste
+    const wallWest = new THREE.Mesh(wallGeometry, wallMaterial);
+    wallWest.position.set(-100, 10, 0);
+    wallWest.rotation.y = Math.PI/2;
+    scene.add(wallWest);
     camera.position.set(0,5,10);
     renderer=new THREE.WebGLRenderer({antialias:true});
     renderer.setSize(innerWidth,innerHeight);
@@ -205,7 +278,7 @@
       scene.add(b);
     }
 
-    // personaje
+    // personaje con brazos y piernas animadas
     let body=new THREE.Mesh(
       new THREE.CylinderGeometry(0.6,0.6,2.5),
       new THREE.MeshStandardMaterial({color:0xeeeeee})
@@ -215,7 +288,23 @@
       new THREE.MeshStandardMaterial({color:0xdddddd})
     );
     head.position.y=1.8;
-    player=new THREE.Group(); player.add(body,head);
+    
+    // Brazos
+    let armGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1.5);
+    let leftArm = new THREE.Mesh(armGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
+    let rightArm = new THREE.Mesh(armGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
+    leftArm.position.set(-0.8, 0.5, 0);
+    rightArm.position.set(0.8, 0.5, 0);
+    
+    // Piernas más visibles
+    let legGeometry = new THREE.CylinderGeometry(0.25, 0.25, 2);
+    let leftLeg = new THREE.Mesh(legGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
+    let rightLeg = new THREE.Mesh(legGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
+    leftLeg.position.set(-0.4, -0.8, 0);
+    rightLeg.position.set(0.4, -0.8, 0);
+    
+    player=new THREE.Group(); 
+    player.add(body, head, leftArm, rightArm, leftLeg, rightLeg);
     player.position.set(0,1.25,0); scene.add(player);
 
     // enemigos
@@ -263,14 +352,34 @@
     let g=new THREE.Group();
     let b=new THREE.Mesh(
       new THREE.BoxGeometry(1,1.5,1),
-      new THREE.MeshStandardMaterial({color:0xAA0000})
+      new THREE.MeshStandardMaterial({
+        color:0xAA0000,
+        roughness: 0.8,
+        metalness: 0.5
+      })
     );
     let h=new THREE.Mesh(
-      new THREE.SphereGeometry(0.5),
-      new THREE.MeshStandardMaterial({color:0xFF4444})
+      new THREE.SphereGeometry(0.5, 32, 32),
+      new THREE.MeshStandardMaterial({
+        color:0xFF4444,
+        emissive: 0xFF0000,
+        emissiveIntensity: 0.5
+      })
     );
     h.position.y=1.25;
+    
+    // Garras y detalles monstruosos
+    let clawGeometry = new THREE.ConeGeometry(0.1, 0.3, 4);
+    for(let i = 0; i < 3; i++) {
+      let claw = new THREE.Mesh(clawGeometry, new THREE.MeshStandardMaterial({color: 0x660000}));
+      claw.position.set(0.3 * (i-1), 0, 0.6);
+      b.add(claw);
+    }
     g.add(b,h);
+    
+    // Efecto de distorsión en Tsukuyomi
+    g.userData.originalScale = g.scale.clone();
+    g.userData.tsukuyomiActive = false;
     g.position.set(Math.random()*40-20,0.75,Math.random()*40-20);
     g.userData={hp:200,id:THREE.MathUtils.generateUUID()};
     scene.add(g); enemies.push(g);
@@ -284,8 +393,23 @@
 
   function animate(){
     requestAnimationFrame(animate);
-    // movimiento + salto
-    player.position.x+=moveDir.x; player.position.z+=moveDir.z;
+    // Animación de brazos y piernas al moverse
+    if(moveDir.x !== 0 || moveDir.z !== 0) {
+      let time = Date.now() * 0.003;
+      player.children[2].rotation.x = Math.sin(time * 5) * 0.5; // brazo izquierdo
+      player.children[3].rotation.x = Math.sin(time * 5 + Math.PI) * 0.5; // brazo derecho
+      player.children[4].rotation.x = Math.sin(time * 5 + Math.PI) * 0.5; // pierna izquierda
+      player.children[5].rotation.x = Math.sin(time * 5) * 0.5; // pierna derecha
+    }
+    // movimiento + salto + colisiones con paredes
+    let nextX = player.position.x + moveDir.x;
+    let nextZ = player.position.z + moveDir.z;
+    
+    // Límites de las paredes
+    const WALL_LIMIT = 95;
+    if(Math.abs(nextX) < WALL_LIMIT) player.position.x = nextX;
+    if(Math.abs(nextZ) < WALL_LIMIT) player.position.z = nextZ;
+    
     velY+=GRAV; player.position.y+=velY;
     if(player.position.y<=1.25){player.position.y=1.25;velY=0;onGround=true;}
     // cámara
@@ -361,7 +485,8 @@
       new THREE.SphereGeometry(0.5,16,16),
       new THREE.MeshBasicMaterial({color:0xffa500,transparent:true,opacity:0.8})
     );
-    p.position.copy(player.position).add(new THREE.Vector3(0,1,0));
+    // Posición de la mano derecha
+    p.position.copy(player.position).add(new THREE.Vector3(0.8, 1.5, 0));
     scene.add(p);
     powers.push({mesh:p,vel:new THREE.Vector3(0,0,-1),life:40,damage:50});
   }
@@ -492,22 +617,25 @@
   }
 
   function activateTsukuyomi() {
-    // Efecto visual mejorado de Tsukuyomi
+    // Efecto visual mejorado de Tsukuyomi con rotación 3D
     let overlay = document.createElement('div');
     overlay.style.cssText = `
       position:fixed;top:0;left:0;width:100%;height:100%;
       background: url('https://i.imgur.com/XqwUZ0r.jpg') center/cover;
       opacity:0;pointer-events:none;
       transition:all 0.5s;
-      animation: tsukuyomi-world 2s forwards;
+      animation: tsukuyomi-world 4s forwards;
+      filter: contrast(150%) saturate(150%);
+      transform-style: preserve-3d;
+      perspective: 1000px;
     `;
     
     const style = document.createElement('style');
     style.textContent = `
       @keyframes tsukuyomi-world {
-        0% { filter: hue-rotate(0deg) invert(0); transform: scale(1); }
-        50% { filter: hue-rotate(180deg) invert(1); transform: scale(1.1); }
-        100% { filter: hue-rotate(360deg) invert(0); transform: scale(1); }
+        0% { filter: hue-rotate(0deg) invert(0); transform: scale(1) rotateY(0deg); }
+        50% { filter: hue-rotate(180deg) invert(1); transform: scale(1.1) rotateY(180deg); }
+        100% { filter: hue-rotate(360deg) invert(0); transform: scale(1) rotateY(360deg); }
       }
       @keyframes sharingan-spin {
         from { transform: translate(-50%, -50%) rotate(0deg); }
@@ -522,7 +650,7 @@
       position:fixed;
       top:50%;left:50%;
       width:200px;height:200px;
-      background: url('https://i.imgur.com/1234567.png') center/cover;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Sharingan_triple.svg/1024px-Sharingan_triple.svg.png') center/cover;
       animation: sharingan-spin 2s linear infinite;
       z-index:1000;
       pointer-events:none;
@@ -592,6 +720,397 @@
         player.remove(susanoo);
       }
     }, 100);
+  }
+
+  // Habilidades de Ino
+  function activateMindTransfer() {
+    let beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, 10),
+      new THREE.MeshBasicMaterial({color: 0x9932CC, transparent: true, opacity: 0.6})
+    );
+    beam.rotation.x = Math.PI/2;
+    beam.position.copy(player.position);
+    scene.add(beam);
+
+    enemies.forEach(e => {
+      if(e.position.distanceTo(player.position) < 10) {
+        e.userData.hp -= 80;
+        e.material = new THREE.MeshBasicMaterial({color: 0x9932CC});
+        setTimeout(() => {
+          e.material = new THREE.MeshStandardMaterial({color: 0xAA0000});
+        }, 2000);
+      }
+    });
+
+    setTimeout(() => scene.remove(beam), 1000);
+  }
+
+  function activateChakraBomb() {
+    let bomb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.3),
+      new THREE.MeshBasicMaterial({color: 0x00FF7F})
+    );
+    bomb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
+    scene.add(bomb);
+    powers.push({
+      mesh: bomb,
+      vel: new THREE.Vector3(0,0,-1),
+      life: 30,
+      damage: 60
+    });
+  }
+
+  function activateMindControl() {
+    let circle = new THREE.Mesh(
+      new THREE.RingGeometry(0.5, 4, 32),
+      new THREE.MeshBasicMaterial({color: 0x9400D3, side: THREE.DoubleSide, transparent: true, opacity: 0.4})
+    );
+    circle.rotation.x = -Math.PI/2;
+    circle.position.copy(player.position);
+    scene.add(circle);
+
+    let scale = 1;
+    let iv = setInterval(() => {
+      scale += 0.2;
+      circle.scale.set(scale, scale, scale);
+      enemies.forEach(e => {
+        if(e.position.distanceTo(player.position) < scale * 2) {
+          e.userData.hp -= 3;
+          e.rotation.y += 0.2;
+        }
+      });
+      if(scale > 3) {
+        clearInterval(iv);
+        scene.remove(circle);
+      }
+    }, 100);
+  }
+
+  function activateHealing() {
+    let healingField = new THREE.Mesh(
+      new THREE.CircleGeometry(3, 32),
+      new THREE.MeshBasicMaterial({color: 0x98FB98, transparent: true, opacity: 0.3, side: THREE.DoubleSide})
+    );
+    healingField.rotation.x = -Math.PI/2;
+    healingField.position.copy(player.position);
+    scene.add(healingField);
+    
+    let particles = [];
+    for(let i = 0; i < 20; i++) {
+      let particle = new THREE.Mesh(
+        new THREE.SphereGeometry(0.1),
+        new THREE.MeshBasicMaterial({color: 0x00FF7F})
+      );
+      particle.position.copy(player.position);
+      scene.add(particle);
+      particles.push(particle);
+    }
+
+    let cnt = 0;
+    let iv = setInterval(() => {
+      particles.forEach(p => {
+        p.position.y += 0.1;
+        p.material.opacity -= 0.05;
+      });
+      if(++cnt > 20) {
+        clearInterval(iv);
+        scene.remove(healingField);
+        particles.forEach(p => scene.remove(p));
+      }
+    }, 100);
+  }
+
+  // Habilidades de Shikamaru
+  function activateShadowPossession() {
+    // Animación de sombra emergiendo del suelo
+    let shadowHeight = 0;
+    let shadow = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 0.1, 10),
+      new THREE.MeshBasicMaterial({color: 0x000000, transparent: true, opacity: 0.7})
+    );
+    shadow.position.copy(player.position).add(new THREE.Vector3(0, -0.5, 0));
+    scene.add(shadow);
+
+    let growInterval = setInterval(() => {
+      shadowHeight += 0.1;
+      shadow.scale.y = shadowHeight;
+      shadow.position.y += 0.05;
+      if(shadowHeight >= 1) {
+        clearInterval(growInterval);
+        // La sombra está completamente emergida
+        enemies.forEach(e => {
+          if(e.position.distanceTo(player.position) < 10) {
+            e.userData.frozen = true;
+            e.material.color.set(0x000000);
+            // Detener completamente al enemigo
+            e.userData.originalPosition = e.position.clone();
+            e.userData.controlled = true;
+          }
+        });
+      }
+    }, 50);
+
+    // Mantener enemigos paralizados
+    let controlInterval = setInterval(() => {
+      enemies.forEach(e => {
+        if(e.userData.controlled) {
+          e.position.copy(e.userData.originalPosition);
+          // Efecto visual de parálisis
+          let sparkle = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1),
+            new THREE.MeshBasicMaterial({color: 0x000000})
+          );
+          sparkle.position.copy(e.position).add(new THREE.Vector3(
+            Math.random() - 0.5,
+            Math.random() * 2,
+            Math.random() - 0.5
+          ));
+          scene.add(sparkle);
+          setTimeout(() => scene.remove(sparkle), 500);
+        }
+      });
+    }, 100);
+
+    setTimeout(() => {
+      clearInterval(controlInterval);
+      scene.remove(shadow);
+      enemies.forEach(e => {
+        e.userData.frozen = false;
+        e.userData.controlled = false;
+        e.material.color.set(0xAA0000);
+      });
+    }, 5000);
+  }
+
+  function activateShadowStrangle() {
+    let range = 8;
+    enemies.forEach(e => {
+      if(e.position.distanceTo(player.position) < range) {
+        e.userData.hp -= 70;
+        let shadow = new THREE.Mesh(
+          new THREE.TorusGeometry(0.5, 0.1, 8, 24),
+          new THREE.MeshBasicMaterial({color: 0x000000})
+        );
+        shadow.position.copy(e.position).add(new THREE.Vector3(0, 1, 0));
+        scene.add(shadow);
+        setTimeout(() => scene.remove(shadow), 1000);
+      }
+    });
+  }
+
+  // Habilidades de Tenten
+  function activateWeaponSummoning() {
+    // Pergamino giratorio
+    let scroll = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, 2),
+      new THREE.MeshBasicMaterial({color: 0xF5DEB3})
+    );
+    scroll.position.copy(player.position).add(new THREE.Vector3(0, 2, 0));
+    scroll.rotation.x = Math.PI/2;
+    scene.add(scroll);
+
+    // Diferentes tipos de armas
+    const weaponTypes = [
+      {geo: new THREE.ConeGeometry(0.1, 0.6), color: 0x808080, name: 'kunai'}, // Kunai
+      {geo: new THREE.BoxGeometry(0.1, 0.7, 0.1), color: 0x4A4A4A, name: 'sword'}, // Espada
+      {geo: new THREE.SphereGeometry(0.15), color: 0x696969, name: 'shuriken'} // Shuriken
+    ];
+
+    let cnt = 0;
+    let weaponInterval = setInterval(() => {
+      if(cnt > 15) {
+        clearInterval(weaponInterval);
+        scene.remove(scroll);
+        return;
+      }
+
+      let weaponType = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
+      let weapon = new THREE.Mesh(
+        weaponType.geo,
+        new THREE.MeshBasicMaterial({color: weaponType.color})
+      );
+
+      // Aparecer desde el pergamino
+      weapon.position.copy(scroll.position);
+      weapon.rotation.set(
+        Math.random() * Math.PI,
+        Math.random() * Math.PI,
+        Math.random() * Math.PI
+      );
+
+      scene.add(weapon);
+      powers.push({
+        mesh: weapon,
+        vel: new THREE.Vector3(
+          Math.random() * 2 - 1,
+          Math.random() * 0.5,
+          -1
+        ).normalize().multiplyScalar(0.3),
+        life: 40,
+        damage: weaponType.name === 'sword' ? 40 : 25,
+        spin: new THREE.Vector3(
+          Math.random() * 0.2,
+          Math.random() * 0.2,
+          Math.random() * 0.2
+        )
+      });
+
+      cnt++;
+    }, 100);
+
+    // Actualizar la función animate para hacer girar las armas
+    let originalAnimate = animate;
+    animate = function() {
+      originalAnimate();
+      powers.forEach(p => {
+        if(p.spin) {
+          p.mesh.rotation.x += p.spin.x;
+          p.mesh.rotation.y += p.spin.y;
+          p.mesh.rotation.z += p.spin.z;
+        }
+      });
+    };
+  }
+
+  function activateKunaiRain() {
+    for(let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        let kunai = new THREE.Mesh(
+          new THREE.ConeGeometry(0.1, 0.4),
+          new THREE.MeshBasicMaterial({color: 0x606060})
+        );
+        kunai.position.copy(player.position).add(new THREE.Vector3(
+          Math.random() * 10 - 5,
+          5,
+          Math.random() * 10 - 5
+        ));
+        scene.add(kunai);
+        powers.push({
+          mesh: kunai,
+          vel: new THREE.Vector3(0, -0.3, 0),
+          life: 20,
+          damage: 15
+        });
+      }, i * 100);
+    }
+  }
+
+  // Habilidades de Hinata
+  function activateGentleFist() {
+    // Animación de Byakugan activándose
+    let byakuganRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.5, 1, 32),
+      new THREE.MeshBasicMaterial({color: 0xFFFFFF, side: THREE.DoubleSide, transparent: true, opacity: 0.5})
+    );
+    byakuganRing.rotation.x = -Math.PI/2;
+    byakuganRing.position.copy(player.position);
+    scene.add(byakuganRing);
+
+    // Múltiples golpes de Puño Suave
+    for(let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        let chakra = new THREE.Mesh(
+          new THREE.SphereGeometry(0.3),
+          new THREE.MeshBasicMaterial({color: 0x4169E1, transparent: true, opacity: 0.8})
+        );
+        chakra.position.copy(player.position).add(new THREE.Vector3(
+          Math.random() * 2 - 1,
+          1,
+          Math.random() * 2 - 1
+        ));
+        scene.add(chakra);
+        powers.push({
+          mesh: chakra,
+          vel: new THREE.Vector3(Math.random() - 0.5, 0, -1).normalize(),
+          life: 25,
+          damage: 35
+        });
+      }, i * 200);
+    }
+
+    setTimeout(() => scene.remove(byakuganRing), 1000);
+  }
+
+  function activateTwinLionFists() {
+    let lions = [];
+    // Leones más grandes y más detallados
+    for(let i = 0; i < 2; i++) {
+      let lionGroup = new THREE.Group();
+      
+      // Cuerpo del león
+      let body = new THREE.Mesh(
+        new THREE.SphereGeometry(0.7),
+        new THREE.MeshBasicMaterial({color: 0x4B0082})
+      );
+      
+      // Melena
+      for(let j = 0; j < 8; j++) {
+        let hair = new THREE.Mesh(
+          new THREE.ConeGeometry(0.2, 0.4),
+          new THREE.MeshBasicMaterial({color: 0x6A5ACD})
+        );
+        hair.position.set(
+          Math.cos(j * Math.PI/4) * 0.4,
+          Math.sin(j * Math.PI/4) * 0.4,
+          0
+        );
+        hair.lookAt(new THREE.Vector3(0, 0, 1));
+        lionGroup.add(hair);
+      }
+      
+      lionGroup.add(body);
+      lionGroup.position.copy(player.position).add(new THREE.Vector3(i ? 1.5 : -1.5, 1, 0));
+      scene.add(lionGroup);
+      lions.push(lionGroup);
+    }
+
+    let cnt = 0;
+    let iv = setInterval(() => {
+      lions.forEach((lion, i) => {
+        // Movimiento más fluido
+        let angle = cnt * 0.2 + i * Math.PI;
+        let target = new THREE.Vector3(
+          Math.cos(angle) * 2,
+          Math.sin(angle * 0.5) * 0.5,
+          -1
+        );
+        lion.position.add(target.multiplyScalar(0.15));
+        lion.rotation.z = Math.sin(cnt * 0.1) * 0.2;
+        
+        // Efecto de chakra
+        if(cnt % 3 === 0) {
+          let chakraSpark = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1),
+            new THREE.MeshBasicMaterial({color: 0x4B0082, transparent: true, opacity: 0.6})
+          );
+          chakraSpark.position.copy(lion.position);
+          scene.add(chakraSpark);
+          setTimeout(() => scene.remove(chakraSpark), 300);
+        }
+      });
+      
+      enemies.forEach(e => {
+        lions.forEach(lion => {
+          if(lion.position.distanceTo(e.position) < 1.5) {
+            e.userData.hp -= 8;
+            // Efecto de impacto
+            let impact = new THREE.Mesh(
+              new THREE.RingGeometry(0.2, 0.4, 16),
+              new THREE.MeshBasicMaterial({color: 0x4B0082, side: THREE.DoubleSide})
+            );
+            impact.position.copy(e.position);
+            impact.lookAt(camera.position);
+            scene.add(impact);
+            setTimeout(() => scene.remove(impact), 200);
+          }
+        });
+      });
+
+      if(++cnt > 40) {
+        clearInterval(iv);
+        lions.forEach(lion => scene.remove(lion));
+      }
+    }, 50);
   }
   </script>
 </body>
