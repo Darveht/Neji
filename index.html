@@ -5,7 +5,94 @@
   <title>Naruto Characters 3D</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    body,html{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;}
+    @font-face {
+      font-family: 'PixelNinja';
+      src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    }
+    
+    body,html{
+      margin:0;padding:0;width:100%;height:100%;
+      overflow:hidden;
+      background:#000;
+      font-family: 'PixelNinja', 'Press Start 2P', cursive;
+    }
+
+    /* Estilo Soul Knight para la interfaz */
+    .char-card {
+      background: rgba(0,0,0,0.8);
+      border: 2px solid #4a90e2;
+      box-shadow: 0 0 10px #4a90e2;
+      transition: all 0.3s;
+    }
+
+    .char-card:hover {
+      transform: scale(1.05);
+      border-color: #f5a623;
+      box-shadow: 0 0 20px #f5a623;
+    }
+
+    .action-btn {
+      background: rgba(0,0,0,0.8);
+      border: 2px solid #4a90e2;
+      color: #4a90e2;
+      font-family: 'PixelNinja', 'Press Start 2P', cursive;
+      font-size: 10px;
+      text-shadow: 0 0 5px #4a90e2;
+      transition: all 0.2s;
+    }
+
+    .action-btn:active {
+      background: #4a90e2;
+      color: #000;
+    }
+
+    #loading {
+      background: #000;
+      font-family: 'PixelNinja', 'Press Start 2P', cursive;
+    }
+
+    #loading-bar {
+      border: 2px solid #4a90e2;
+      box-shadow: 0 0 10px #4a90e2;
+    }
+
+    #loading-progress {
+      background: linear-gradient(90deg, #4a90e2, #f5a623);
+      box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+    }
+
+    .player-heart {
+      clip-path: none;
+      width: 15px;
+      height: 15px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%234a90e2" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') center/contain no-repeat;
+    }
+
+    .player-heart.heart-empty {
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23333" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') center/contain no-repeat;
+    }
+
+    #player-level {
+      font-size: 12px;
+      color: #4a90e2;
+      text-shadow: 0 0 5px #4a90e2;
+      margin-top: 10px;
+    }
+
+    #intro-screen {
+      background: radial-gradient(circle at center, #000033, #000);
+    }
+
+    #naruto-logo {
+      filter: drop-shadow(0 0 20px #4a90e2);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { filter: drop-shadow(0 0 10px #4a90e2); }
+      50% { filter: drop-shadow(0 0 30px #f5a623); }
+      100% { filter: drop-shadow(0 0 10px #4a90e2); }
+    }
     #intro-screen {
       position: fixed;
       width: 100%;
@@ -465,7 +552,8 @@
 
   function init(){
     scene=new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB);
+    scene.background = new THREE.Color(0x000033);
+    scene.fog = new THREE.FogExp2(0x000033, 0.02);
     camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,500);
 
     // Crear textura para las paredes
