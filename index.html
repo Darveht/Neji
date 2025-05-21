@@ -521,12 +521,48 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
   <script>
   // Transición de pantalla de inicio
+  // Reproducir música de intro con YouTube
+  let youtubePlayer;
+  
+  // Crear el iframe de YouTube
+  let ytContainer = document.createElement('div');
+  ytContainer.style.cssText = 'display:none;';
+  ytContainer.innerHTML = `
+    <iframe id="youtube-player" 
+            width="560" height="315" 
+            src="https://www.youtube.com/embed/vG03hd6JaF0?enablejsapi=1" 
+            allow="autoplay">
+    </iframe>`;
+  document.body.appendChild(ytContainer);
+
+  // Cargar API de YouTube
+  let tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+
+  // Función que se llama cuando la API está lista
+  window.onYouTubeIframeAPIReady = function() {
+    youtubePlayer = new YT.Player('youtube-player', {
+      events: {
+        'onReady': onPlayerReady
+      }
+    });
+  };
+
+  function onPlayerReady(event) {
+    // Agregar detector de clic al documento
+    document.addEventListener('click', function() {
+      youtubePlayer.playVideo();
+    });
+  }
+  
   setTimeout(() => {
     const introScreen = document.getElementById('intro-screen');
     introScreen.style.opacity = '0';
     introScreen.style.transition = 'opacity 1s';
     setTimeout(() => {
       introScreen.style.display = 'none';
+      introMusic.pause();
     }, 1000);
   }, 3000);
 
@@ -1019,6 +1055,11 @@
   // ─── TÉCNICAS ───
 
   function activateByakugan(){
+    // Efecto de sonido
+    let byakuganSound = new Audio('https://cdn.freesound.org/previews/415/415079_5121236-lq.mp3');
+    byakuganSound.volume = 0.3;
+    byakuganSound.play();
+    
     // pupilas blancas + venas (overlay CSS)
     let ov=document.createElement('div');
     ov.style.cssText=`
