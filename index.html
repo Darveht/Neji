@@ -144,19 +144,20 @@
       align-items: center;
     }
 
-    #health-bar-container {
-      width: 200px;
-      height: 10px;
-      background-color: gray;
-      border-radius: 5px;
-      overflow: hidden;
+    #health-container {
+      display: flex;
+      gap: 5px;
     }
 
-    #health-bar {
-      width: 100%;
-      height: 100%;
+    .player-heart {
+      width: 20px;
+      height: 20px;
       background-color: red;
-      border-radius: 5px;
+      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    }
+
+    .heart-empty {
+      background-color: #333;
     }
     #loading-status {
       margin-top: 10px;
@@ -166,6 +167,23 @@
     #loading-size {
       margin-top: 5px;
       font-size: 0.9em;
+    }
+
+    .enemy-hearts {
+      position: absolute;
+      display: flex;
+      gap: 2px;
+    }
+
+    .enemy-heart {
+      width: 8px;
+      height: 8px;
+      background-color: red;
+      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    }
+
+    .enemy-heart.heart-empty {
+      background-color: #333;
     }
   </style>
 </head>
@@ -230,9 +248,7 @@
 
   <!-- Player HUD -->
   <div id="player-hud">
-    <div id="health-bar-container">
-      <div id="health-bar"></div>
-    </div>
+    <div id="health-container"></div>
     <div id="player-level">Nivel 1</div>
   </div>
 
@@ -252,18 +268,25 @@
   let scene, camera, renderer, player, floor;
   let enemies = [], powers = [], moveDir={x:0,z:0}, velY=0, onGround=true;
   const GRAV=-0.02, enemyHUD={};
-  let playerHealth = 100;
+  let playerHealth = 5; // 5 vidas
   let playerLevel = 1;
   let currentStage = 1;
+  const MAX_HEALTH = 5;
   const STAGES = {
-    1: {name: 'Bosque de Konoha', enemies: 3, enemyHealth: 200, enemyDamage: 5},
-    2: {name: 'Aldea de la Lluvia', enemies: 4, enemyHealth: 250, enemyDamage: 8},
-    3: {name: 'Valle del Fin', enemies: 5, enemyHealth: 300, enemyDamage: 10},
-    4: {name: 'Cueva Akatsuki', enemies: 6, enemyHealth: 350, enemyDamage: 15}
+    1: {name: 'Bosque de Konoha', enemies: 3, enemyHealth: 5, enemyDamage: 10},
+    2: {name: 'Aldea de la Lluvia', enemies: 4, enemyHealth: 6, enemyDamage: 12},
+    3: {name: 'Valle del Fin', enemies: 5, enemyHealth: 7, enemyDamage: 15},
+    4: {name: 'Cueva Akatsuki', enemies: 6, enemyHealth: 8, enemyDamage: 20}
   };
 
   function updatePlayerHUD() {
-    document.getElementById('health-bar').style.width = playerHealth + '%';
+    const container = document.getElementById('health-container');
+    container.innerHTML = '';
+    for(let i = 0; i < MAX_HEALTH; i++) {
+      const heart = document.createElement('div');
+      heart.className = `player-heart ${i >= playerHealth ? 'heart-empty' : ''}`;
+      container.appendChild(heart);
+    }
     document.getElementById('player-level').textContent = 'Nivel ' + playerLevel;
   }
   let currentCharacter = '';
@@ -363,8 +386,7 @@
     // Limpiar enemigos actuales
     enemies.forEach(e => {
       scene.remove(e);
-      enemyHUD[e.userData.id].back.remove();
-      enemyHUD[e.userData.id].bar.remove();
+      enemyHUD[e.userData.id].remove();
       delete enemyHUD[e.userData.id];
     });
     enemies = [];
@@ -405,7 +427,7 @@
     const rainCount = 1000;
     const rainGeometry = new THREE.BufferGeometry();
     const rainPositions = [];
-    
+
     for(let i = 0; i < rainCount; i++) {
       rainPositions.push(
         Math.random() * 200 - 100,
@@ -413,21 +435,21 @@
         Math.random() * 200 - 100
       );
     }
-    
+
     rainGeometry.setAttribute('position', 
       new THREE.Float32BufferAttribute(rainPositions, 3)
     );
-    
+
     const rainMaterial = new THREE.PointsMaterial({
       color: 0x99ccff,
       size: 0.1,
       transparent: true,
       opacity: 0.6
     });
-    
+
     const rain = new THREE.Points(rainGeometry, rainMaterial);
     scene.add(rain);
-    
+
     // Animación de lluvia
     function animateRain() {
       const positions = rain.geometry.attributes.position.array;
@@ -588,7 +610,7 @@
         metalness: 0.5
       })
     );
-    
+
     g.userData = {
       hp: STAGES[currentStage].enemyHealth,
       id: THREE.MathUtils.generateUUID()
@@ -619,11 +641,9 @@
     g.userData={hp:200,id:THREE.MathUtils.generateUUID()};
     scene.add(g); enemies.push(g);
     // HUD
-    let back=document.createElement('div'),
-        bar=document.createElement('div');
-    back.className='health-back'; bar.className='health-bar';
-    document.body.appendChild(back); document.body.appendChild(bar);
-    enemyHUD[g.userData.id]={back,bar};
+    let container=document.createElement('div');
+    document.body.appendChild(container);
+    enemyHUD[g.userData.id]=container;
   }
 
   function animate(){
@@ -665,18 +685,24 @@
     enemies.forEach((e,i)=>{
       let dir=player.position.clone().sub(e.position).setY(0).normalize().multiplyScalar(0.005);
       e.position.add(dir);
-      
+
       // Actualizar barra de vida del enemigo
-      let {back,bar}=enemyHUD[e.userData.id],
+      let container = enemyHUD[e.userData.id],
           vp=e.position.clone().project(camera),
           x=(vp.x*0.5+0.5)*innerWidth,
-          y=(-vp.y*0.5+0.5)*innerHeight - 50; // Ajustado para que aparezca arriba
-      back.style.transform=`translate(${x}px,${y}px)`;
-      bar.style.transform=`translate(${x}px,${y}px) scaleX(${e.userData.hp/STAGES[currentStage].enemyHealth})`;
-      
+          y=(-vp.y*0.5+0.5)*innerHeight - 50;
+      container.innerHTML = '';
+      container.className = 'enemy-hearts';
+      container.style.transform = `translate(${x}px,${y}px)`;
+      for(let i = 0; i < STAGES[currentStage].enemyHealth; i++) {
+        const heart = document.createElement('div');
+        heart.className = `enemy-heart ${i >= e.userData.hp ? 'heart-empty' : ''}`;
+        container.appendChild(heart);
+      }
+
       // Daño al jugador cuando está cerca
       if(e.position.distanceTo(player.position) < 2) {
-        playerHealth -= STAGES[currentStage].enemyDamage;
+        playerHealth -= 1; // Quitar 1 vida por golpe
         // Efecto visual de daño
         let dmgFlash = document.createElement('div');
         dmgFlash.style.cssText = `
@@ -686,7 +712,7 @@
         `;
         document.body.appendChild(dmgFlash);
         setTimeout(() => dmgFlash.remove(), 500);
-        
+
         updatePlayerHUD();
         if(playerHealth <= 0) {
           alert('¡Game Over! - Nivel ' + currentStage);
@@ -695,9 +721,9 @@
       }
 
       if(e.userData.hp<=0){
-        scene.remove(e); back.remove(); bar.remove();
+        scene.remove(e); container.remove();
         enemies.splice(i,1); delete enemyHUD[e.userData.id];
-        
+
         // Verificar si pasamos de nivel
         if(enemies.length === 0) {
           currentStage++;
