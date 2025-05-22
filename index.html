@@ -1056,9 +1056,22 @@
 
   function activateByakugan(){
     // Efecto de sonido
-    let byakuganSound = new Audio('https://cdn.freesound.org/previews/415/415079_5121236-lq.mp3');
-    byakuganSound.volume = 0.3;
-    byakuganSound.play();
+    // Actualizar el iframe existente o crear uno nuevo si no existe
+    let ytContainer = document.getElementById('byakugan-sound') || document.createElement('div');
+    ytContainer.id = 'byakugan-sound';
+    ytContainer.style.cssText = 'display:none;';
+    ytContainer.innerHTML = `
+      <iframe 
+        width="560" height="315" 
+        src="https://www.youtube.com/embed/D45kJRoY_-k?enablejsapi=1&start=0&autoplay=1" 
+        allow="autoplay">
+      </iframe>`;
+    document.body.appendChild(ytContainer);
+    
+    // Reproducir el sonido
+    setTimeout(() => {
+      ytContainer.remove();
+    }, 2000);
     
     // pupilas blancas + venas (overlay CSS)
     let ov=document.createElement('div');
