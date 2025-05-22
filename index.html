@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap');
-    
+
     body,html{
       margin:0;padding:0;width:100%;height:100%;
       overflow:hidden;
@@ -523,7 +523,7 @@
   // Transición de pantalla de inicio
   // Reproducir música de intro con YouTube
   let youtubePlayer;
-  
+
   // Crear el iframe de YouTube
   let ytContainer = document.createElement('div');
   ytContainer.style.cssText = 'display:none;';
@@ -555,7 +555,7 @@
       youtubePlayer.playVideo();
     });
   }
-  
+
   setTimeout(() => {
     const introScreen = document.getElementById('intro-screen');
     introScreen.style.opacity = '0';
@@ -732,7 +732,7 @@ function showCharacterName() {
       delete enemyHUD[e.userData.id];
     });
     enemies = [];
-    
+
     if(ally) {
       scene.remove(ally);
       ally = null;
@@ -1020,51 +1020,69 @@ function showCharacterName() {
   }
 
   function createAlly() {
-  ally = new THREE.Group();
-  
-  // Crear modelo de Ino
-  let body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.6, 0.6, 2.5),
-    new THREE.MeshStandardMaterial({color: 0x800080})
-  );
-  let head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.6),
-    new THREE.MeshStandardMaterial({color: 0xFFE4B5})
-  );
-  head.position.y = 1.8;
-  ally.add(body, head);
-  ally.position.set(player.position.x + 3, 1.25, player.position.z);
-  scene.add(ally);
+    // Crear dos aliados: Ino y Hinata
+    allies = [];
+    const allyData = [
+      {name: 'Ino', color: 0x800080, x: 3},
+      {name: 'Hinata', color: 0x4B0082, x: -3}
+    ];
 
-  // IA del aliado
-  setInterval(() => {
-    if(enemies.length > 0) {
-      // Encontrar enemigo más cercano
-      let closest = enemies.reduce((prev, curr) => 
-        prev.position.distanceTo(ally.position) < curr.position.distanceTo(ally.position) ? prev : curr
+    allyData.forEach(data => {
+      let allyChar = new THREE.Group();
+      let body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.6, 0.6, 2.5),
+        new THREE.MeshStandardMaterial({color: data.color})
       );
-      
-      // Moverse hacia el enemigo
-      let dir = closest.position.clone().sub(ally.position).normalize().multiplyScalar(0.1);
-      ally.position.add(dir);
+      let head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.6),
+        new THREE.MeshStandardMaterial({color: 0xFFE4B5})
+      );
+      head.position.y = 1.8;
+      allyChar.add(body, head);
+      allyChar.position.set(player.position.x + data.x, 1.25, player.position.z);
+      allyChar.userData = {name: data.name};
+      scene.add(allyChar);
+      allies.push(allyChar);
+    });
+    // IA del aliado
+    setInterval(() => {
+      allies.forEach(allyChar => {
+        if(enemies.length > 0) {
+          // Encontrar enemigo más cercano
+          let closest = enemies.reduce((prev, curr) => 
+            prev.position.distanceTo(allyChar.position) < curr.position.distanceTo(allyChar.position) ? prev : curr
+          );
 
-      // Usar poderes aleatorios
-      if(Math.random() < 0.1) {
-        let power = Math.floor(Math.random() * 4);
-        switch(power) {
-          case 0: activateMindTransfer(); break;
-          case 1: activateChakraBomb(); break;
-          case 2: activateMindControl(); break;
-          case 3: activateHealing(); break;
+          // Moverse hacia el enemigo
+          let dir = closest.position.clone().sub(allyChar.position).normalize().multiplyScalar(0.1);
+          allyChar.position.add(dir);
+
+          // Usar poderes aleatorios
+          if(Math.random() < 0.1) {
+            if(allyChar.userData.name === 'Ino') {
+              let power = Math.floor(Math.random() * 4);
+              switch(power) {
+                case 0: activateMindTransfer(); break;
+                case 1: activateChakraBomb(); break;
+                case 2: activateMindControl(); break;
+                case 3: activateHealing(); break;
+              }
+            } else if(allyChar.userData.name === 'Hinata') {
+              let power = Math.floor(Math.random() * 2);
+              switch(power) {
+                case 0: activateGentleFist(); break;
+                case 1: activateTwinLionFists(); break;
+              }
+            }
+          }
         }
-      }
-    }
-  }, 100);
-}
+      });
+    }, 100);
+  }
 
 function createPainBoss() {
   pain = new THREE.Group();
-  
+
   // Crear modelo de Pain
   let body = new THREE.Mesh(
     new THREE.CylinderGeometry(0.8, 0.8, 3),
@@ -1075,7 +1093,7 @@ function createPainBoss() {
     new THREE.MeshStandardMaterial({color: 0xFF4500})
   );
   head.position.y = 2;
-  
+
   // Añadir piercings característicos
   for(let i = 0; i < 6; i++) {
     let piercing = new THREE.Mesh(
@@ -1262,12 +1280,12 @@ function animate(){
         allow="autoplay">
       </iframe>`;
     document.body.appendChild(ytContainer);
-    
+
     // Reproducir el sonido
     setTimeout(() => {
       ytContainer.remove();
     }, 2000);
-    
+
     // pupilas blancas + venas (overlay CSS)
     let ov=document.createElement('div');
     ov.style.cssText=`
@@ -1980,6 +1998,43 @@ function animate(){
       }
     }, 50);
   }
+
+  // Adding 360 degree view
+  let isDragging = false;
+  let previousMouseX = 0;
+
+  document.addEventListener('mousedown', (event) => {
+    isDragging = true;
+    previousMouseX = event.clientX;
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  document.addEventListener('mousemove', (event) => {
+    if (isDragging) {
+      const deltaX = event.clientX - previousMouseX;
+      player.rotation.y += deltaX * 0.01;
+      previousMouseX = event.clientX;
+    }
+  });
+
+  // Add Speed Button
+
+  let speedButton = document.createElement('div');
+  speedButton.id = 'speed-button';
+  speedButton.className = 'action-btn';
+  speedButton.textContent = 'Speed Up';
+  speedButton.addEventListener('touchstart', function() {
+    playerSpeed = 0.5;
+    setTimeout(function() {
+      playerSpeed = 0.15;
+    }, 5000);
+  });
+
+  document.getElementById('actions').appendChild(speedButton);
+
   </script>
 </body>
 </html>
