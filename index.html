@@ -1543,14 +1543,14 @@ function animate(){
   }
 
   function activateTsukuyomi() {
-    // Efecto visual mejorado de Tsukuyomi con rotación 3D
+    // Efecto visual mejorado de Tsukuyomi con cruz y lluvia de sangre
     let overlay = document.createElement('div');
     overlay.style.cssText = `
       position:fixed;top:0;left:0;width:100%;height:100%;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.95);
       opacity:0;pointer-events:none;
       transition:all 0.5s;
-      animation: tsukuyomi-world 4s forwards;
+      animation: tsukuyomi-world 8s forwards;
       filter: contrast(150%) saturate(150%);
       transform-style: preserve-3d;
       perspective: 1000px;
@@ -1559,9 +1559,20 @@ function animate(){
     const style = document.createElement('style');
     style.textContent = `
       @keyframes tsukuyomi-world {
-        0% { filter: hue-rotate(0deg) invert(0); transform: scale(1) rotateY(0deg); }
-        50% { filter: hue-rotate(180deg) invert(1); transform: scale(1.1) rotateY(180deg); }
-        100% { filter: hue-rotate(360deg) invert(0); transform: scale(1) rotateY(360deg); }
+        0% { filter: hue-rotate(0deg) invert(0); transform: scale(1); }
+        20% { filter: hue-rotate(180deg) invert(1); transform: scale(1.2); }
+        100% { filter: hue-rotate(360deg) invert(0.5); transform: scale(1.1); }
+      }
+      
+      @keyframes blood-rain {
+        from { transform: translateY(-100%); }
+        to { transform: translateY(100%); }
+      }
+      
+      @keyframes float-victim {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0); }
       }
       @keyframes sharingan-spin {
         from { transform: translate(-50%, -50%) rotate(0deg); }
@@ -1590,9 +1601,101 @@ function animate(){
     tsukuyomiSound.play();
 
     setTimeout(() => {
-      overlay.style.opacity = '0.9';
-      // Efecto de distorsión de tiempo
+      overlay.style.opacity = '0.95';
       scene.fog = new THREE.FogExp2(0xff0000, 0.1);
+      
+      enemies.forEach(enemy => {
+        if(enemy.position.distanceTo(player.position) < 10) {
+          // Crear cruz que emerge del suelo
+          const cross = document.createElement('div');
+          cross.style.cssText = `
+            position: fixed;
+            width: 200px;
+            height: 300px;
+            background: linear-gradient(#8B0000, #4B0000);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, 100%);
+            box-shadow: 0 0 20px #FF0000;
+            animation: crossRise 2s forwards, crossFloat 2s infinite;
+          `;
+
+          // Añadir animación de la cruz emergiendo y flotando
+          const crossAnimation = document.createElement('style');
+          crossAnimation.textContent = `
+            @keyframes crossRise {
+              from { transform: translate(-50%, 100%); }
+              to { transform: translate(-50%, -50%); }
+            }
+            @keyframes crossFloat {
+              0%, 100% { transform: translate(-50%, -50%); }
+              50% { transform: translate(-50%, -55%); }
+            }
+          `;
+          document.head.appendChild(crossAnimation);
+          
+          // Brazos de la cruz
+          const crossArm = document.createElement('div');
+          crossArm.style.cssText = `
+            position: absolute;
+            width: 150px;
+            height: 40px;
+            background: linear-gradient(to right, #8B0000, #4B0000);
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px #FF0000;
+          `;
+          
+          cross.appendChild(crossArm);
+          document.body.appendChild(cross);
+          
+          // Enemigo flotando con animación suave
+          let floatHeight = 0;
+          const floatInterval = setInterval(() => {
+            floatHeight += 0.2;
+            if(floatHeight <= 5) {
+              enemy.position.y += 0.2;
+            }
+            enemy.rotation.y += 0.1; // Gira mientras flota
+          }, 50);
+          enemy.userData.inTsukuyomi = true;
+          enemy.userData.floatInterval = floatInterval;
+          
+          // Lluvia de sangre
+          for(let i = 0; i < 50; i++) {
+            const drop = document.createElement('div');
+            drop.style.cssText = `
+              position: fixed;
+              width: 2px;
+              height: 20px;
+              background: #FF0000;
+              left: ${Math.random() * 100}%;
+              top: -20px;
+              animation: blood-rain 2s linear infinite;
+              animation-delay: ${Math.random() * 2}s;
+            `;
+            document.body.appendChild(drop);
+            
+            setTimeout(() => drop.remove(), 8000);
+          }
+          
+          // Daño continuo
+          const damageInterval = setInterval(() => {
+            enemy.userData.hp -= 10;
+            flash(enemy.position);
+          }, 500);
+          
+          setTimeout(() => {
+            clearInterval(damageInterval);
+            clearInterval(enemy.userData.floatInterval);
+            enemy.position.y = 0.75; // Volver a la posición original
+            enemy.userData.inTsukuyomi = false;
+            cross.remove();
+          }, 7500);
+        }
+      });
+      
     }, 100);
 
     setTimeout(() => {
@@ -1603,7 +1706,7 @@ function animate(){
         overlay.remove();
         style.remove();
       }, 500);
-    }, 2000);
+    }, 8000);
 
     // Daño mejorado a enemigos
     enemies.forEach(e => {
