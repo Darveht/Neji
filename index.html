@@ -241,21 +241,68 @@
       align-items:center;justify-content:center;
       z-index:50;
     }
-    .char-card {
-      width: 280px;
-      margin: 15px;
-      background: rgba(0,0,51,0.9);
-      border: 3px solid #4a90e2;
-      border-radius: 10px;
+    .select-header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .select-header h2 {
+      color: #FF4500;
+      font-size: 2.5em;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+      margin: 0;
       padding: 20px;
+      background: linear-gradient(45deg, rgba(0,0,0,0.8), rgba(255,69,0,0.2));
+      border-bottom: 2px solid #FF4500;
+    }
+
+    .scroll-design {
+      height: 30px;
+      background: url('https://i.imgur.com/XYtHWGE.png') repeat-x;
+      opacity: 0.6;
+      margin-top: 10px;
+    }
+
+    .char-card {
+      width: 300px;
+      margin: 20px;
+      background: linear-gradient(135deg, rgba(0,0,51,0.95), rgba(255,69,0,0.1));
+      border: 3px solid #FF4500;
+      border-radius: 15px;
+      padding: 25px;
       text-align: center;
       color: #fff;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.4s;
       flex-shrink: 0;
-      box-shadow: 0 0 20px rgba(74,144,226,0.3);
+      box-shadow: 0 0 30px rgba(255,69,0,0.3);
       position: relative;
       overflow: hidden;
+      backdrop-filter: blur(5px);
+    }
+
+    .char-card:hover {
+      transform: scale(1.05) translateY(-10px);
+      border-color: #FFD700;
+      box-shadow: 0 0 40px rgba(255,215,0,0.5);
+      background: linear-gradient(135deg, rgba(0,0,51,0.98), rgba(255,215,0,0.2));
+    }
+
+    .char-card h3 {
+      color: #FF4500;
+      font-size: 1.8em;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .char-card p {
+      color: #FFA07A;
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-top: 15px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
 
     .char-card::before {
@@ -470,8 +517,13 @@
 
   <!-- Selección de personaje -->
   <div id="char-select">
-  <h2 style="color: white; text-align: center;">Selecciona tu Personaje</h2>
-    <div class="char-card" onclick="selectCharacter('neji')">
+    <div class="select-header">
+      <h2>Selecciona tu Personaje</h2>
+      <div class="scroll-design"></div>
+    </div>
+    <audio id="hover-sound" src="https://www.soundjay.com/buttons/button-09a.mp3"></audio>
+    <audio id="select-sound" src="https://www.soundjay.com/buttons/button-37a.mp3"></audio>
+    <div class="char-card" onclick="selectCharacter('neji')" onmouseover="playHoverSound()">
       <h3>Neji Hyūga</h3>
       <div class="char-img" style="background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_JLthZ20l4C_V-G8cKVR_3hOqAyrTOVTLaw&s') center/contain no-repeat;"></div>
       <p>Poderes: Byakugan, Jūken, 64 Palmas, 128 Palmas, Kaiten</p>
@@ -696,7 +748,12 @@ function showCharacterName() {
       }, 100); // Aumentamos el intervalo para simular una carga más realista
     };
 
+  function playHoverSound() {
+    document.getElementById('hover-sound').play();
+  }
+
   function selectCharacter(char) {
+    document.getElementById('select-sound').play();
     currentCharacter = char;
     document.getElementById('char-select').style.display = 'none';
     updatePlayerHUD();
