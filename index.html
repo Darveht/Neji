@@ -604,6 +604,33 @@
     document.getElementById('player-level').textContent = 'Nivel ' + playerLevel;
   }
   let currentCharacter = '';
+let playerSpeed = 0.15; // Velocidad base
+let characterNames = {
+  'neji': 'Neji Hyūga',
+  'itachi': 'Itachi Uchiha',
+  'ino': 'Ino Yamanaka',
+  'shikamaru': 'Shikamaru Nara',
+  'tenten': 'Tenten',
+  'hinata': 'Hinata Hyūga'
+};
+
+// Mostrar nombre del personaje
+function showCharacterName() {
+  let nameDiv = document.createElement('div');
+  nameDiv.style.cssText = `
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px black;
+    z-index: 100;
+  `;
+  nameDiv.textContent = characterNames[currentCharacter];
+  document.body.appendChild(nameDiv);
+}
 
   // Simular carga
   window.onload = () => {
@@ -647,6 +674,7 @@
     currentCharacter = char;
     document.getElementById('char-select').style.display = 'none';
     updatePlayerHUD();
+    showCharacterName();
 
     // Configurar botones según el personaje
     const actions = document.getElementById('actions');
@@ -724,7 +752,12 @@
     } else if(level === 10) {
       playerHealth = 15;
       createAlly();
+      // Spawn en área más segura
+      player.position.set(-90, 1.25, -90);
     }
+
+    // Ajustar velocidad a partir del nivel 5
+    playerSpeed = level >= 5 ? 0.3 : 0.15;
 
     // Cambiar escenario según el nivel
     switch(level) {
@@ -937,6 +970,10 @@
   }
 
   function addEnemy(){
+    // Limitar enemigos visibles en nivel 10
+    if(currentStage === 10 && enemies.length > 50) {
+      return;
+    }
     let g=new THREE.Group();
     let b=new THREE.Mesh(
       new THREE.BoxGeometry(1,1.5,1),
