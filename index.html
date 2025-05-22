@@ -530,7 +530,7 @@
   ytContainer.innerHTML = `
     <iframe id="youtube-player" 
             width="560" height="315" 
-            src="https://www.youtube.com/embed/vG03hd6JaF0?enablejsapi=1" 
+            src="https://www.youtube.com/embed/6YsxjUhZw1A?enablejsapi=1" 
             allow="autoplay">
     </iframe>`;
   document.body.appendChild(ytContainer);
@@ -578,8 +578,20 @@
     1: {name: 'Bosque de Konoha', enemies: 3, enemyHealth: 5, enemyDamage: 10},
     2: {name: 'Aldea de la Lluvia', enemies: 4, enemyHealth: 6, enemyDamage: 12},
     3: {name: 'Valle del Fin', enemies: 5, enemyHealth: 7, enemyDamage: 15},
-    4: {name: 'Cueva Akatsuki', enemies: 6, enemyHealth: 8, enemyDamage: 20}
+    4: {name: 'Cueva Akatsuki', enemies: 6, enemyHealth: 8, enemyDamage: 20},
+    5: {name: 'Templo del Fuego', enemies: 10, enemyHealth: 10, enemyDamage: 25},
+    6: {name: 'Montaña Cementerio', enemies: 15, enemyHealth: 12, enemyDamage: 30},
+    7: {name: 'País del Hierro', enemies: 25, enemyHealth: 15, enemyDamage: 35},
+    8: {name: 'Puente del Cielo y la Tierra', enemies: 50, enemyHealth: 18, enemyDamage: 40},
+    9: {name: 'Base de Orochimaru', enemies: 100, enemyHealth: 20, enemyDamage: 45},
+    10: {name: 'Guerra Ninja', enemies: 500, enemyHealth: 25, enemyDamage: 50, hasAlly: true},
+    11: {name: 'Batalla Final vs Pain', enemies: 1, enemyHealth: 1000, enemyDamage: 100, isBossFight: true}
   };
+
+  // Variables globales para el aliado y el jefe
+  let ally = null;
+  let pain = null;
+  let painPaths = [];
 
   function updatePlayerHUD() {
     const container = document.getElementById('health-container');
@@ -685,13 +697,34 @@
   }
 
   function changeStage(level) {
-    // Limpiar enemigos actuales
+    // Limpiar enemigos actuales y aliados
     enemies.forEach(e => {
       scene.remove(e);
       enemyHUD[e.userData.id].remove();
       delete enemyHUD[e.userData.id];
     });
     enemies = [];
+    
+    if(ally) {
+      scene.remove(ally);
+      ally = null;
+    }
+
+    if(pain) {
+      scene.remove(pain);
+      painPaths.forEach(p => scene.remove(p));
+      pain = null;
+      painPaths = [];
+    }
+
+    // Ajustar vida del jugador según el nivel
+    if(level === 11) {
+      playerHealth = 18;
+      createPainBoss();
+    } else if(level === 10) {
+      playerHealth = 15;
+      createAlly();
+    }
 
     // Cambiar escenario según el nivel
     switch(level) {
@@ -949,7 +982,132 @@
     enemyHUD[g.userData.id]=container;
   }
 
-  function animate(){
+  function createAlly() {
+  ally = new THREE.Group();
+  
+  // Crear modelo de Ino
+  let body = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.6, 0.6, 2.5),
+    new THREE.MeshStandardMaterial({color: 0x800080})
+  );
+  let head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.6),
+    new THREE.MeshStandardMaterial({color: 0xFFE4B5})
+  );
+  head.position.y = 1.8;
+  ally.add(body, head);
+  ally.position.set(player.position.x + 3, 1.25, player.position.z);
+  scene.add(ally);
+
+  // IA del aliado
+  setInterval(() => {
+    if(enemies.length > 0) {
+      // Encontrar enemigo más cercano
+      let closest = enemies.reduce((prev, curr) => 
+        prev.position.distanceTo(ally.position) < curr.position.distanceTo(ally.position) ? prev : curr
+      );
+      
+      // Moverse hacia el enemigo
+      let dir = closest.position.clone().sub(ally.position).normalize().multiplyScalar(0.1);
+      ally.position.add(dir);
+
+      // Usar poderes aleatorios
+      if(Math.random() < 0.1) {
+        let power = Math.floor(Math.random() * 4);
+        switch(power) {
+          case 0: activateMindTransfer(); break;
+          case 1: activateChakraBomb(); break;
+          case 2: activateMindControl(); break;
+          case 3: activateHealing(); break;
+        }
+      }
+    }
+  }, 100);
+}
+
+function createPainBoss() {
+  pain = new THREE.Group();
+  
+  // Crear modelo de Pain
+  let body = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.8, 0.8, 3),
+    new THREE.MeshStandardMaterial({color: 0x000000})
+  );
+  let head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.7),
+    new THREE.MeshStandardMaterial({color: 0xFF4500})
+  );
+  head.position.y = 2;
+  
+  // Añadir piercings característicos
+  for(let i = 0; i < 6; i++) {
+    let piercing = new THREE.Mesh(
+      new THREE.SphereGeometry(0.1),
+      new THREE.MeshStandardMaterial({color: 0x808080})
+    );
+    piercing.position.set(
+      Math.cos(i * Math.PI/3) * 0.4,
+      2,
+      Math.sin(i * Math.PI/3) * 0.4
+    );
+    pain.add(piercing);
+  }
+
+  pain.add(body, head);
+  pain.position.set(0, 1.5, -20);
+  pain.userData = {hp: 1000, id: 'pain'};
+  scene.add(pain);
+  enemies.push(pain);
+
+  // IA de Pain
+  setInterval(() => {
+    if(pain.userData.hp > 0) {
+      // Movimiento estratégico
+      let dir = player.position.clone().sub(pain.position);
+      if(dir.length() > 10) {
+        dir.normalize().multiplyScalar(0.2);
+        pain.position.add(dir);
+      }
+
+      // Ataques de Pain
+      if(Math.random() < 0.1) {
+        let attack = Math.floor(Math.random() * 5);
+        switch(attack) {
+          case 0: // Shinra Tensei
+            let blast = new THREE.Mesh(
+              new THREE.SphereGeometry(10),
+              new THREE.MeshBasicMaterial({color: 0x4B0082, transparent: true, opacity: 0.3})
+            );
+            blast.position.copy(pain.position);
+            scene.add(blast);
+            setTimeout(() => scene.remove(blast), 1000);
+            if(player.position.distanceTo(pain.position) < 15) {
+              playerHealth -= 2;
+            }
+            break;
+
+          case 1: // Bansho Tenin
+            let pull = player.position.clone().sub(pain.position).normalize().multiplyScalar(-0.5);
+            player.position.add(pull);
+            break;
+
+          case 2: // Chibaku Tensei
+            let sphere = new THREE.Mesh(
+              new THREE.SphereGeometry(2),
+              new THREE.MeshBasicMaterial({color: 0x000000})
+            );
+            sphere.position.copy(player.position).add(new THREE.Vector3(0, 10, 0));
+            scene.add(sphere);
+            setTimeout(() => scene.remove(sphere), 3000);
+            player.position.y += 0.3;
+            break;
+        }
+      }
+    }
+  }, 100);
+}
+
+function animate(){
     requestAnimationFrame(animate);
     // Animación de brazos y piernas al moverse
     if(moveDir.x !== 0 || moveDir.z !== 0) {
