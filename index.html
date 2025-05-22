@@ -632,20 +632,32 @@ function showCharacterName() {
   document.body.appendChild(nameDiv);
 }
 
-  // Simular carga
+  // Sistema de carga con almacenamiento local
   window.onload = () => {
-      let progress = 0;
-      const loadingBar = document.getElementById('loading-progress');
-      const loadingStatus = document.getElementById('loading-status');
-      const loadingSize = document.getElementById('loading-size');
-      const totalSize = 100;
-      const loadingSteps = [
-        {progress: 20, message: "Cargando modelos 3D...", size: 25},
-        {progress: 40, message: "Extrayendo texturas...", size: 45},
-        {progress: 60, message: "Cargando jutsu y poderes...", size: 65},
-        {progress: 80, message: "Inicializando física del juego...", size: 85},
-        {progress: 100, message: "¡Completado!", size: 100}
-      ];
+    // Verificar si ya se cargó anteriormente
+    if(localStorage.getItem('narutoGameLoaded')) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('char-select').style.display = 'flex';
+      return;
+    }
+
+    let progress = 0;
+    const loadingBar = document.getElementById('loading-progress');
+    const loadingStatus = document.getElementById('loading-status');
+    const loadingSize = document.getElementById('loading-size');
+    const totalSize = 250; // Aumentamos el tamaño total
+    const loadingSteps = [
+      {progress: 10, message: "Descargando modelos 3D base...", size: 25},
+      {progress: 20, message: "Cargando texturas de personajes...", size: 50},
+      {progress: 30, message: "Instalando efectos de jutsu...", size: 75},
+      {progress: 40, message: "Cargando animaciones...", size: 100},
+      {progress: 50, message: "Instalando efectos de partículas...", size: 125},
+      {progress: 60, message: "Cargando sonidos y música...", size: 150},
+      {progress: 70, message: "Configurando física del juego...", size: 175},
+      {progress: 80, message: "Optimizando rendimiento...", size: 200},
+      {progress: 90, message: "Finalizando instalación...", size: 225},
+      {progress: 100, message: "¡Instalación completada!", size: 250}
+    ];
 
       let currentStep = 0;
       const interval = setInterval(() => {
@@ -663,11 +675,13 @@ function showCharacterName() {
         if(progress >= 100) {
           clearInterval(interval);
           setTimeout(() => {
+            // Guardar en localStorage que ya se cargó el juego
+            localStorage.setItem('narutoGameLoaded', 'true');
             document.getElementById('loading').style.display = 'none';
             document.getElementById('char-select').style.display = 'flex';
           }, 1000);
         }
-      }, 50);
+      }, 100); // Aumentamos el intervalo para simular una carga más realista
     };
 
   function selectCharacter(char) {
