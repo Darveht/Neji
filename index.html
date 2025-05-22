@@ -501,6 +501,16 @@
       <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/97/Hinata.png') center/contain no-repeat;"></div>
       <p>Poderes: Byakugan, Puño Suave, León Gemelo, Protección de 8 Trigramas</p>
     </div>
+    <div class="char-card" onclick="selectCharacter('temari')">
+      <h3>Temari</h3>
+      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/7/7c/Temari_Part_2.png') center/contain no-repeat;"></div>
+      <p>Poderes: Danza del Abanico, Torbellino Cortante, Guadaña Comadreja, Invocación</p>
+    </div>
+    <div class="char-card" onclick="selectCharacter('sasuke')">
+      <h3>Sasuke Uchiha</h3>
+      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/2/21/Sasuke_Part_2.png') center/contain no-repeat;"></div>
+      <p>Poderes: Chidori, Sharingan, Amaterasu, Kirin</p>
+    </div>
   </div>
 
   <!-- Joystick -->
@@ -611,7 +621,9 @@ let characterNames = {
   'ino': 'Ino Yamanaka',
   'shikamaru': 'Shikamaru Nara',
   'tenten': 'Tenten',
-  'hinata': 'Hinata Hyūga'
+  'hinata': 'Hinata Hyūga',
+  'temari': 'Temari',
+  'sasuke': 'Sasuke Uchiha'
 };
 
 // Mostrar nombre del personaje
@@ -732,6 +744,14 @@ function showCharacterName() {
     } else if(char === 'hinata') {
       addButton('btn-gentle-fist', 'Puño Suave').addEventListener('touchstart', activateGentleFist);
       addButton('btn-twin-lions', 'Leones').addEventListener('touchstart', activateTwinLionFists);
+    } else if(char === 'temari') {
+      addButton('btn-fan-dance', 'Abanico').addEventListener('touchstart', activateFanDance);
+      addButton('btn-whirlwind', 'Torbellino').addEventListener('touchstart', activateWhirlwind);
+    } else if(char === 'sasuke') {
+      addButton('btn-chidori', 'Chidori').addEventListener('touchstart', activateChidori);
+      addButton('btn-kirin', 'Kirin').addEventListener('touchstart', activateKirin);
+      addButton('btn-sharingan', 'Sharingan').addEventListener('touchstart', activateSharingan);
+      addButton('btn-amaterasu', 'Amaterasu').addEventListener('touchstart', activateAmaterasu);
     }
 
     init();
@@ -1420,28 +1440,91 @@ function animate(){
 
   // Nuevos poderes de Itachi
   function activateSharingan() {
-    // Efecto visual de ojos rojos
+    // Efecto visual mejorado del Sharingan
     let overlay = document.createElement('div');
     overlay.style.cssText = `
       position:fixed;top:0;left:0;width:100%;height:100%;
-      background:rgba(255,0,0,0.1);
-      pointer-events:none;mix-blend-mode:overlay;
-      mask: radial-gradient(circle at 50% 40%, transparent 20%, black 30%);
+      background:linear-gradient(rgba(255,0,0,0.2), rgba(0,0,0,0.4));
+      pointer-events:none;mix-blend-mode:multiply;
+      animation: sharingan-pulse 2s infinite;
     `;
-    document.body.appendChild(ov);
-    setTimeout(() => overlay.remove(), 1200);
-
-    // Marcar enemigos
+    
+    // Añadir tomoes giratorios
+    let tomoe = document.createElement('div');
+    tomoe.style.cssText = `
+      position:fixed;top:50%;left:50%;
+      width:200px;height:200px;
+      transform:translate(-50%,-50%);
+      background:url('https://i.imgur.com/XhWcYr3.png') center/contain;
+      animation:spin 4s linear infinite;
+      pointer-events:none;
+      z-index:1000;
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(tomoe);
+    
+    // Aumentar velocidad y precisión temporalmente
+    let originalSpeed = playerSpeed;
+    playerSpeed *= 1.5;
+    
+    // Marcar enemigos con auras más visibles
     enemies.forEach(e => {
       let aura = new THREE.Mesh(
         new THREE.RingGeometry(1.5,2.5,32),
-        new THREE.MeshBasicMaterial({color:0xff0000,side:THREE.DoubleSide,transparent:true,opacity:0.3})
+        new THREE.MeshBasicMaterial({
+          color:0xff0000,
+          side:THREE.DoubleSide,
+          transparent:true,
+          opacity:0.5
+        })
       );
+      
+      // Añadir tomoes alrededor del enemigo
+      for(let i = 0; i < 3; i++) {
+        let marker = new THREE.Mesh(
+          new THREE.SphereGeometry(0.2),
+          new THREE.MeshBasicMaterial({color:0xff0000})
+        );
+        marker.position.copy(e.position).add(new THREE.Vector3(
+          Math.cos(i * Math.PI * 2/3) * 2,
+          1,
+          Math.sin(i * Math.PI * 2/3) * 2
+        ));
+        scene.add(marker);
+        setTimeout(() => scene.remove(marker), 5000);
+      }
+      
       aura.rotation.x = -Math.PI/2;
       aura.position.copy(e.position).add(new THREE.Vector3(0,1,0));
       scene.add(aura);
-      setTimeout(() => scene.remove(aura), 1200);
+      
+      // Animar aura
+      let pulseInterval = setInterval(() => {
+        aura.scale.x = 1 + Math.sin(Date.now() * 0.005) * 0.2;
+        aura.scale.y = aura.scale.x;
+      }, 50);
+      
+      setTimeout(() => {
+        clearInterval(pulseInterval);
+        scene.remove(aura);
+      }, 5000);
+      
+      // Marcar enemigo como visible a través de paredes
+      e.material.transparent = true;
+      e.material.opacity = 0.7;
+      setTimeout(() => {
+        e.material.transparent = false;
+        e.material.opacity = 1;
+      }, 5000);
     });
+
+    // Restaurar velocidad normal después de 5 segundos
+    setTimeout(() => {
+      playerSpeed = originalSpeed;
+      overlay.remove();
+      tomoe.remove();
+    }, 5000);
   }
 
   function activateAmaterasu() {
@@ -1929,6 +2012,155 @@ function animate(){
     }
 
     setTimeout(() => scene.remove(byakuganRing), 1000);
+  }
+
+  // Temari's Powers
+  function activateFanDance() {
+    let fan = new THREE.Mesh(
+      new THREE.BoxGeometry(3, 1.5, 0.1),
+      new THREE.MeshBasicMaterial({color: 0xF5F5F5})
+    );
+    fan.position.copy(player.position).add(new THREE.Vector3(0, 1, 1));
+    scene.add(fan);
+
+    let angle = 0;
+    let iv = setInterval(() => {
+      angle += 0.3;
+      fan.rotation.y = Math.sin(angle) * 2;
+      
+      // Múltiples ondas de viento
+      if(angle > Math.PI) {
+        for(let i = 0; i < 3; i++) {
+          let wind = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.5, 3, 10, 16),
+            new THREE.MeshBasicMaterial({color: 0xADD8E6, transparent: true, opacity: 0.4})
+          );
+          wind.position.copy(player.position).add(new THREE.Vector3(i*2-2, 1, -4));
+          wind.rotation.x = Math.PI/2;
+          scene.add(wind);
+          powers.push({
+            mesh: wind,
+            vel: new THREE.Vector3(0, 0, -1.5),
+            life: 40,
+            damage: 120
+          });
+        }
+        clearInterval(iv);
+        scene.remove(fan);
+      }
+    }, 50);
+  }
+
+  function activateWhirlwind() {
+    let tornado = new THREE.Group();
+    for(let i = 0; i < 5; i++) {
+      let ring = new THREE.Mesh(
+        new THREE.TorusGeometry(1 + i*0.3, 0.2, 16, 32),
+        new THREE.MeshBasicMaterial({color: 0x87CEEB, transparent: true, opacity: 0.4})
+      );
+      ring.position.y = i;
+      tornado.add(ring);
+    }
+    tornado.position.copy(player.position);
+    scene.add(tornado);
+
+    let cnt = 0;
+    let iv = setInterval(() => {
+      tornado.rotation.y += 0.2;
+      tornado.position.z -= 0.3;
+      tornado.children.forEach(ring => {
+        ring.scale.x = 1 + Math.sin(cnt * 0.2) * 0.2;
+      });
+      
+      enemies.forEach(e => {
+        if(e.position.distanceTo(tornado.position) < 3) {
+          e.userData.hp -= 5;
+          e.position.add(new THREE.Vector3(Math.random()-0.5, 0.2, Math.random()-0.5));
+        }
+      });
+
+      if(++cnt > 50) {
+        clearInterval(iv);
+        scene.remove(tornado);
+      }
+    }, 50);
+  }
+
+  // Sasuke's Powers
+  function activateChidori() {
+    let lightning = new THREE.Group();
+    for(let i = 0; i < 20; i++) {
+      let bolt = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 0.1, 0.5),
+        new THREE.MeshBasicMaterial({color: 0x00FFFF})
+      );
+      bolt.position.set(
+        Math.random() * 2 - 1,
+        Math.random() * 2,
+        Math.random() * 2 - 1
+      );
+      lightning.add(bolt);
+    }
+    
+    lightning.position.copy(player.position).add(new THREE.Vector3(0, 1, 0));
+    scene.add(lightning);
+
+    let vel = new THREE.Vector3(0, 0, -1);
+    powers.push({
+      mesh: lightning,
+      vel: vel,
+      life: 30,
+      damage: 150
+    });
+  }
+
+  function activateKirin() {
+    // Efecto de rayo en el cielo
+    let skyLightning = new THREE.Mesh(
+      new THREE.PlaneGeometry(100, 100),
+      new THREE.MeshBasicMaterial({color: 0x4169E1, transparent: true, opacity: 0.3})
+    );
+    skyLightning.position.y = 50;
+    skyLightning.rotation.x = -Math.PI/2;
+    scene.add(skyLightning);
+
+    setTimeout(() => {
+      let dragon = new THREE.Group();
+      // Crear forma de dragón eléctrico
+      for(let i = 0; i < 30; i++) {
+        let segment = new THREE.Mesh(
+          new THREE.BoxGeometry(0.5, 0.5, 1),
+          new THREE.MeshBasicMaterial({color: 0x00FFFF})
+        );
+        segment.position.z = -i;
+        dragon.add(segment);
+      }
+      dragon.position.set(0, 40, 0);
+      scene.add(dragon);
+
+      let cnt = 0;
+      let iv = setInterval(() => {
+        dragon.position.y -= 2;
+        dragon.children.forEach((segment, i) => {
+          segment.rotation.z = Math.sin(cnt * 0.3 + i * 0.2) * 0.3;
+        });
+
+        if(dragon.position.y < 0) {
+          clearInterval(iv);
+          scene.remove(dragon);
+          scene.remove(skyLightning);
+
+          // Explosión
+          enemies.forEach(e => {
+            if(e.position.distanceTo(player.position) < 10) {
+              e.userData.hp -= 200;
+              flash(e.position);
+            }
+          });
+        }
+        cnt++;
+      }, 50);
+    }, 1000);
   }
 
   function activateTwinLionFists() {
