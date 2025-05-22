@@ -563,6 +563,11 @@
       <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/2/21/Sasuke_Part_2.png') center/contain no-repeat;"></div>
       <p>Poderes: Chidori, Sharingan, Amaterasu, Kirin</p>
     </div>
+    <div class="char-card" onclick="selectCharacter('hashirama')">
+      <h3>Hashirama Senju</h3>
+      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/7/7e/Hashirama_Senju.png') center/contain no-repeat;"></div>
+      <p>Poderes: Mokuton, Senjutsu, Regeneración, Gōjū Mokuton</p>
+    </div>
   </div>
 
   <!-- Joystick -->
@@ -809,6 +814,177 @@ function showCharacterName() {
       addButton('btn-kirin', 'Kirin').addEventListener('touchstart', activateKirin);
       addButton('btn-sharingan', 'Sharingan').addEventListener('touchstart', activateSharingan);
       addButton('btn-amaterasu', 'Amaterasu').addEventListener('touchstart', activateAmaterasu);
+    } else if(char === 'hashirama') {
+      addButton('btn-mokuton', 'Mokuton').addEventListener('touchstart', activateMokuton);
+      addButton('btn-senjutsu', 'Senjutsu').addEventListener('touchstart', activateSenjutsu);
+      addButton('btn-regen', 'Regenerar').addEventListener('touchstart', activateRegeneration);
+      addButton('btn-goju', 'Gōjū').addEventListener('touchstart', activateGojuMokuton);
+    }
+
+    // Habilidades de Hashirama
+    function activateMokuton() {
+      // Crear plataforma principal de madera
+      let mainWood = new THREE.Group(); // Usar un grupo para mejor control
+      
+      let woodBase = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.3, 4),
+        new THREE.MeshStandardMaterial({
+          color: 0x8B4513,
+          roughness: 0.8,
+          metalness: 0.2
+        })
+      );
+      mainWood.add(woodBase);
+      
+      // Añadir barandillas para mejor estabilidad visual
+      for(let x = -1; x <= 1; x += 2) {
+        let rail = new THREE.Mesh(
+          new THREE.BoxGeometry(0.1, 0.5, 4),
+          new THREE.MeshStandardMaterial({color: 0x8B4513})
+        );
+        rail.position.set(x * 0.9, 0.4, 0);
+        mainWood.add(rail);
+      }
+
+      // Añadir detalles decorativos
+      for(let i = 0; i < 6; i++) {
+        let detail = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.08, 0.05, 0.8),
+          new THREE.MeshStandardMaterial({color: 0x8B4513})
+        );
+        detail.position.set(
+          (i % 2 ? 0.9 : -0.9),
+          0.3,
+          (i/2 - 1) * 1.5
+        );
+        mainWood.add(detail);
+      }
+
+      // Posicionar la plataforma y el jugador
+      mainWood.position.copy(player.position);
+      mainWood.position.y = player.position.y - 0.5; // Ajustar altura inicial
+      scene.add(mainWood);
+      
+      // Vincular el jugador a la plataforma
+      let playerOffset = new THREE.Vector3(0, 1.75, 0);
+      
+      // Animación de surfeo mejorada
+      let time = 0;
+      let woodPath = [];
+      let pathInterval = setInterval(() => {
+        time += 0.1;
+        
+        // Movimiento más suave
+        mainWood.position.y += Math.sin(time * 2) * 0.015; // Movimiento vertical más sutil
+        mainWood.position.z -= 0.4; // Velocidad reducida para mayor control
+        mainWood.rotation.x = Math.sin(time) * 0.05; // Rotación más suave
+        
+        // Mantener al jugador firmemente sobre la plataforma
+        player.position.copy(mainWood.position).add(playerOffset);
+        player.rotation.x = mainWood.rotation.x; // Sincronizar rotación
+        
+        // Crear rastro de madera
+        let trail = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.15, 0.1, 2),
+          new THREE.MeshStandardMaterial({
+            color: 0x8B4513,
+            transparent: true,
+            opacity: 0.7
+          })
+        );
+        trail.position.copy(mainWood.position).add(new THREE.Vector3(0, -2, 2));
+        trail.rotation.x = Math.PI/6;
+        scene.add(trail);
+        woodPath.push(trail);
+
+        // Desvanecer rastro
+        woodPath.forEach((w, i) => {
+          w.material.opacity -= 0.05;
+          if(w.material.opacity <= 0) {
+            scene.remove(w);
+            woodPath.splice(i, 1);
+          }
+        });
+
+        // Efecto de daño a enemigos
+        enemies.forEach(e => {
+          if(e.position.distanceTo(mainWood.position) < 3) {
+            e.userData.hp -= 5;
+            let impact = new THREE.Mesh(
+              new THREE.SphereGeometry(0.3),
+              new THREE.MeshBasicMaterial({
+                color: 0x8B4513,
+                transparent: true,
+                opacity: 0.5
+              })
+            );
+            impact.position.copy(e.position);
+            scene.add(impact);
+            setTimeout(() => scene.remove(impact), 300);
+          }
+        });
+
+      }, 50);
+
+      // Detener animación después de 3 segundos
+      setTimeout(() => {
+        clearInterval(pathInterval);
+        scene.remove(mainWood);
+        woodPath.forEach(w => scene.remove(w));
+        player.position.y = originalY;
+      }, 3000);
+    }
+
+    function activateSenjutsu() {
+      // Modo Sabio
+      player.children.forEach(part => {
+        part.material.color.setHex(0xFF4500);
+      });
+      playerSpeed *= 1.5;
+      setTimeout(() => {
+        player.children.forEach(part => {
+          part.material.color.setHex(0xeeeeee);
+        });
+        playerSpeed /= 1.5;
+      }, 10000);
+    }
+
+    function activateRegeneration() {
+      // Regeneración de vida
+      let heal = setInterval(() => {
+        if(playerHealth < MAX_HEALTH) {
+          playerHealth++;
+          updatePlayerHUD();
+        }
+      }, 500);
+      setTimeout(() => clearInterval(heal), 5000);
+    }
+
+    function activateGojuMokuton() {
+      // Golem de Madera gigante
+      let golem = new THREE.Group();
+      let body = new THREE.Mesh(
+        new THREE.BoxGeometry(4, 6, 3),
+        new THREE.MeshStandardMaterial({color: 0x8B4513})
+      );
+      golem.add(body);
+      golem.position.copy(player.position);
+      scene.add(golem);
+      
+      let cnt = 0;
+      let iv = setInterval(() => {
+        golem.position.z -= 0.5;
+        enemies.forEach(e => {
+          if(e.position.distanceTo(golem.position) < 4) {
+            e.userData.hp -= 15;
+            flash(e.position);
+          }
+        });
+        if(++cnt > 40) {
+          clearInterval(iv);
+          scene.remove(golem);
+        }
+      }, 100);
     }
 
     init();
