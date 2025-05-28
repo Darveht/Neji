@@ -182,6 +182,225 @@
       margin-top: 8px;
     }
 
+    #video-intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #credits-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: 'Press Start 2P', cursive;
+      text-align: center;
+      padding: 20px;
+      animation: fadeInCredits 2s ease-in-out;
+    }
+
+    #credits-overlay h1 {
+      font-size: 24px;
+      color: #ff4500;
+      text-shadow: 2px 2px 0px #000, 4px 4px 0px rgba(255,69,0,0.5);
+      margin-bottom: 10px;
+      animation: pixelGlow 2s steps(4) infinite;
+    }
+
+    #credits-overlay h2 {
+      font-size: 16px;
+      color: #00ffff;
+      text-shadow: 2px 2px 0px #000;
+      margin-bottom: 30px;
+    }
+
+    #credits-overlay p {
+      font-size: 10px;
+      color: #ffff00;
+      text-shadow: 1px 1px 0px #000;
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+
+    #skip-button {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(255,69,0,0.8);
+      color: #fff;
+      padding: 10px 15px;
+      border: 2px solid #fff;
+      font-size: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      animation: pixelBlink 1.5s steps(2) infinite;
+    }
+
+    #skip-button:hover {
+      background: rgba(255,255,0,0.8);
+      color: #000;
+      transform: scale(1.1);
+    }
+
+    @keyframes fadeInCredits {
+      0% { opacity: 0; transform: translateY(50px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pixelGlow {
+      0%, 100% { text-shadow: 2px 2px 0px #000, 4px 4px 0px rgba(255,69,0,0.5); }
+      50% { text-shadow: 2px 2px 0px #000, 4px 4px 0px rgba(255,255,0,0.8), 0 0 10px #ff4500; }
+    }
+
+    /* Pantalla de créditos Glam Works */
+    #glam-credits {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(45deg, #000000 25%, #1a1a1a 25%),
+        linear-gradient(-45deg, #000000 25%, #1a1a1a 25%),
+        linear-gradient(45deg, #1a1a1a 75%, #000000 75%),
+        linear-gradient(-45deg, #1a1a1a 75%, #000000 75%);
+      background-size: 16px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+    }
+
+    #glam-logo {
+      text-align: center;
+      animation: glamAppear 3s ease-in-out;
+    }
+
+    #glam-logo h1 {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 32px;
+      color: #FFD700;
+      text-shadow: 
+        3px 3px 0px #000,
+        6px 6px 0px rgba(255,215,0,0.5),
+        0 0 20px #FFD700;
+      margin: 0;
+      letter-spacing: 4px;
+      animation: pixelGlow 2s steps(4) infinite;
+    }
+
+    .glam-subtitle {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 12px;
+      color: #00ffff;
+      text-shadow: 2px 2px 0px #000;
+      margin-top: 20px;
+      letter-spacing: 2px;
+    }
+
+    #glam-skip {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(255,215,0,0.8);
+      color: #000;
+      padding: 10px 15px;
+      border: 2px solid #FFD700;
+      font-size: 8px;
+      font-family: 'Press Start 2P', cursive;
+      cursor: pointer;
+      transition: all 0.3s;
+      animation: pixelBlink 1.5s steps(2) infinite;
+    }
+
+    #glam-skip:hover {
+      background: rgba(0,255,255,0.8);
+      border-color: #00ffff;
+      transform: scale(1.1);
+    }
+
+    @keyframes glamAppear {
+      0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+      50% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    /* Estilos para video personalizado */
+    #video-credits-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: 'Press Start 2P', cursive;
+      text-align: center;
+      padding: 20px;
+      animation: fadeInCredits 2s ease-in-out;
+    }
+
+    #video-credits-overlay h1 {
+      font-size: 24px;
+      color: #ff4500;
+      text-shadow: 2px 2px 0px #000, 4px 4px 0px rgba(255,69,0,0.5);
+      margin-bottom: 10px;
+      animation: pixelGlow 2s steps(4) infinite;
+    }
+
+    #video-credits-overlay h2 {
+      font-size: 16px;
+      color: #00ffff;
+      text-shadow: 2px 2px 0px #000;
+      margin-bottom: 30px;
+    }
+
+    #video-credits-overlay p {
+      font-size: 10px;
+      color: #ffff00;
+      text-shadow: 1px 1px 0px #000;
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+
+    #video-skip-button {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(255,69,0,0.8);
+      color: #fff;
+      padding: 10px 15px;
+      border: 2px solid #fff;
+      font-size: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      animation: pixelBlink 1.5s steps(2) infinite;
+    }
+
+    #video-skip-button:hover {
+      background: rgba(255,255,0,0.8);
+      color: #000;
+      transform: scale(1.1);
+    }
+
     #intro-screen {
       background: 
         radial-gradient(circle at 20% 80%, #ff0080 2px, transparent 3px),
@@ -189,9 +408,24 @@
         radial-gradient(circle at 40% 40%, #0080ff 1px, transparent 2px),
         linear-gradient(45deg, #0a0a0a 50%, #1a0a1a 50%);
       background-size: 32px 32px, 32px 32px, 16px 16px, 8px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #naruto-logo-container {
+      max-width: 80%;
+      max-height: 80%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #naruto-logo {
+      max-width: 100%;
+      max-height: 400px;
+      width: auto;
+      height: auto;
       filter: 
         drop-shadow(2px 2px 0px #000)
         drop-shadow(4px 4px 0px #ff4500)
@@ -608,9 +842,31 @@
   </style>
 </head>
 <body>
-  <!-- Pantalla de inicio -->
-  <div id="intro-screen">
-    <img id="naruto-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Logo_Naruto_Shipp%C5%ABden.svg/2560px-Logo_Naruto_Shipp%C5%ABden.svg.png" alt="Naruto Shippuden">
+  <!-- Pantalla de créditos Glam Works -->
+  <div id="glam-credits">
+    <div id="glam-logo">
+      <h1>GLAM WORKS</h1>
+      <div class="glam-subtitle">PRESENTA</div>
+    </div>
+    <div id="glam-skip">PRESIONA PARA SALTAR</div>
+  </div>
+
+  <!-- Pantalla de video personalizado -->
+  <div id="video-intro" style="display:none;">
+    <video id="intro-video" muted style="width:100%;height:100%;object-fit:cover;">
+      <!-- CAMBIA ESTA URL POR TU VIDEO DE CAPCUT -->
+      <source src="TU_VIDEO_CAPCUT.mp4" type="video/mp4">
+      <!-- Respaldo si no carga tu video -->
+      <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+    </video>
+    <div id="video-skip-button">PRESIONA PARA SALTAR</div>
+  </div>
+
+  <!-- Pantalla de inicio con logo Naruto arreglado -->
+  <div id="intro-screen" style="display:none;">
+    <div id="naruto-logo-container">
+      <img id="naruto-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Logo_Naruto_Shipp%C5%ABden.svg/2560px-Logo_Naruto_Shipp%C5%ABden.svg.png" alt="Naruto Shippuden">
+    </div>
   </div>
   <!-- Pantalla de carga -->
   <div id="loading">
@@ -697,8 +953,133 @@
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
   <script>
-  // Transición de pantalla de inicio
-  // Reproducir música de intro con YouTube
+  // Secuencia completa: Glam Works → Video → Logo → Personajes
+  const glamCredits = document.getElementById('glam-credits');
+  const glamSkip = document.getElementById('glam-skip');
+  const videoIntro = document.getElementById('video-intro');
+  const introVideo = document.getElementById('intro-video');
+  const videoSkipButton = document.getElementById('video-skip-button');
+  const introScreen = document.getElementById('intro-screen');
+
+  let currentStep = 1; // 1=Glam, 2=Video, 3=Logo, 4=Game
+  let canSkip = false;
+
+  // PASO 1: Créditos Glam Works
+  function showGlamCredits() {
+    glamCredits.style.display = 'flex';
+    canSkip = false;
+    
+    // Permitir skip después de 2 segundos
+    setTimeout(() => {
+      canSkip = true;
+    }, 2000);
+    
+    // NO auto-avanzar - solo manual
+  }
+
+  // PASO 2: Video personalizado (SIN créditos encima)
+  function showVideo() {
+    glamCredits.style.display = 'none';
+    videoIntro.style.display = 'flex';
+    canSkip = false;
+    
+    // Quitar la superposición de créditos del video
+    const videoCreditsOverlay = document.getElementById('video-credits-overlay');
+    if(videoCreditsOverlay) {
+      videoCreditsOverlay.style.display = 'none';
+    }
+    
+    // Intentar reproducir el video
+    introVideo.play().catch(() => {
+      console.log('Video no disponible, continuando...');
+    });
+    
+    // Permitir skip después de 3 segundos
+    setTimeout(() => {
+      canSkip = true;
+    }, 3000);
+    
+    // Auto-avanzar SOLO cuando termine el video (no por tiempo)
+    introVideo.addEventListener('ended', () => {
+      if(currentStep === 2) {
+        nextStep();
+      }
+    });
+  }
+
+  // PASO 3: Logo Naruto
+  function showLogo() {
+    videoIntro.style.display = 'none';
+    introScreen.style.display = 'flex';
+    canSkip = false;
+    
+    // Permitir skip después de 1 segundo
+    setTimeout(() => {
+      canSkip = true;
+    }, 1000);
+    
+    // Auto-avanzar después de 4 segundos (más tiempo para ver el logo)
+    setTimeout(() => {
+      if(currentStep === 3) {
+        nextStep();
+      }
+    }, 4000);
+  }
+
+  // PASO 4: Selección de personajes
+  function showCharacterSelect() {
+    introScreen.style.opacity = '0';
+    introScreen.style.transition = 'opacity 1s';
+    setTimeout(() => {
+      introScreen.style.display = 'none';
+      // El menú de carga ya maneja la transición a personajes
+    }, 1000);
+  }
+
+  // Función para avanzar al siguiente paso
+  function nextStep() {
+    if(!canSkip && currentStep < 4) return; // No permitir skip si no está habilitado
+    
+    currentStep++;
+    switch(currentStep) {
+      case 2:
+        showVideo();
+        break;
+      case 3:
+        showLogo();
+        break;
+      case 4:
+        showCharacterSelect();
+        break;
+    }
+  }
+
+  // Event listeners para saltar - SOLO cuando canSkip es true
+  glamSkip.addEventListener('click', () => {
+    if(canSkip) nextStep();
+  });
+  
+  videoSkipButton.addEventListener('click', () => {
+    if(canSkip) nextStep();
+  });
+  
+  // Clicks en las pantallas - SOLO cuando canSkip es true
+  glamCredits.addEventListener('click', () => {
+    if(canSkip) nextStep();
+  });
+  
+  videoIntro.addEventListener('click', () => {
+    if(canSkip) nextStep();
+  });
+  
+  introScreen.addEventListener('click', () => {
+    if(canSkip) nextStep();
+  });
+
+  // Iniciar secuencia
+  showGlamCredits();
+
+  // Reproducir música de intro con YouTube (opcional)
   let youtubePlayer;
 
   // Crear el iframe de YouTube
@@ -731,17 +1112,7 @@
     document.addEventListener('click', function() {
       youtubePlayer.playVideo();
     });
-  }
-
-  setTimeout(() => {
-    const introScreen = document.getElementById('intro-screen');
-    introScreen.style.opacity = '0';
-    introScreen.style.transition = 'opacity 1s';
-    setTimeout(() => {
-      introScreen.style.display = 'none';
-      introMusic.pause();
-    }, 1000);
-  }, 3000);
+  };
 
   // Variables globales
   let scene, camera, renderer, player, floor;
