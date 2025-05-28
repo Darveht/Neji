@@ -1164,9 +1164,17 @@
   };
 
   function onPlayerReady(event) {
-    // Agregar detector de clic al documento
+    // Pausar inmediatamente el video de YouTube
+    youtubePlayer.pauseVideo();
+    youtubePlayer.mute(); // Silenciar para evitar conflictos
+    
+    // Agregar detector de clic al documento para reanudar si es necesario
     document.addEventListener('click', function() {
-      youtubePlayer.playVideo();
+      // Solo reproducir si no hay otros sonidos activos
+      if(!document.getElementById('byakugan-sound') && !document.getElementById('hinata-byakugan-sound')) {
+        youtubePlayer.unMute();
+        youtubePlayer.playVideo();
+      }
     });
   };
 
@@ -2005,6 +2013,8 @@ function animate(){
       enemies.forEach(e=>{
         if(p.life>0 && p.mesh.position.distanceTo(e.position)<1.2){
           e.userData.hp-=p.damage; p.life=0; flash(e.position);
+          // Reproducir sonido de impacto cuando el poder golpea al enemigo
+          playImpactSound();
         }
       });
       if(p.life<=0){ scene.remove(p.mesh); powers.splice(i,1); }
@@ -2031,6 +2041,9 @@ function animate(){
       // Daño al jugador cuando está cerca
       if(e.position.distanceTo(player.position) < 2) {
         playerHealth -= 1; // Quitar 1 vida por golpe
+        // Reproducir sonido de impacto cuando el enemigo golpea al jugador
+        playImpactSound();
+        
         // Efecto visual de daño
         let dmgFlash = document.createElement('div');
         dmgFlash.style.cssText = `
@@ -2077,26 +2090,100 @@ function animate(){
     setTimeout(()=>scene.remove(m),200);
   }
 
+  // Función para reproducir sonido de poder a distancia
+  function playProjectileSound() {
+    let projectileSound = document.createElement('video');
+    projectileSound.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    projectileSound.src = 'https://ik.imagekit.io/lcpvlmgbf/-975843560396402730.mp4?updatedAt=1748455137385';
+    projectileSound.autoplay = true;
+    projectileSound.muted = false;
+    projectileSound.volume = 0.7;
+    projectileSound.preload = 'auto';
+    
+    document.body.appendChild(projectileSound);
+    
+    projectileSound.play().catch(e => {
+      console.log('Projectile sound autoplay error:', e);
+      projectileSound.muted = true;
+      projectileSound.play().then(() => {
+        projectileSound.muted = false;
+      });
+    });
+
+    // Remover después de 2 segundos
+    setTimeout(() => {
+      projectileSound.remove();
+    }, 2000);
+  }
+
+  // Función para reproducir sonido de impacto/golpe
+  function playImpactSound() {
+    let impactSound = document.createElement('video');
+    impactSound.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    impactSound.src = 'https://ik.imagekit.io/lcpvlmgbf/copy_21E0A2DA-745D-4447-B493-140B9050A5A2.mov/ik-video.mp4?updatedAt=1748454860763';
+    impactSound.autoplay = true;
+    impactSound.muted = false;
+    impactSound.volume = 0.8;
+    impactSound.preload = 'auto';
+    
+    document.body.appendChild(impactSound);
+    
+    impactSound.play().catch(e => {
+      console.log('Impact sound autoplay error:', e);
+      impactSound.muted = true;
+      impactSound.play().then(() => {
+        impactSound.muted = false;
+      });
+    });
+
+    // Remover después de 1.5 segundos
+    setTimeout(() => {
+      impactSound.remove();
+    }, 1500);
+  }
+
   // ─── TÉCNICAS ───
 
   function activateByakugan(){
-    // Efecto de sonido
-    // Actualizar el iframe existente o crear uno nuevo si no existe
-    let ytContainer = document.getElementById('byakugan-sound') || document.createElement('div');
-    ytContainer.id = 'byakugan-sound';
-    ytContainer.style.cssText = 'display:none;';
-    ytContainer.innerHTML = `
-      <iframe 
-        width="560" height="315" 
-        src="https://www.youtube.com/embed/D45kJRoY_-k?enablejsapi=1&start=0&autoplay=1" 
-        allow="autoplay">
-      </iframe>`;
-    document.body.appendChild(ytContainer);
+    // Pausar YouTube mientras suena el Byakugan
+    if(youtubePlayer && youtubePlayer.pauseVideo) {
+      youtubePlayer.pauseVideo();
+      youtubePlayer.mute();
+    }
 
-    // Reproducir el sonido
+    // Efecto de sonido del Byakugan mejorado con video HTML5
+    let byakuganSound = document.createElement('video');
+    byakuganSound.id = 'byakugan-sound';
+    byakuganSound.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    byakuganSound.src = 'https://ik.imagekit.io/lcpvlmgbf/-4196672225765940788.mp4?updatedAt=1748454278148';
+    byakuganSound.autoplay = true;
+    byakuganSound.muted = false;
+    byakuganSound.volume = 1.0;
+    byakuganSound.preload = 'auto';
+    
+    // Forzar reproducción inmediata
+    document.body.appendChild(byakuganSound);
+    
+    byakuganSound.play().then(() => {
+      console.log('Byakugan sound playing!');
+    }).catch(e => {
+      console.log('Byakugan autoplay error:', e);
+      // Si falla el autoplay, intentar con interacción del usuario
+      byakuganSound.muted = true;
+      byakuganSound.play().then(() => {
+        byakuganSound.muted = false;
+      });
+    });
+
+    // Remover después de que termine el sonido y reanudar YouTube
     setTimeout(() => {
-      ytContainer.remove();
-    }, 2000);
+      byakuganSound.remove();
+      // Reanudar YouTube después del sonido del Byakugan
+      if(youtubePlayer && youtubePlayer.playVideo) {
+        youtubePlayer.unMute();
+        youtubePlayer.playVideo();
+      }
+    }, 3000);
 
     // pupilas blancas + venas (overlay CSS)
     let ov=document.createElement('div');
@@ -2125,6 +2212,9 @@ function animate(){
   }
 
   function activateJuken(){
+    // Reproducir sonido de poder a distancia
+    playProjectileSound();
+    
     // golpe suave: pulso pixelado
     let p=new THREE.Mesh(
       new THREE.BoxGeometry(1,1,1),
@@ -2137,6 +2227,9 @@ function animate(){
   }
 
   function activate64Palms(){
+    // Reproducir sonido de poder a distancia
+    playProjectileSound();
+    
     for(let i=0;i<64;i++){
       let a=(i/64)*Math.PI*2;
       let orb=new THREE.Mesh(
@@ -2154,6 +2247,9 @@ function animate(){
   }
 
   function activate128Palms(){
+    // Reproducir sonido de poder a distancia
+    playProjectileSound();
+    
     for(let i=0;i<128;i++){      let a=(i/128)*Math.PI*2;
       let orb=new THREE.Mesh(
         new THREE.BoxGeometry(0.24,0.24,0.24),
@@ -2221,6 +2317,46 @@ function animate(){
 
   // Nuevos poderes de Itachi
   function activateSharingan() {
+    // Pausar YouTube mientras suena el Sharingan
+    if(youtubePlayer && youtubePlayer.pauseVideo) {
+      youtubePlayer.pauseVideo();
+      youtubePlayer.mute();
+    }
+
+    // Efecto de sonido del Sharingan con video HTML5
+    let sharinganSound = document.createElement('video');
+    sharinganSound.id = 'sharingan-sound';
+    sharinganSound.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    sharinganSound.src = 'https://ik.imagekit.io/lcpvlmgbf/4094554501659701029.mp4?updatedAt=1748454278815';
+    sharinganSound.autoplay = true;
+    sharinganSound.muted = false;
+    sharinganSound.volume = 1.0;
+    sharinganSound.preload = 'auto';
+    
+    // Forzar reproducción inmediata
+    document.body.appendChild(sharinganSound);
+    
+    sharinganSound.play().then(() => {
+      console.log('Sharingan sound playing!');
+    }).catch(e => {
+      console.log('Sharingan autoplay error:', e);
+      // Si falla el autoplay, intentar con interacción del usuario
+      sharinganSound.muted = true;
+      sharinganSound.play().then(() => {
+        sharinganSound.muted = false;
+      });
+    });
+
+    // Remover después de que termine el sonido y reanudar YouTube
+    setTimeout(() => {
+      sharinganSound.remove();
+      // Reanudar YouTube después del sonido del Sharingan
+      if(youtubePlayer && youtubePlayer.playVideo) {
+        youtubePlayer.unMute();
+        youtubePlayer.playVideo();
+      }
+    }, 2500);
+
     // Efecto visual mejorado del Sharingan pixelado
     let overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -2318,6 +2454,9 @@ function animate(){
   }
 
   function activateAmaterasu() {
+    // Reproducir sonido de poder a distancia
+    playProjectileSound();
+    
     let flame = new THREE.Mesh(
       new THREE.BoxGeometry(1,1,1),
       new THREE.MeshBasicMaterial({color:0x000000})
@@ -2571,6 +2710,9 @@ function animate(){
   }
 
   function activateChakraBomb() {
+    // Reproducir sonido de poder a distancia
+    playProjectileSound();
+    
     let bomb = new THREE.Mesh(
       new THREE.BoxGeometry(0.6,0.6,0.6),
       new THREE.MeshBasicMaterial({color: 0x00FF7F})
@@ -2878,6 +3020,46 @@ function animate(){
 
   // Habilidades de Hinata
   function activateGentleFist() {
+    // Pausar YouTube mientras suena el Byakugan de Hinata
+    if(youtubePlayer && youtubePlayer.pauseVideo) {
+      youtubePlayer.pauseVideo();
+      youtubePlayer.mute();
+    }
+
+    // Efecto de sonido del Byakugan mejorado para Hinata con video HTML5
+    let byakuganSound = document.createElement('video');
+    byakuganSound.id = 'hinata-byakugan-sound';
+    byakuganSound.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    byakuganSound.src = 'https://ik.imagekit.io/lcpvlmgbf/-4196672225765940788.mp4?updatedAt=1748454278148';
+    byakuganSound.autoplay = true;
+    byakuganSound.muted = false;
+    byakuganSound.volume = 1.0;
+    byakuganSound.preload = 'auto';
+    
+    // Forzar reproducción inmediata
+    document.body.appendChild(byakuganSound);
+    
+    byakuganSound.play().then(() => {
+      console.log('Hinata Byakugan sound playing!');
+    }).catch(e => {
+      console.log('Hinata Byakugan autoplay error:', e);
+      // Si falla el autoplay, intentar con interacción del usuario
+      byakuganSound.muted = true;
+      byakuganSound.play().then(() => {
+        byakuganSound.muted = false;
+      });
+    });
+
+    // Remover después de que termine el sonido y reanudar YouTube
+    setTimeout(() => {
+      byakuganSound.remove();
+      // Reanudar YouTube después del sonido del Byakugan
+      if(youtubePlayer && youtubePlayer.playVideo) {
+        youtubePlayer.unMute();
+        youtubePlayer.playVideo();
+      }
+    }, 3000);
+
     // Animación de Byakugan activándose pixelado
     let byakuganRing = new THREE.Mesh(
       new THREE.BoxGeometry(1, 0.2, 2),
@@ -2887,6 +3069,9 @@ function animate(){
     byakuganRing.position.copy(player.position);
     scene.add(byakuganRing);
 
+    // Reproducir sonido de poder a distancia para los proyectiles
+    playProjectileSound();
+    
     // Múltiples golpes de Puño Suave pixelados
     for(let i = 0; i < 5; i++) {
       setTimeout(() => {
@@ -2986,6 +3171,9 @@ function animate(){
 
   // Sasuke's Powers
   function activateChidori() {
+    // Reproducir sonido de poder a distancia
+    playProjectileSound();
+    
     let lightning = new THREE.Group();
     for(let i = 0; i < 20; i++) {
       let bolt = new THREE.Mesh(
