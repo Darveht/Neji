@@ -853,11 +853,13 @@
 
   <!-- Pantalla de video personalizado -->
   <div id="video-intro" style="display:none;">
-    <video id="intro-video" muted style="width:100%;height:100%;object-fit:cover;">
-      <!-- CAMBIA ESTA URL POR TU VIDEO DE CAPCUT -->
-      <source src="TU_VIDEO_CAPCUT.mp4" type="video/mp4">
-      <!-- Respaldo si no carga tu video -->
-      <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+    <video id="intro-video" 
+           style="width:100%;height:100%;object-fit:cover;background:#000;" 
+           autoplay 
+           muted 
+           playsinline
+           preload="auto">
+      <source src="https://ik.imagekit.io/lcpvlmgbf/copy_DBDB6139-95C4-4DBB-A0DF-78E4B5FED009.mov/ik-video.mp4?updatedAt=1748452619471" type="video/mp4">
     </video>
     <div id="video-skip-button">PRESIONA PARA SALTAR</div>
   </div>
@@ -989,9 +991,9 @@
       videoCreditsOverlay.style.display = 'none';
     }
     
-    // Intentar reproducir el video
-    introVideo.play().catch(() => {
-      console.log('Video no disponible, continuando...');
+    // Intentar reproducir el video automáticamente
+    introVideo.play().catch(e => {
+      console.log('Video no pudo reproducirse automáticamente:', e);
     });
     
     // Permitir skip después de 3 segundos
@@ -999,12 +1001,19 @@
       canSkip = true;
     }, 3000);
     
-    // Auto-avanzar SOLO cuando termine el video (no por tiempo)
+    // Auto-avanzar cuando termine el video O después de 10 segundos
     introVideo.addEventListener('ended', () => {
       if(currentStep === 2) {
         nextStep();
       }
     });
+    
+    // Backup: auto-avanzar después de 10 segundos por si no detecta el final
+    setTimeout(() => {
+      if(currentStep === 2) {
+        nextStep();
+      }
+    }, 10000);
   }
 
   // PASO 3: Logo Naruto
