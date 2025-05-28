@@ -1063,38 +1063,257 @@
     });
   }
 
-  // PASO 3: Logo Naruto
-  function showLogo() {
+  // PASO 3: Pantalla de inicialización del juego
+  function showGameInitialization() {
     videoIntro.style.display = 'none';
-    introScreen.style.display = 'flex';
-    canSkip = false;
     
-    // Permitir skip después de 1 segundo
-    setTimeout(() => {
-      canSkip = true;
-    }, 1000);
+    // Crear pantalla de inicialización
+    let initScreen = document.createElement('div');
+    initScreen.id = 'game-init-screen';
+    initScreen.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, #ff0080 2px, transparent 3px),
+        radial-gradient(circle at 80% 20%, #00ff80 2px, transparent 3px),
+        radial-gradient(circle at 40% 40%, #0080ff 1px, transparent 2px),
+        linear-gradient(45deg, #0a0a0a 50%, #1a0a1a 50%);
+      background-size: 32px 32px, 32px 32px, 16px 16px, 8px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      font-family: 'Press Start 2P', cursive;
+    `;
     
-    // Auto-avanzar después de 4 segundos (más tiempo para ver el logo)
-    setTimeout(() => {
-      if(currentStep === 3) {
-        nextStep();
+    initScreen.innerHTML = `
+      <h1 style="
+        color: #00ffff;
+        font-size: 24px;
+        text-shadow: 2px 2px 0px #000, 4px 4px 0px rgba(0,255,255,0.5);
+        margin-bottom: 30px;
+        animation: pixel-blink 1s steps(2) infinite;
+      ">INICIALIZANDO JUEGO...</h1>
+      
+      <div id="init-status" style="
+        color: #ffff00;
+        font-size: 12px;
+        text-shadow: 1px 1px 0px #000;
+        margin-bottom: 20px;
+      ">CARGANDO SISTEMA...</div>
+      
+      <div style="
+        width: 400px;
+        height: 20px;
+        border: 3px solid #00ffff;
+        background: repeating-linear-gradient(90deg, #000 0px, #000 2px, #1a1a1a 2px, #1a1a1a 4px);
+        box-shadow: 0 0 0 1px #000, 0 0 10px rgba(0,255,255,0.5);
+      ">
+        <div id="init-progress" style="
+          height: 100%;
+          width: 0%;
+          background: repeating-linear-gradient(90deg, 
+            #00ffff 0px, #00ffff 4px, 
+            #0080ff 4px, #0080ff 8px,
+            #8000ff 8px, #8000ff 12px,
+            #ff0080 12px, #ff0080 16px);
+          transition: width 0.3s ease;
+        "></div>
+      </div>
+    `;
+    
+    document.body.appendChild(initScreen);
+    
+    // Simular proceso de carga
+    let progress = 0;
+    let statusEl = document.getElementById('init-status');
+    let progressEl = document.getElementById('init-progress');
+    
+    const loadingSteps = [
+      "DESCARGANDO PAQUETES DE JUTSU...",
+      "INSTALANDO EFECTOS DE CHAKRA...",
+      "CARGANDO MODELOS 3D...",
+      "CONFIGURANDO ARENA DE COMBATE...",
+      "ACTIVANDO SISTEMA DE COMBATE...",
+      "SINCRONIZANDO PODERES NINJA...",
+      "PREPARANDO EXPERIENCIA COMPLETA..."
+    ];
+    
+    let stepIndex = 0;
+    let loadInterval = setInterval(() => {
+      progress += Math.random() * 15 + 5;
+      if(progress > 100) progress = 100;
+      
+      progressEl.style.width = progress + '%';
+      
+      if(stepIndex < loadingSteps.length && progress > (stepIndex + 1) * 14) {
+        statusEl.textContent = loadingSteps[stepIndex];
+        stepIndex++;
       }
-    }, 4000);
+      
+      if(progress >= 100) {
+        clearInterval(loadInterval);
+        statusEl.textContent = "¡SISTEMA LISTO!";
+        
+        setTimeout(() => {
+          initScreen.remove();
+          nextStep(); // Ir a la pantalla del título
+        }, 1500);
+      }
+    }, 200);
+    
+    canSkip = false;
+    setTimeout(() => canSkip = true, 3000);
   }
 
-  // PASO 4: Selección de personajes
+  // PASO 4: Pantalla de título "Naruto Final Time"
+  function showTitleScreen() {
+    // Crear pantalla de título
+    let titleScreen = document.createElement('div');
+    titleScreen.id = 'title-screen';
+    titleScreen.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(255,0,128,0.1) 2px, transparent 3px),
+        radial-gradient(circle at 75% 75%, rgba(0,255,128,0.1) 2px, transparent 3px),
+        repeating-linear-gradient(45deg, 
+          rgba(0,0,0,0.95) 0px, rgba(0,0,0,0.95) 2px,
+          rgba(26,26,46,0.95) 2px, rgba(26,26,46,0.95) 4px);
+      background-size: 32px 32px, 32px 32px, 8px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      font-family: 'Press Start 2P', cursive;
+    `;
+    
+    titleScreen.innerHTML = `
+      <div style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80%;
+        max-width: 800px;
+        gap: 40px;
+      ">
+        <img src="https://i.ibb.co/Kjfn5VwH/naruto-image.png" 
+             style="
+               width: 200px;
+               height: 200px;
+               object-fit: contain;
+               filter: drop-shadow(3px 3px 0px #000) drop-shadow(6px 6px 0px #ff4500);
+               animation: pixel-float 3s steps(4) infinite;
+               image-rendering: pixelated;
+             " 
+             onerror="this.style.display='none';"
+             alt="Naruto" />
+        
+        <div style="text-align: center;">
+          <h1 style="
+            color: #ff4500;
+            font-size: 32px;
+            text-shadow: 
+              3px 3px 0px #000,
+              6px 6px 0px rgba(255,69,0,0.5),
+              0 0 20px #ff4500;
+            margin: 0 0 20px 0;
+            letter-spacing: 4px;
+            animation: pixelGlow 2s steps(4) infinite;
+          ">NARUTO</h1>
+          
+          <h2 style="
+            color: #00ffff;
+            font-size: 24px;
+            text-shadow: 2px 2px 0px #000, 4px 4px 0px rgba(0,255,255,0.5);
+            margin: 0 0 40px 0;
+            letter-spacing: 3px;
+          ">FINAL TIME</h2>
+          
+          <button id="play-game-btn" style="
+            background: 
+              repeating-conic-gradient(from 0deg, 
+                rgba(255,69,0,0.8) 0deg 90deg, 
+                rgba(255,140,0,0.8) 90deg 180deg);
+            border: 3px solid #ff4500;
+            color: #ffffff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            padding: 15px 30px;
+            cursor: pointer;
+            transition: all 0.2s steps(2);
+            box-shadow: 
+              0 0 0 1px #000,
+              3px 3px 0px #000,
+              0 0 15px rgba(255,69,0,0.5);
+            text-shadow: 2px 2px 0px #000;
+            animation: pixelBlink 2s steps(2) infinite;
+          " 
+          onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='#ffff00';"
+          onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#ff4500';">
+            PLAY GAME
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Añadir estilos de animación
+    const titleStyles = document.createElement('style');
+    titleStyles.textContent = `
+      @keyframes pixel-float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      @keyframes pixelGlow {
+        0%, 100% { 
+          text-shadow: 3px 3px 0px #000, 6px 6px 0px rgba(255,69,0,0.5);
+        }
+        50% { 
+          text-shadow: 3px 3px 0px #000, 6px 6px 0px rgba(255,255,0,0.8), 0 0 15px #ff4500;
+        }
+      }
+      
+      @keyframes pixelBlink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.7; }
+      }
+    `;
+    document.head.appendChild(titleStyles);
+    
+    document.body.appendChild(titleScreen);
+    
+    // Event listener para el botón de jugar
+    document.getElementById('play-game-btn').addEventListener('click', () => {
+      titleScreen.remove();
+      titleStyles.remove();
+      nextStep(); // Ir a selección de personajes
+    });
+    
+    canSkip = false;
+    setTimeout(() => canSkip = true, 2000);
+  }
+
+  // PASO 5: Selección de personajes  
   function showCharacterSelect() {
-    introScreen.style.opacity = '0';
-    introScreen.style.transition = 'opacity 1s';
+    // El menú de carga ya maneja la transición a personajes
+    // Solo activamos la pantalla de selección
     setTimeout(() => {
-      introScreen.style.display = 'none';
-      // El menú de carga ya maneja la transición a personajes
-    }, 1000);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('char-select').style.display = 'flex';
+    }, 500);
   }
 
   // Función para avanzar al siguiente paso
   function nextStep() {
-    if(!canSkip && currentStep < 4) return; // No permitir skip si no está habilitado
+    if(!canSkip && currentStep < 5) return; // No permitir skip si no está habilitado
     
     currentStep++;
     switch(currentStep) {
@@ -1102,9 +1321,12 @@
         showVideo();
         break;
       case 3:
-        showLogo();
+        showGameInitialization();
         break;
       case 4:
+        showTitleScreen();
+        break;
+      case 5:
         showCharacterSelect();
         break;
     }
@@ -1128,8 +1350,15 @@
     if(canSkip) nextStep();
   });
   
-  introScreen.addEventListener('click', () => {
-    if(canSkip) nextStep();
+  // Agregar click handlers para las nuevas pantallas
+  document.addEventListener('click', (e) => {
+    if(canSkip) {
+      if(e.target.closest('#game-init-screen')) {
+        nextStep();
+      } else if(e.target.closest('#title-screen') && !e.target.closest('#play-game-btn')) {
+        nextStep();
+      }
+    }
   });
 
   // Iniciar secuencia
