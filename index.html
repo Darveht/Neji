@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -983,6 +982,13 @@
     videoIntro.style.display = 'flex';
     canSkip = false;
     
+    // SILENCIAR COMPLETAMENTE YouTube durante el video del intro
+    if(youtubePlayer && youtubePlayer.pauseVideo) {
+      youtubePlayer.pauseVideo();
+      youtubePlayer.mute();
+      console.log('YouTube silenciado para el video del intro');
+    }
+    
     // Quitar la superposición de créditos del video
     const videoCreditsOverlay = document.getElementById('video-credits-overlay');
     if(videoCreditsOverlay) {
@@ -1066,6 +1072,13 @@
   // PASO 3: Pantalla de inicialización del juego
   function showGameInitialization() {
     videoIntro.style.display = 'none';
+    
+    // MANTENER YouTube silenciado durante la carga
+    if(youtubePlayer && youtubePlayer.pauseVideo) {
+      youtubePlayer.pauseVideo();
+      youtubePlayer.mute();
+      console.log('YouTube mantiene silencio durante carga');
+    }
     
     // Crear pantalla de inicialización
     let initScreen = document.createElement('div');
@@ -1172,6 +1185,13 @@
 
   // PASO 4: Pantalla de título "Naruto Final Time"
   function showTitleScreen() {
+    // MANTENER YouTube silenciado durante la pantalla de título
+    if(youtubePlayer && youtubePlayer.pauseVideo) {
+      youtubePlayer.pauseVideo();
+      youtubePlayer.mute();
+      console.log('YouTube silenciado en pantalla de título');
+    }
+    
     // Crear pantalla de título
     let titleScreen = document.createElement('div');
     titleScreen.id = 'title-screen';
@@ -1303,6 +1323,20 @@
 
   // PASO 5: Selección de personajes  
   function showCharacterSelect() {
+    // ACTIVAR MÚSICA AUTOMÁTICA DESPUÉS DE LA CARGA
+    let battleMusicContainer = document.createElement('div');
+    battleMusicContainer.id = 'battle-music-container';
+    battleMusicContainer.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    battleMusicContainer.innerHTML = `
+      <iframe width="560" height="315" 
+              src="https://imagekit.io/player/embed/lcpvlmgbf/copy_3D85FC1D-0C2F-4869-8324-615CD5FE94A5.mov/ik-video.mp4?updatedAt=1748458403027&thumbnail=https%3A%2F%2Fik.imagekit.io%2Flcpvlmgbf%2Fcopy_3D85FC1D-0C2F-4869-8324-615CD5FE94A5.mov%2Fik-video.mp4%2Fik-thumbnail.jpg%3FupdatedAt%3D1748458403027&updatedAt=1748458403027&autoplay=1&loop=1&muted=0" 
+              title="Battle Music" 
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen">
+      </iframe>`;
+    document.body.appendChild(battleMusicContainer);
+    console.log('Música de batalla activada después de la carga');
+
     // El menú de carga ya maneja la transición a personajes
     // Solo activamos la pantalla de selección
     setTimeout(() => {
@@ -1393,18 +1427,10 @@
   };
 
   function onPlayerReady(event) {
-    // Pausar inmediatamente el video de YouTube
+    // Pausar inmediatamente el video de YouTube y mantenerlo silenciado
     youtubePlayer.pauseVideo();
-    youtubePlayer.mute(); // Silenciar para evitar conflictos
-    
-    // Agregar detector de clic al documento para reanudar si es necesario
-    document.addEventListener('click', function() {
-      // Solo reproducir si no hay otros sonidos activos
-      if(!document.getElementById('byakugan-sound') && !document.getElementById('hinata-byakugan-sound')) {
-        youtubePlayer.unMute();
-        youtubePlayer.playVideo();
-      }
-    });
+    youtubePlayer.mute();
+    console.log('YouTube inicializado y silenciado - esperando selección de personaje');
   };
 
   // Variables globales
@@ -1542,6 +1568,9 @@ function showCharacterName() {
     document.getElementById('char-select').style.display = 'none';
     updatePlayerHUD();
     showCharacterName();
+    
+    // MANTENER la música de batalla (NO activar YouTube)
+    console.log('Música de batalla continúa durante el gameplay');
 
     // Configurar botones según el personaje
     const actions = document.getElementById('actions');
