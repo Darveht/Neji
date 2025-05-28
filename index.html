@@ -1323,19 +1323,34 @@
 
   // PASO 5: Selección de personajes  
   function showCharacterSelect() {
-    // ACTIVAR MÚSICA AUTOMÁTICA DESPUÉS DE LA CARGA
-    let battleMusicContainer = document.createElement('div');
-    battleMusicContainer.id = 'battle-music-container';
-    battleMusicContainer.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
-    battleMusicContainer.innerHTML = `
-      <iframe width="560" height="315" 
-              src="https://imagekit.io/player/embed/lcpvlmgbf/copy_3D85FC1D-0C2F-4869-8324-615CD5FE94A5.mov/ik-video.mp4?updatedAt=1748458403027&thumbnail=https%3A%2F%2Fik.imagekit.io%2Flcpvlmgbf%2Fcopy_3D85FC1D-0C2F-4869-8324-615CD5FE94A5.mov%2Fik-video.mp4%2Fik-thumbnail.jpg%3FupdatedAt%3D1748458403027&updatedAt=1748458403027&autoplay=1&loop=1&muted=0" 
-              title="Battle Music" 
-              frameBorder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen">
-      </iframe>`;
-    document.body.appendChild(battleMusicContainer);
-    console.log('Música de batalla activada después de la carga');
+    // ACTIVAR MÚSICA DE BATALLA AUTOMÁTICA DESPUÉS DE LA CARGA
+    let battleMusicVideo = document.createElement('video');
+    battleMusicVideo.id = 'battle-music-video';
+    battleMusicVideo.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    battleMusicVideo.src = 'https://ik.imagekit.io/lcpvlmgbf/copy_3D85FC1D-0C2F-4869-8324-615CD5FE94A5.mov/ik-video.mp4?updatedAt=1748458403027';
+    battleMusicVideo.autoplay = true;
+    battleMusicVideo.loop = true;
+    battleMusicVideo.muted = false;
+    battleMusicVideo.volume = 0.6;
+    battleMusicVideo.preload = 'auto';
+    
+    document.body.appendChild(battleMusicVideo);
+    
+    // Forzar reproducción de la música de batalla
+    battleMusicVideo.play().then(() => {
+      console.log('Música de batalla iniciada automáticamente');
+    }).catch(e => {
+      console.log('Battle music autoplay blocked, trying unmuted approach:', e);
+      // Si el autoplay está bloqueado, intentar con mute primero
+      battleMusicVideo.muted = true;
+      battleMusicVideo.play().then(() => {
+        // Después de medio segundo, activar el audio
+        setTimeout(() => {
+          battleMusicVideo.muted = false;
+          console.log('Música de batalla activada después de interacción automática');
+        }, 500);
+      });
+    });
 
     // El menú de carga ya maneja la transición a personajes
     // Solo activamos la pantalla de selección
