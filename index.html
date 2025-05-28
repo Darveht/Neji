@@ -1314,6 +1314,7 @@
     document.getElementById('play-game-btn').addEventListener('click', () => {
       titleScreen.remove();
       titleStyles.remove();
+      console.log('🎮 Play button clicked - iniciando música de batalla');
       nextStep(); // Ir a selección de personajes
     });
     
@@ -1323,46 +1324,155 @@
 
   // PASO 5: Selección de personajes  
   function showCharacterSelect() {
-    // ACTIVAR MÚSICA DE BATALLA AUTOMÁTICA DESPUÉS DE LA CARGA
-    let battleMusicVideo = document.createElement('video');
-    battleMusicVideo.id = 'battle-music-video';
-    battleMusicVideo.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
-    battleMusicVideo.src = 'https://ik.imagekit.io/lcpvlmgbf/copy_3D85FC1D-0C2F-4869-8324-615CD5FE94A5.mov/ik-video.mp4?updatedAt=1748458403027';
-    battleMusicVideo.autoplay = true;
-    battleMusicVideo.loop = true;
-    battleMusicVideo.muted = false;
-    battleMusicVideo.volume = 0.6;
-    battleMusicVideo.preload = 'auto';
-    
-    document.body.appendChild(battleMusicVideo);
-    
-    // Forzar reproducción de la música de batalla
-    battleMusicVideo.play().then(() => {
-      console.log('Música de batalla iniciada automáticamente');
-    }).catch(e => {
-      console.log('Battle music autoplay blocked, trying unmuted approach:', e);
-      // Si el autoplay está bloqueado, intentar con mute primero
-      battleMusicVideo.muted = true;
-      battleMusicVideo.play().then(() => {
-        // Después de medio segundo, activar el audio
-        setTimeout(() => {
-          battleMusicVideo.muted = false;
-          console.log('Música de batalla activada después de interacción automática');
-        }, 500);
-      });
-    });
+    // VERIFICAR SI YA EXISTE Y LIMPIAR MÚSICA ANTERIOR
+    const existingBattleMusic = document.getElementById('battle-music-video');
+    if(existingBattleMusic) {
+      existingBattleMusic.remove();
+      console.log('🎵 Música anterior removida');
+    }
 
-    // El menú de carga ya maneja la transición a personajes
-    // Solo activamos la pantalla de selección
-    setTimeout(() => {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('char-select').style.display = 'flex';
-    }, 500);
+    // MOSTRAR PANTALLA DE SELECCIÓN INMEDIATAMENTE
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('char-select').style.display = 'flex';
+    console.log('🎮 Pantalla de selección mostrada');
+
+    // CREAR Y ACTIVAR MÚSICA DE BATALLA CON MÚLTIPLES INTENTOS
+    function createAndPlayBattleMusic() {
+      let battleMusicVideo = document.createElement('video');
+      battleMusicVideo.id = 'battle-music-video';
+      battleMusicVideo.style.cssText = 'position:fixed;top:-1000px;left:-1000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+      battleMusicVideo.src = 'https://ik.imagekit.io/lcpvlmgbf/copy_3D85FC1D-0C2F-4869-8324-615CD5FE94A5.mov/ik-video.mp4?updatedAt=1748458403027';
+      battleMusicVideo.autoplay = true;
+      battleMusicVideo.loop = true;
+      battleMusicVideo.muted = false;
+      battleMusicVideo.volume = 0.7;
+      battleMusicVideo.preload = 'auto';
+      
+      document.body.appendChild(battleMusicVideo);
+      
+      // INTENTAR REPRODUCIR CON MÚLTIPLES MÉTODOS
+      const playAttempts = [
+        // Intento 1: Reproducción directa
+        () => {
+          return battleMusicVideo.play().then(() => {
+            console.log('✅ Música de batalla: Reproducción directa exitosa');
+            return true;
+          });
+        },
+        
+        // Intento 2: Con mute temporal
+        () => {
+          battleMusicVideo.muted = true;
+          return battleMusicVideo.play().then(() => {
+            setTimeout(() => {
+              battleMusicVideo.muted = false;
+              console.log('✅ Música de batalla: Reproducción con unmute exitosa');
+            }, 200);
+            return true;
+          });
+        },
+        
+        // Intento 3: Reiniciar y reproducir
+        () => {
+          battleMusicVideo.currentTime = 0;
+          battleMusicVideo.muted = false;
+          return battleMusicVideo.play().then(() => {
+            console.log('✅ Música de batalla: Reproducción con reinicio exitosa');
+            return true;
+          });
+        }
+      ];
+
+      // Ejecutar intentos secuencialmente
+      function tryPlayback(attemptIndex = 0) {
+        if(attemptIndex >= playAttempts.length) {
+          console.log('❌ Todos los intentos de reproducción fallaron');
+          // Crear mensaje visual para activar música manualmente
+          createManualMusicActivator();
+          return;
+        }
+
+        playAttempts[attemptIndex]().catch(error => {
+          console.log(`⚠️ Intento ${attemptIndex + 1} falló:`, error);
+          setTimeout(() => tryPlayback(attemptIndex + 1), 300);
+        });
+      }
+
+      // Iniciar intentos de reproducción
+      setTimeout(() => {
+        console.log('🎵 Iniciando reproducción de música de batalla...');
+        tryPlayback();
+      }, 100);
+
+      // Verificar si la música está sonando cada segundo
+      let musicCheckInterval = setInterval(() => {
+        if(!battleMusicVideo.paused && !battleMusicVideo.muted && battleMusicVideo.currentTime > 0) {
+          console.log('🎵 Música de batalla confirmada activa');
+          clearInterval(musicCheckInterval);
+        }
+      }, 1000);
+
+      // Limpiar verificación después de 10 segundos
+      setTimeout(() => clearInterval(musicCheckInterval), 10000);
+    }
+
+    // Crear activador manual en caso de fallos
+    function createManualMusicActivator() {
+      if(document.getElementById('manual-music-activator')) return;
+      
+      let activator = document.createElement('div');
+      activator.id = 'manual-music-activator';
+      activator.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(255,69,0,0.9);
+        color: white;
+        padding: 10px 15px;
+        border: 2px solid #ffff00;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 8px;
+        cursor: pointer;
+        z-index: 1000;
+        animation: pixelBlink 1s steps(2) infinite;
+      `;
+      activator.textContent = 'ACTIVAR MÚSICA';
+      
+      activator.addEventListener('click', () => {
+        const music = document.getElementById('battle-music-video');
+        if(music) {
+          music.muted = false;
+          music.currentTime = 0;
+          music.play().then(() => {
+            console.log('🎵 Música activada manualmente');
+            activator.remove();
+          });
+        }
+      });
+      
+      document.body.appendChild(activator);
+      
+      // Auto-remover después de 15 segundos
+      setTimeout(() => {
+        if(activator.parentNode) activator.remove();
+      }, 15000);
+    }
+
+    // Activar música inmediatamente
+    createAndPlayBattleMusic();
   }
 
   // Función para avanzar al siguiente paso
   function nextStep() {
     if(!canSkip && currentStep < 5) return; // No permitir skip si no está habilitado
+    
+    // DETENER Y SILENCIAR VIDEO SI ESTÁ REPRODUCIÉNDOSE
+    if(introVideo && !introVideo.paused) {
+      introVideo.pause();
+      introVideo.currentTime = 0;
+      introVideo.muted = true;
+      console.log('Video del intro detenido por skip');
+    }
     
     currentStep++;
     switch(currentStep) {
@@ -1376,6 +1486,7 @@
         showTitleScreen();
         break;
       case 5:
+        console.log('🎵 Iniciando selección de personajes con música de batalla');
         showCharacterSelect();
         break;
     }
@@ -1387,7 +1498,15 @@
   });
   
   videoSkipButton.addEventListener('click', () => {
-    if(canSkip) nextStep();
+    if(canSkip) {
+      // Detener video inmediatamente cuando se presiona skip
+      if(introVideo && !introVideo.paused) {
+        introVideo.pause();
+        introVideo.currentTime = 0;
+        introVideo.muted = true;
+      }
+      nextStep();
+    }
   });
   
   // Clicks en las pantallas - SOLO cuando canSkip es true
@@ -1396,7 +1515,15 @@
   });
   
   videoIntro.addEventListener('click', () => {
-    if(canSkip) nextStep();
+    if(canSkip) {
+      // Detener video inmediatamente cuando se hace clic para skip
+      if(introVideo && !introVideo.paused) {
+        introVideo.pause();
+        introVideo.currentTime = 0;
+        introVideo.muted = true;
+      }
+      nextStep();
+    }
   });
   
   // Agregar click handlers para las nuevas pantallas
@@ -1584,8 +1711,22 @@ function showCharacterName() {
     updatePlayerHUD();
     showCharacterName();
     
-    // MANTENER la música de batalla (NO activar YouTube)
-    console.log('Música de batalla continúa durante el gameplay');
+    // DETENER COMPLETAMENTE la música de batalla al entrar al campo de batalla
+    const battleMusic = document.getElementById('battle-music-video');
+    if(battleMusic) {
+      battleMusic.pause();
+      battleMusic.currentTime = 0;
+      battleMusic.muted = true;
+      battleMusic.remove();
+      console.log('🔇 Música de batalla detenida completamente - entrando al campo de batalla');
+    }
+    
+    // Remover activador manual si existe
+    const manualActivator = document.getElementById('manual-music-activator');
+    if(manualActivator) {
+      manualActivator.remove();
+      console.log('🔇 Activador manual removido');
+    }
 
     // Configurar botones según el personaje
     const actions = document.getElementById('actions');
