@@ -1,502 +1,609 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Naruto Characters 3D</title>
+  <title>Naruto Characters 3D - Pixel Edition</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
     body,html{
       margin:0;padding:0;width:100%;height:100%;
       overflow:hidden;
-      background:#000;
-      font-family: 'Chakra Petch', sans-serif;
+      background:#0a0a0a;
+      font-family: 'Press Start 2P', cursive;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
     }
 
     h2, h3 {
-      font-weight: 700;
+      font-weight: normal;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      text-shadow: 0 0 10px rgba(74,144,226,0.5);
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 0px #000, 4px 4px 0px rgba(0,255,255,0.3);
+      color: #00ffff;
     }
 
     p {
-      font-size: 1em;
-      line-height: 1.4;
+      font-size: 8px;
+      line-height: 1.6;
+      color: #ffff00;
+      text-shadow: 1px 1px 0px #000;
     }
 
     @media (max-width: 600px) {
-      h2 { font-size: 1.5em; }
-      h3 { font-size: 1.2em; }
-      p { font-size: 0.9em; }
+      h2 { font-size: 12px; }
+      h3 { font-size: 10px; }
+      p { font-size: 6px; }
+      
+      .characters-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0 10px;
+      }
+      
+      .char-card {
+        max-width: 100%;
+        padding: 15px;
+      }
+      
+      .char-img {
+        height: 120px;
+      }
     }
 
-    /* Estilo Soul Knight para la interfaz */
+    @media (max-width: 900px) and (min-width: 601px) {
+      .characters-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Estilo Soul Knight pixel para la interfaz */
     .char-card {
-      background: rgba(0,0,0,0.8);
-      border: 2px solid #4a90e2;
-      box-shadow: 0 0 10px #4a90e2;
-      transition: all 0.3s;
+      background: 
+        linear-gradient(45deg, #1a1a2e 25%, transparent 25%),
+        linear-gradient(-45deg, #1a1a2e 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1a1a2e 75%),
+        linear-gradient(-45deg, transparent 75%, #1a1a2e 75%);
+      background-size: 4px 4px;
+      background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
+      border: 3px solid #00ffff;
+      box-shadow: 
+        0 0 0 1px #000,
+        0 0 0 4px #00ffff,
+        0 0 10px #00ffff,
+        inset 0 0 10px rgba(0,255,255,0.2);
+      transition: all 0.1s steps(3);
     }
 
     .char-card:hover {
-      transform: scale(1.05);
-      border-color: #f5a623;
-      box-shadow: 0 0 20px #f5a623;
+      transform: scale(1.1);
+      border-color: #ffff00;
+      box-shadow: 
+        0 0 0 1px #000,
+        0 0 0 4px #ffff00,
+        0 0 20px #ffff00,
+        inset 0 0 10px rgba(255,255,0,0.3);
+      background-color: rgba(255,255,0,0.1);
     }
 
     .action-btn {
-      background: rgba(0,0,0,0.8);
-      border: 2px solid #4a90e2;
-      color: #4a90e2;
-      font-family: 'Chakra Petch', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
+      background: 
+        repeating-conic-gradient(from 0deg, #1a1a2e 0deg 90deg, #2d2d4a 90deg 180deg);
+      border: 2px solid #00ffff;
+      color: #00ffff;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 8px;
+      font-weight: normal;
       text-transform: uppercase;
       letter-spacing: 1px;
-      text-shadow: 0 0 5px #4a90e2;
-      transition: all 0.2s;
+      text-shadow: 1px 1px 0px #000, 2px 2px 0px rgba(0,255,255,0.5);
+      transition: all 0.1s steps(2);
+      box-shadow: 
+        0 0 0 1px #000,
+        2px 2px 0px #000,
+        0 0 5px rgba(0,255,255,0.5);
     }
 
     .action-btn:active {
-      background: #4a90e2;
+      background: #00ffff;
       color: #000;
+      transform: translate(1px, 1px);
+      box-shadow: 
+        0 0 0 1px #000,
+        1px 1px 0px #000;
     }
 
     #loading {
-      background: #000;
-      font-family: 'PixelNinja', 'Press Start 2P', cursive;
-    }
-
-    #loading-bar {
-      border: 2px solid #4a90e2;
-      box-shadow: 0 0 10px #4a90e2;
-    }
-
-    #loading-progress {
-      background: linear-gradient(90deg, #4a90e2, #f5a623);
-      box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
-    }
-
-    .player-heart {
-      clip-path: none;
-      width: 15px;
-      height: 15px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%234a90e2" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') center/contain no-repeat;
-    }
-
-    .player-heart.heart-empty {
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23333" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') center/contain no-repeat;
-    }
-
-    #player-level {
-      font-size: 12px;
-      color: #4a90e2;
-      text-shadow: 0 0 5px #4a90e2;
-      margin-top: 10px;
-    }
-
-    #intro-screen {
-      background: radial-gradient(circle at center, #000033, #000);
-    }
-
-    #naruto-logo {
-      filter: drop-shadow(0 0 20px #4a90e2);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { filter: drop-shadow(0 0 10px #4a90e2); }
-      50% { filter: drop-shadow(0 0 30px #f5a623); }
-      100% { filter: drop-shadow(0 0 10px #4a90e2); }
-    }
-    #intro-screen {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #naruto-logo {
-      width: 80%;
-      max-width: 600px;
-      filter: drop-shadow(0 0 10px #ff4500);
-      animation: glow 2s infinite;
-    }
-    @keyframes glow {
-      0%, 100% { filter: drop-shadow(0 0 10px #ff4500); }
-      50% { filter: drop-shadow(0 0 20px #ff4500); }
-    }
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    canvas{display:block;}
-    @keyframes ninja-scroll {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-    @keyframes chakra-pulse {
-      0% { transform: scale(1); opacity: 0.8; }
-      50% { transform: scale(1.2); opacity: 0.4; }
-      100% { transform: scale(1); opacity: 0.8; }
-    }
-    #loading {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      background: radial-gradient(circle at center, #1a1a2e, #000);
-      font-family: 'Chakra Petch', sans-serif;
+      background: 
+        radial-gradient(circle at 25% 25%, #ff0080 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, #00ff80 2px, transparent 2px),
+        linear-gradient(45deg, #0a0a0a 50%, #1a1a1a 50%);
+      background-size: 16px 16px, 16px 16px, 8px 8px;
+      font-family: 'Press Start 2P', cursive;
     }
 
     #loading h2 {
-      color: #fff;
-      font-size: 2.5em;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      margin-bottom: 20px;
-      text-shadow: 0 0 10px #4a90e2, 0 0 20px #4a90e2;
-      animation: pulse 2s infinite;
+      color: #00ffff;
+      font-size: 16px;
+      animation: pixel-blink 1s steps(2) infinite;
     }
 
-    #loading-status {
-      color: #4a90e2;
-      font-size: 1.2em;
-      margin-bottom: 10px;
-      text-shadow: 0 0 5px #4a90e2;
-    }
-
-    #loading-size {
-      color: #66ccff;
-      font-size: 1em;
-      margin-bottom: 20px;
+    @keyframes pixel-blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
     }
 
     #loading-bar {
-      width: 300px;
-      height: 20px;
-      background: rgba(255,255,255,0.1);
-      border: 2px solid #4a90e2;
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 0 20px rgba(74,144,226,0.5);
+      border: 3px solid #00ffff;
+      background: 
+        repeating-linear-gradient(90deg, #000 0px, #000 2px, #1a1a1a 2px, #1a1a1a 4px);
+      box-shadow: 
+        0 0 0 1px #000,
+        0 0 10px rgba(0,255,255,0.5),
+        inset 0 0 5px rgba(0,0,0,0.5);
     }
 
     #loading-progress {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #4a90e2, #66ccff);
-      position: relative;
-      transition: width 0.3s ease-out;
+      background: 
+        repeating-linear-gradient(90deg, 
+          #00ffff 0px, #00ffff 4px, 
+          #0080ff 4px, #0080ff 8px,
+          #8000ff 8px, #8000ff 12px,
+          #ff0080 12px, #ff0080 16px);
+      box-shadow: 0 0 5px rgba(0,255,255,0.8);
+      image-rendering: pixelated;
     }
 
-    #loading-progress::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255,255,255,0.4),
-        transparent
-      );
-      animation: loading-shine 1.5s infinite;
+    .player-heart {
+      width: 12px;
+      height: 12px;
+      background: 
+        conic-gradient(from 45deg, #ff0040 0deg 90deg, #ff4080 90deg 180deg, #ff0040 180deg 270deg, #800020 270deg 360deg);
+      clip-path: polygon(50% 10%, 80% 30%, 100% 60%, 50% 100%, 0% 60%, 20% 30%);
+      image-rendering: pixelated;
+      box-shadow: 
+        1px 1px 0px #000,
+        0 0 3px rgba(255,0,64,0.8);
     }
 
-    @keyframes loading-shine {
-      from { transform: translateX(-100%); }
-      to { transform: translateX(100%); }
+    .player-heart.heart-empty {
+      background: 
+        conic-gradient(from 45deg, #404040 0deg 90deg, #606060 90deg 180deg, #404040 180deg 270deg, #202020 270deg 360deg);
+      box-shadow: 1px 1px 0px #000;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    #player-level {
+      font-size: 8px;
+      color: #ffff00;
+      text-shadow: 1px 1px 0px #000, 2px 2px 0px rgba(255,255,0,0.5);
+      margin-top: 8px;
     }
-    #loading-progress::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      animation: ninja-scroll 1s infinite;
+
+    #intro-screen {
+      background: 
+        radial-gradient(circle at 20% 80%, #ff0080 2px, transparent 3px),
+        radial-gradient(circle at 80% 20%, #00ff80 2px, transparent 3px),
+        radial-gradient(circle at 40% 40%, #0080ff 1px, transparent 2px),
+        linear-gradient(45deg, #0a0a0a 50%, #1a0a1a 50%);
+      background-size: 32px 32px, 32px 32px, 16px 16px, 8px 8px;
     }
+
+    #naruto-logo {
+      filter: 
+        drop-shadow(2px 2px 0px #000)
+        drop-shadow(4px 4px 0px #ff4500)
+        drop-shadow(0 0 10px #ff4500);
+      animation: pixel-pulse 2s steps(4) infinite;
+      image-rendering: pixelated;
+    }
+
+    @keyframes pixel-pulse {
+      0% { transform: scale(1); filter: drop-shadow(2px 2px 0px #000) drop-shadow(4px 4px 0px #ff4500); }
+      25% { transform: scale(1.05); filter: drop-shadow(2px 2px 0px #000) drop-shadow(4px 4px 0px #ffff00); }
+      50% { transform: scale(1.1); filter: drop-shadow(2px 2px 0px #000) drop-shadow(4px 4px 0px #00ffff); }
+      75% { transform: scale(1.05); filter: drop-shadow(2px 2px 0px #000) drop-shadow(4px 4px 0px #ff0080); }
+      100% { transform: scale(1); filter: drop-shadow(2px 2px 0px #000) drop-shadow(4px 4px 0px #ff4500); }
+    }
+
+    @keyframes pixel-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    canvas{
+      display:block;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+
     #char-select{
       position:fixed;width:100%;height:100%;
-      background:rgba(0,0,0,0.9);
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(255,0,128,0.1) 2px, transparent 3px),
+        radial-gradient(circle at 75% 75%, rgba(0,255,128,0.1) 2px, transparent 3px),
+        repeating-linear-gradient(45deg, 
+          rgba(0,0,0,0.9) 0px, rgba(0,0,0,0.9) 2px,
+          rgba(26,26,46,0.9) 2px, rgba(26,26,46,0.9) 4px);
+      background-size: 32px 32px, 32px 32px, 8px 8px;
       display:none;
-      align-items:center;justify-content:center;
+      flex-direction: column;
+      align-items:center;
+      justify-content: flex-start;
       z-index:50;
+      overflow-y: auto;
+      padding: 20px;
     }
+
+    .characters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      width: 100%;
+      margin-top: 20px;
+      padding: 0 20px;
+    }
+
     .select-header {
       width: 100%;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       position: relative;
     }
 
     .select-header h2 {
-      color: #FF4500;
-      font-size: 2.5em;
-      text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+      color: #00ffff;
+      font-size: 16px;
+      text-shadow: 
+        2px 2px 0px #000,
+        4px 4px 0px rgba(0,255,255,0.5);
       margin: 0;
-      padding: 20px;
-      background: linear-gradient(45deg, rgba(0,0,0,0.8), rgba(255,69,0,0.2));
-      border-bottom: 2px solid #FF4500;
+      padding: 15px;
+      background: 
+        repeating-linear-gradient(45deg,
+          rgba(0,0,0,0.8) 0px, rgba(0,0,0,0.8) 4px,
+          rgba(0,255,255,0.2) 4px, rgba(0,255,255,0.2) 8px);
+      border: 3px solid #00ffff;
+      box-shadow: 
+        0 0 0 1px #000,
+        0 0 10px rgba(0,255,255,0.5);
     }
 
     .scroll-design {
-      height: 30px;
-      background: url('https://i.imgur.com/XYtHWGE.png') repeat-x;
-      opacity: 0.6;
+      height: 20px;
+      background: 
+        repeating-linear-gradient(90deg,
+          #ff4500 0px, #ff4500 4px,
+          #ffff00 4px, #ffff00 8px,
+          #00ff80 8px, #00ff80 12px,
+          #0080ff 12px, #0080ff 16px);
+      opacity: 0.8;
       margin-top: 10px;
+      image-rendering: pixelated;
     }
 
     .char-card {
-      width: 300px;
-      margin: 20px;
-      background: linear-gradient(135deg, rgba(0,0,51,0.95), rgba(255,69,0,0.1));
-      border: 3px solid #FF4500;
-      border-radius: 15px;
-      padding: 25px;
+      width: 100%;
+      max-width: 280px;
+      margin: 0;
+      background: 
+        radial-gradient(circle at 10% 10%, rgba(0,255,255,0.1) 2px, transparent 3px),
+        repeating-linear-gradient(45deg,
+          rgba(0,0,51,0.95) 0px, rgba(0,0,51,0.95) 3px,
+          rgba(255,69,0,0.1) 3px, rgba(255,69,0,0.1) 6px);
+      background-size: 16px 16px, 12px 12px;
+      border: 3px solid #ff4500;
+      border-radius: 0px;
+      padding: 20px;
       text-align: center;
       color: #fff;
       cursor: pointer;
-      transition: all 0.4s;
-      flex-shrink: 0;
-      box-shadow: 0 0 30px rgba(255,69,0,0.3);
+      transition: all 0.1s steps(2);
+      box-shadow: 
+        0 0 0 1px #000,
+        3px 3px 0px #000,
+        0 0 15px rgba(255,69,0,0.3);
       position: relative;
       overflow: hidden;
-      backdrop-filter: blur(5px);
+      image-rendering: pixelated;
+      justify-self: center;
     }
 
     .char-card:hover {
-      transform: scale(1.05) translateY(-10px);
-      border-color: #FFD700;
-      box-shadow: 0 0 40px rgba(255,215,0,0.5);
-      background: linear-gradient(135deg, rgba(0,0,51,0.98), rgba(255,215,0,0.2));
+      transform: scale(1.05) translate(-1px, -1px);
+      border-color: #ffff00;
+      box-shadow: 
+        0 0 0 1px #000,
+        4px 4px 0px #000,
+        0 0 20px rgba(255,255,0,0.5);
+      background: 
+        radial-gradient(circle at 10% 10%, rgba(255,255,0,0.2) 2px, transparent 3px),
+        repeating-linear-gradient(45deg,
+          rgba(0,0,51,0.98) 0px, rgba(0,0,51,0.98) 3px,
+          rgba(255,215,0,0.2) 3px, rgba(255,215,0,0.2) 6px);
     }
 
     .char-card h3 {
-      color: #FF4500;
-      font-size: 1.8em;
-      margin-bottom: 15px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      color: #ff4500;
+      font-size: 10px;
+      margin-bottom: 10px;
+      text-shadow: 
+        1px 1px 0px #000,
+        2px 2px 0px rgba(255,69,0,0.5);
     }
 
     .char-card p {
-      color: #FFA07A;
-      font-size: 1.1em;
-      line-height: 1.6;
-      margin-top: 15px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      color: #ffff00;
+      font-size: 6px;
+      line-height: 1.4;
+      margin-top: 10px;
+      text-shadow: 1px 1px 0px #000;
     }
 
     .char-card::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        45deg,
-        transparent,
-        rgba(74,144,226,0.1),
-        transparent
-      );
-      transform: rotate(45deg);
-      animation: shine 3s infinite;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        repeating-linear-gradient(45deg,
+          transparent 0px, transparent 2px,
+          rgba(74,144,226,0.1) 2px, rgba(74,144,226,0.1) 4px);
+      animation: pixel-shine 3s steps(8) infinite;
+      pointer-events: none;
     }
 
-    .char-card:hover {
-      transform: scale(1.05);
-      border-color: #f5a623;
-      box-shadow: 0 0 30px rgba(245,166,35,0.5);
+    @keyframes pixel-shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
     }
 
-    @keyframes shine {
-      0% { transform: translateX(-100%) rotate(45deg); }
-      100% { transform: translateX(100%) rotate(45deg); }
-    }
     .char-img{
       width:100%;
-      height:200px;
-      background:#333;
-      margin:10px auto;
+      height:160px;
+      background:#1a1a2e;
+      margin:8px auto;
       background-size: contain !important;
+      border: 2px solid #00ffff;
+      box-shadow: 
+        0 0 0 1px #000,
+        inset 0 0 5px rgba(0,0,0,0.5);
+      image-rendering: pixelated;
     }
-    #char-select {
-      overflow-y: auto;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 20px 10px;
+
+    #joystick{
+      position:absolute;bottom:15px;left:15px;width:100px;height:100px;
+      touch-action:none;z-index:10;
+      filter: drop-shadow(2px 2px 0px #000);
     }
-    @media (max-width: 600px) {
-      .char-card {
-        width: 90%;
-        margin: 10px auto;
-      }
-      .char-img {
-        height: 180px;
-      }
-      h3 {
-        font-size: 1.2em;
-      }
-      p {
-        font-size: 0.9em;
-      }
+
+    #joy-base,#joy-thumb{
+      position:absolute;border-radius:0px;pointer-events:none;
+      image-rendering: pixelated;
     }
-    #joystick{position:absolute;bottom:20px;left:20px;width:120px;height:120px;touch-action:none;z-index:10;}
-    #joy-base,#joy-thumb{position:absolute;border-radius:50%;pointer-events:none;}
-    #joy-base{width:100%;height:100%;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);}
-    #joy-thumb{width:50px;height:50px;top:35px;left:35px;background:rgba(255,255,255,0.6);border:2px solid #fff;}
-    #actions{position:absolute;bottom:20px;right:20px;display:flex;flex-direction:column;gap:10px;z-index:10;user-select:none;}
-    .action-btn{
-      width:60px;height:60px;
-      border-radius:50%;
-      text-align:center;
-      line-height:60px;
-      color:#fff;
-      font-size: 14px;
-      font-weight: bold;
-      background:rgba(0,0,0,0.7);
+
+    #joy-base{
+      width:100%;height:100%;
+      border:3px solid #00ffff;
+      background: 
+        repeating-conic-gradient(from 0deg, 
+          rgba(0,255,255,0.1) 0deg 45deg, 
+          rgba(0,0,0,0.3) 45deg 90deg);
+      box-shadow: 
+        0 0 0 1px #000,
+        inset 0 0 10px rgba(0,255,255,0.2);
+    }
+
+    #joy-thumb{
+      width:40px;height:40px;top:30px;left:30px;
+      background: 
+        radial-gradient(circle, #00ffff 30%, #0080ff 70%);
       border:2px solid #fff;
-      touch-action:none;
-      text-shadow: 0 0 5px rgba(255,255,255,0.5);
-      letter-spacing: 0.5px;
+      box-shadow: 
+        0 0 0 1px #000,
+        2px 2px 0px #000,
+        0 0 5px rgba(0,255,255,0.8);
     }
-    #jump{border-color:#0f0;color:#0f0;}
-    .health-back,.health-bar{position:absolute;width:50px;height:6px;transform:translate(-50%,-120%);pointer-events:none;}
-    .health-back{background:rgba(0,0,0,0.5);} .health-bar{background:lime;}
+
+    #actions{
+      position:absolute;bottom:15px;right:15px;
+      display:flex;flex-direction:column;gap:8px;z-index:10;
+      user-select:none;
+    }
+
+    .action-btn{
+      width:50px;height:50px;
+      border-radius:0px;
+      text-align:center;
+      line-height:50px;
+      color:#00ffff;
+      font-size: 8px;
+      font-weight: normal;
+      background: 
+        repeating-conic-gradient(from 0deg, 
+          rgba(0,0,0,0.8) 0deg 90deg, 
+          rgba(26,26,46,0.8) 90deg 180deg);
+      border:2px solid #00ffff;
+      touch-action:none;
+      text-shadow: 1px 1px 0px #000;
+      letter-spacing: 0.5px;
+      box-shadow: 
+        0 0 0 1px #000,
+        2px 2px 0px #000;
+    }
+
+    #jump{
+      border-color:#00ff00;color:#00ff00;
+      background: 
+        repeating-conic-gradient(from 0deg, 
+          rgba(0,128,0,0.3) 0deg 90deg, 
+          rgba(0,0,0,0.8) 90deg 180deg);
+    }
+
+    .health-back,.health-bar{
+      position:absolute;width:40px;height:4px;
+      transform:translate(-50%,-120%);pointer-events:none;
+      image-rendering: pixelated;
+    }
+
+    .health-back{
+      background: 
+        repeating-linear-gradient(90deg, #000 0px, #000 2px, #333 2px, #333 4px);
+      border: 1px solid #000;
+    } 
+
+    .health-bar{
+      background: 
+        repeating-linear-gradient(90deg, #00ff00 0px, #00ff00 2px, #80ff00 2px, #80ff00 4px);
+      border: 1px solid #000;
+      box-shadow: 0 0 3px rgba(0,255,0,0.5);
+    }
+
     #player-hud {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 8px;
+      left: 8px;
       color: white;
-      font-family: 'Chakra Petch', sans-serif;
+      font-family: 'Press Start 2P', cursive;
       z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      background: linear-gradient(135deg, rgba(26,26,46,0.7), rgba(0,0,0,0.6));
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #4a90e2;
-      box-shadow: 0 0 15px rgba(74,144,226,0.3);
-      backdrop-filter: blur(3px);
+      background: 
+        repeating-linear-gradient(45deg,
+          rgba(26,26,46,0.9) 0px, rgba(26,26,46,0.9) 3px,
+          rgba(0,0,0,0.8) 3px, rgba(0,0,0,0.8) 6px);
+      padding: 6px 10px;
+      border: 2px solid #00ffff;
+      box-shadow: 
+        0 0 0 1px #000,
+        2px 2px 0px #000,
+        0 0 10px rgba(0,255,255,0.3);
       scale: 0.8;
+      image-rendering: pixelated;
     }
 
     #health-container {
-      background: rgba(0,0,0,0.5);
-      padding: 10px 15px;
-      border-radius: 20px;
+      background: 
+        repeating-linear-gradient(90deg,
+          rgba(0,0,0,0.7) 0px, rgba(0,0,0,0.7) 2px,
+          rgba(26,26,46,0.7) 2px, rgba(26,26,46,0.7) 4px);
+      padding: 6px 8px;
+      border: 2px solid #00ffff;
       display: flex;
-      gap: 8px;
-      margin-bottom: 10px;
-      border: 1px solid rgba(74,144,226,0.3);
+      gap: 4px;
+      margin-bottom: 6px;
+      box-shadow: 
+        0 0 0 1px #000,
+        inset 0 0 5px rgba(0,0,0,0.5);
     }
 
     .player-heart {
-      width: 20px;
-      height: 20px;
-      background: linear-gradient(135deg, #ff3333, #ff6666);
-      clip-path: path('M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
-      animation: heart-pulse 1.5s ease infinite;
+      width: 16px;
+      height: 16px;
+      background: 
+        repeating-conic-gradient(from 0deg, 
+          #ff3333 0deg 45deg, 
+          #ff6666 45deg 90deg,
+          #ff3333 90deg 135deg,
+          #cc0000 135deg 180deg);
+      clip-path: polygon(50% 20%, 80% 40%, 70% 80%, 50% 100%, 30% 80%, 20% 40%);
+      animation: pixel-heart-pulse 1.5s steps(4) infinite;
+      image-rendering: pixelated;
+      box-shadow: 
+        1px 1px 0px #000,
+        0 0 3px rgba(255,51,51,0.7);
     }
 
     .heart-empty {
-      background: linear-gradient(135deg, #444, #666);
+      background: 
+        repeating-conic-gradient(from 0deg, 
+          #333333 0deg 45deg, 
+          #666666 45deg 90deg,
+          #333333 90deg 135deg,
+          #111111 135deg 180deg);
+      box-shadow: 1px 1px 0px #000;
       animation: none;
+    }
+
+    @keyframes pixel-heart-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
     }
 
     #player-level {
-      font-size: 1.2em;
-      color: #4a90e2;
-      text-shadow: 0 0 8px rgba(74,144,226,0.8);
-      font-weight: bold;
+      font-size: 8px;
+      color: #ffff00;
+      text-shadow: 
+        1px 1px 0px #000,
+        2px 2px 0px rgba(255,255,0,0.5);
+      font-weight: normal;
       letter-spacing: 1px;
     }
 
-    @keyframes heart-pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); filter: brightness(1.2); }
-      100% { transform: scale(1); }
-    }
-
-    #health-container {
-      display: flex;
-      gap: 8px;
-      padding: 10px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 20px;
-      border: 2px solid #4a90e2;
-    }
-
-    .player-heart {
-      width: 25px;
-      height: 25px;
-      background: linear-gradient(45deg, #ff3333, #ff6666);
-      border-radius: 50%;
-      box-shadow: 0 0 10px rgba(255,51,51,0.7);
-      position: relative;
-      animation: pulse 1.5s infinite;
-    }
-
-    .heart-empty {
-      background: linear-gradient(45deg, #333333, #666666);
-      box-shadow: none;
-      animation: none;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-
-    .heart-empty {
-      background-color: #333;
-    }
     #loading-status {
-      margin-top: 10px;
-      font-size: 1.2em;
+      margin-top: 8px;
+      font-size: 10px;
+      color: #00ffff;
+      text-shadow: 1px 1px 0px #000;
     }
 
     #loading-size {
-      margin-top: 5px;
-      font-size: 0.9em;
+      margin-top: 4px;
+      font-size: 8px;
+      color: #ffff00;
+      text-shadow: 1px 1px 0px #000;
     }
 
     .enemy-hearts {
       position: absolute;
       display: flex;
-      gap: 2px;
+      gap: 1px;
+      filter: drop-shadow(1px 1px 0px #000);
     }
 
     .enemy-heart {
-      width: 8px;
-      height: 8px;
-      background-color: red;
-      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+      width: 6px;
+      height: 6px;
+      background: 
+        linear-gradient(45deg, #ff0000 50%, #cc0000 50%);
+      clip-path: polygon(50% 0%, 100% 40%, 80% 100%, 20% 100%, 0% 40%);
+      image-rendering: pixelated;
     }
 
     .enemy-heart.heart-empty {
-      background-color: #333;
+      background: 
+        linear-gradient(45deg, #333 50%, #111 50%);
+    }
+
+    /* Efectos de partículas pixeladas */
+    @keyframes pixel-spark {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      100% { transform: scale(0) rotate(180deg); opacity: 0; }
+    }
+
+    /* Scrollbar pixel style */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: 
+        repeating-linear-gradient(90deg, #000 0px, #000 2px, #333 2px, #333 4px);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: 
+        repeating-linear-gradient(90deg, #00ffff 0px, #00ffff 2px, #0080ff 2px, #0080ff 4px);
+      border: 1px solid #000;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: 
+        repeating-linear-gradient(90deg, #ffff00 0px, #ffff00 2px, #ff8000 2px, #ff8000 4px);
     }
   </style>
 </head>
@@ -507,8 +614,8 @@
   </div>
   <!-- Pantalla de carga -->
   <div id="loading">
-    <h2>Cargando...</h2>
-    <div id="loading-status">Iniciando...</div>
+    <h2>CARGANDO...</h2>
+    <div id="loading-status">INICIANDO...</div>
     <div id="loading-size">0 MB / 100 MB</div>
     <div id="loading-bar">
       <div id="loading-progress"></div>
@@ -518,55 +625,58 @@
   <!-- Selección de personaje -->
   <div id="char-select">
     <div class="select-header">
-      <h2>Selecciona tu Personaje</h2>
+      <h2>SELECCIONA TU PERSONAJE</h2>
       <div class="scroll-design"></div>
     </div>
     <audio id="hover-sound" src="https://www.soundjay.com/buttons/button-09a.mp3"></audio>
     <audio id="select-sound" src="https://www.soundjay.com/buttons/button-37a.mp3"></audio>
-    <div class="char-card" onclick="selectCharacter('neji')" onmouseover="playHoverSound()">
-      <h3>Neji Hyūga</h3>
-      <div class="char-img" style="background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_JLthZ20l4C_V-G8cKVR_3hOqAyrTOVTLaw&s') center/contain no-repeat;"></div>
-      <p>Poderes: Byakugan, Jūken, 64 Palmas, 128 Palmas, Kaiten</p>
-    </div>
-    <div class="char-card" onclick="selectCharacter('itachi')">
-      <h3>Itachi Uchiha</h3>
-      <div class="char-img" style="background: url('https://officialpsds.com/imageview/r0/68/r068ny_large.png?1521316545') center/contain no-repeat;"></div>
-      <p>Poderes: Sharingan, Amaterasu, Tsukuyomi, Susanoo</p>
-    </div>
-    <div class="char-card" onclick="selectCharacter('ino')">
-      <h3>Ino Yamanaka</h3>
-      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/c/cc/Ino_Segunda_Guerra_Mundial_Shinobi_HD.png') center/contain no-repeat;"></div>
-      <p>Poderes: Transferencia de Mente, Bomba de Chakra, Control Mental, Curación</p>
-    </div>
-    <div class="char-card" onclick="selectCharacter('shikamaru')">
-      <h3>Shikamaru Nara</h3>
-      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/9a/Shikamaru_Nara.png') center/contain no-repeat;"></div>
-      <p>Poderes: Posesión de Sombra, Estrangulación de Sombra, Costura de Sombra, Imitación de Sombra</p>
-    </div>
-    <div class="char-card" onclick="selectCharacter('tenten')">
-      <h3>Tenten</h3>
-      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/92/Tenten_Part_2.png') center/contain no-repeat;"></div>
-      <p>Poderes: Invocación de Armas, Lluvia de Kunais, Pergamino Gigante, Barrera de Armas</p>
-    </div>
-    <div class="char-card" onclick="selectCharacter('hinata')">
-      <h3>Hinata Hyūga</h3>
-      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/97/Hinata.png') center/contain no-repeat;"></div>
-      <p>Poderes: Byakugan, Puño Suave, León Gemelo, Protección de 8 Trigramas</p>
-    </div>
-    <div class="char-card" onclick="selectCharacter('temari')">
-      <h3>Temari</h3>
-      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/7/7c/Temari_Part_2.png') center/contain no-repeat;"></div>
-      <p>Poderes: Danza del Abanico, Torbellino Cortante, Guadaña Comadreja, Invocación</p>
-    </div>
-    <div class="char-card" onclick="selectCharacter('sasuke')">
-      <h3>Sasuke Uchiha</h3>
-      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/2/21/Sasuke_Part_2.png') center/contain no-repeat;"></div>
-      <p>Poderes: Chidori, Sharingan, Amaterasu, Kirin</p>
-    </div>
-    <div class="char-card" onclick="selectCharacter('hashirama')">
-      <h3>Hashirama Senju</h3>
-      <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/7/7e/Hashirama_Senju.png') center/contain no-repeat;"></div>
-      <p>Poderes: Mokuton, Senjutsu, Regeneración, Gōjū Mokuton</p>
+    
+    <div class="characters-grid">
+      <div class="char-card" onclick="selectCharacter('neji')" onmouseover="playHoverSound()">
+        <h3>NEJI HYUGA</h3>
+        <div class="char-img" style="background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_JLthZ20l4C_V-G8cKVR_3hOqAyrTOVTLaw&s') center/contain no-repeat;"></div>
+        <p>PODERES: BYAKUGAN, JUKEN, 64 PALMAS, 128 PALMAS, KAITEN</p>
+      </div>
+      <div class="char-card" onclick="selectCharacter('itachi')">
+        <h3>ITACHI UCHIHA</h3>
+        <div class="char-img" style="background: url('https://officialpsds.com/imageview/r0/68/r068ny_large.png?1521316545') center/contain no-repeat;"></div>
+        <p>PODERES: SHARINGAN, AMATERASU, TSUKUYOMI, SUSANOO</p>
+      </div>
+      <div class="char-card" onclick="selectCharacter('ino')">
+        <h3>INO YAMANAKA</h3>
+        <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/c/cc/Ino_Segunda_Guerra_Mundial_Shinobi_HD.png') center/contain no-repeat;"></div>
+        <p>PODERES: TRANSFERENCIA DE MENTE, BOMBA DE CHAKRA, CONTROL MENTAL, CURACION</p>
+      </div>
+      <div class="char-card" onclick="selectCharacter('shikamaru')">
+        <h3>SHIKAMARU NARA</h3>
+        <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/9a/Shikamaru_Nara.png') center/contain no-repeat;"></div>
+        <p>PODERES: POSESION DE SOMBRA, ESTRANGULACION DE SOMBRA, COSTURA DE SOMBRA, IMITACION DE SOMBRA</p>
+      </div>
+      <div class="char-card" onclick="selectCharacter('tenten')">
+        <h3>TENTEN</h3>
+        <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/92/Tenten_Part_2.png') center/contain no-repeat;"></div>
+        <p>PODERES: INVOCACION DE ARMAS, LLUVIA DE KUNAIS, PERGAMINO GIGANTE, BARRERA DE ARMAS</p>
+      </div>
+      <div class="char-card" onclick="selectCharacter('hinata')">
+        <h3>HINATA HYUGA</h3>
+        <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/9/97/Hinata.png') center/contain no-repeat;"></div>
+        <p>PODERES: BYAKUGAN, PUNO SUAVE, LEON GEMELO, PROTECCION DE 8 TRIGRAMAS</p>
+      </div>
+      <div class="char-card" onclick="selectCharacter('temari')">
+        <h3>TEMARI</h3>
+        <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/7/7c/Temari_Part_2.png') center/contain no-repeat;"></div>
+        <p>PODERES: DANZA DEL ABANICO, TORBELLINO CORTANTE, GUADANA COMADREJA, INVOCACION</p>
+      </div>
+      <div class="char-card" onclick="selectCharacter('sasuke')">
+        <h3>SASUKE UCHIHA</h3>
+        <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/2/21/Sasuke_Part_2.png') center/contain no-repeat;"></div>
+        <p>PODERES: CHIDORI, SHARINGAN, AMATERASU, KIRIN</p>
+      </div>
+      <div class="char-card" onclick="selectCharacter('hashirama')">
+        <h3>HASHIRAMA SENJU</h3>
+        <div class="char-img" style="background: url('https://static.wikia.nocookie.net/naruto/images/7/7e/Hashirama_Senju.png') center/contain no-repeat;"></div>
+        <p>PODERES: MOKUTON, SENJUTSU, REGENERACION, GOJU MOKUTON</p>
+      </div>
     </div>
   </div>
 
@@ -582,7 +692,7 @@
   <!-- Player HUD -->
   <div id="player-hud">
     <div id="health-container"></div>
-    <div id="player-level">Nivel 1</div>
+    <div id="player-level">NIVEL 1</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
@@ -668,19 +778,19 @@
       heart.className = `player-heart ${i >= playerHealth ? 'heart-empty' : ''}`;
       container.appendChild(heart);
     }
-    document.getElementById('player-level').textContent = 'Nivel ' + playerLevel;
+    document.getElementById('player-level').textContent = 'NIVEL ' + playerLevel;
   }
   let currentCharacter = '';
 let playerSpeed = 0.15; // Velocidad base
 let characterNames = {
-  'neji': 'Neji Hyūga',
-  'itachi': 'Itachi Uchiha',
-  'ino': 'Ino Yamanaka',
-  'shikamaru': 'Shikamaru Nara',
-  'tenten': 'Tenten',
-  'hinata': 'Hinata Hyūga',
-  'temari': 'Temari',
-  'sasuke': 'Sasuke Uchiha'
+  'neji': 'NEJI HYUGA',
+  'itachi': 'ITACHI UCHIHA',
+  'ino': 'INO YAMANAKA',
+  'shikamaru': 'SHIKAMARU NARA',
+  'tenten': 'TENTEN',
+  'hinata': 'HINATA HYUGA',
+  'temari': 'TEMARI',
+  'sasuke': 'SASUKE UCHIHA'
 };
 
 // Mostrar nombre del personaje
@@ -688,14 +798,19 @@ function showCharacterName() {
   let nameDiv = document.createElement('div');
   nameDiv.style.cssText = `
     position: fixed;
-    top: 50px;
+    top: 40px;
     left: 50%;
     transform: translateX(-50%);
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px black;
+    color: #00ffff;
+    font-size: 16px;
+    font-family: 'Press Start 2P', cursive;
+    font-weight: normal;
+    text-shadow: 2px 2px 0px #000, 4px 4px 0px rgba(0,255,255,0.5);
     z-index: 100;
+    background: rgba(0,0,0,0.8);
+    padding: 8px 12px;
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 0 1px #000, 0 0 10px rgba(0,255,255,0.5);
   `;
   nameDiv.textContent = characterNames[currentCharacter];
   document.body.appendChild(nameDiv);
@@ -716,16 +831,16 @@ function showCharacterName() {
     const loadingSize = document.getElementById('loading-size');
     const totalSize = 250; // Aumentamos el tamaño total
     const loadingSteps = [
-      {progress: 10, message: "Descargando modelos 3D base...", size: 25},
-      {progress: 20, message: "Cargando texturas de personajes...", size: 50},
-      {progress: 30, message: "Instalando efectos de jutsu...", size: 75},
-      {progress: 40, message: "Cargando animaciones...", size: 100},
-      {progress: 50, message: "Instalando efectos de partículas...", size: 125},
-      {progress: 60, message: "Cargando sonidos y música...", size: 150},
-      {progress: 70, message: "Configurando física del juego...", size: 175},
-      {progress: 80, message: "Optimizando rendimiento...", size: 200},
-      {progress: 90, message: "Finalizando instalación...", size: 225},
-      {progress: 100, message: "¡Instalación completada!", size: 250}
+      {progress: 10, message: "DESCARGANDO MODELOS 3D BASE...", size: 25},
+      {progress: 20, message: "CARGANDO TEXTURAS DE PERSONAJES...", size: 50},
+      {progress: 30, message: "INSTALANDO EFECTOS DE JUTSU...", size: 75},
+      {progress: 40, message: "CARGANDO ANIMACIONES...", size: 100},
+      {progress: 50, message: "INSTALANDO EFECTOS DE PARTICULAS...", size: 125},
+      {progress: 60, message: "CARGANDO SONIDOS Y MUSICA...", size: 150},
+      {progress: 70, message: "CONFIGURANDO FISICA DEL JUEGO...", size: 175},
+      {progress: 80, message: "OPTIMIZANDO RENDIMIENTO...", size: 200},
+      {progress: 90, message: "FINALIZANDO INSTALACION...", size: 225},
+      {progress: 100, message: "INSTALACION COMPLETADA!", size: 250}
     ];
 
       let currentStep = 0;
@@ -777,48 +892,48 @@ function showCharacterName() {
       return btn;
     };
 
-    addButton('jump', 'Jump');
+    addButton('jump', 'JUMP');
 
     if(char === 'neji') {
-      addButton('btn-byak', 'Byakugan').addEventListener('touchstart', activateByakugan);
-      addButton('btn-juken', 'Jūken').addEventListener('touchstart', activateJuken);
+      addButton('btn-byak', 'BYAK').addEventListener('touchstart', activateByakugan);
+      addButton('btn-juken', 'JUKEN').addEventListener('touchstart', activateJuken);
       addButton('btn-64', '64P').addEventListener('touchstart', activate64Palms);
       addButton('btn-128', '128P').addEventListener('touchstart', activate128Palms);
-      addButton('btn-kaiten', 'Kaiten').addEventListener('touchstart', activateKaiten);
-      addButton('btn-kusho', 'Kūshō').addEventListener('touchstart', activateKusho);
-      addButton('btn-det', 'Detect').addEventListener('touchstart', activateDetect);
+      addButton('btn-kaiten', 'KAIT').addEventListener('touchstart', activateKaiten);
+      addButton('btn-kusho', 'KUSH').addEventListener('touchstart', activateKusho);
+      addButton('btn-det', 'DET').addEventListener('touchstart', activateDetect);
     } else if(char === 'itachi') {
-      addButton('btn-sharingan', 'Sharingan').addEventListener('touchstart', activateSharingan);
-      addButton('btn-amaterasu', 'Amaterasu').addEventListener('touchstart', activateAmaterasu);
-      addButton('btn-tsukuyomi', 'Tsukuyomi').addEventListener('touchstart', activateTsukuyomi);
-      addButton('btn-susanoo', 'Susanoo').addEventListener('touchstart', activateSusanoo);
+      addButton('btn-sharingan', 'SHAR').addEventListener('touchstart', activateSharingan);
+      addButton('btn-amaterasu', 'AMAT').addEventListener('touchstart', activateAmaterasu);
+      addButton('btn-tsukuyomi', 'TSUK').addEventListener('touchstart', activateTsukuyomi);
+      addButton('btn-susanoo', 'SUSA').addEventListener('touchstart', activateSusanoo);
     } else if(char === 'ino') {
-      addButton('btn-mind-transfer', 'Transferencia').addEventListener('touchstart', activateMindTransfer);
-      addButton('btn-chakra-bomb', 'Bomba').addEventListener('touchstart', activateChakraBomb);
-      addButton('btn-mind-control', 'Control').addEventListener('touchstart', activateMindControl);
-      addButton('btn-healing', 'Curación').addEventListener('touchstart', activateHealing);
+      addButton('btn-mind-transfer', 'MIND').addEventListener('touchstart', activateMindTransfer);
+      addButton('btn-chakra-bomb', 'BOMB').addEventListener('touchstart', activateChakraBomb);
+      addButton('btn-mind-control', 'CTRL').addEventListener('touchstart', activateMindControl);
+      addButton('btn-healing', 'HEAL').addEventListener('touchstart', activateHealing);
     } else if(char === 'shikamaru') {
-      addButton('btn-shadow-possession', 'Posesión').addEventListener('touchstart', activateShadowPossession);
-      addButton('btn-shadow-strangle', 'Estrangular').addEventListener('touchstart', activateShadowStrangle);
+      addButton('btn-shadow-possession', 'POSS').addEventListener('touchstart', activateShadowPossession);
+      addButton('btn-shadow-strangle', 'STRN').addEventListener('touchstart', activateShadowStrangle);
     } else if(char === 'tenten') {
-      addButton('btn-weapon-summon', 'Invocar').addEventListener('touchstart', activateWeaponSummoning);
-      addButton('btn-kunai-rain', 'Lluvia').addEventListener('touchstart', activateKunaiRain);
+      addButton('btn-weapon-summon', 'SUMM').addEventListener('touchstart', activateWeaponSummoning);
+      addButton('btn-kunai-rain', 'RAIN').addEventListener('touchstart', activateKunaiRain);
     } else if(char === 'hinata') {
-      addButton('btn-gentle-fist', 'Puño Suave').addEventListener('touchstart', activateGentleFist);
-      addButton('btn-twin-lions', 'Leones').addEventListener('touchstart', activateTwinLionFists);
+      addButton('btn-gentle-fist', 'GENT').addEventListener('touchstart', activateGentleFist);
+      addButton('btn-twin-lions', 'LION').addEventListener('touchstart', activateTwinLionFists);
     } else if(char === 'temari') {
-      addButton('btn-fan-dance', 'Abanico').addEventListener('touchstart', activateFanDance);
-      addButton('btn-whirlwind', 'Torbellino').addEventListener('touchstart', activateWhirlwind);
+      addButton('btn-fan-dance', 'FAN').addEventListener('touchstart', activateFanDance);
+      addButton('btn-whirlwind', 'WIND').addEventListener('touchstart', activateWhirlwind);
     } else if(char === 'sasuke') {
-      addButton('btn-chidori', 'Chidori').addEventListener('touchstart', activateChidori);
-      addButton('btn-kirin', 'Kirin').addEventListener('touchstart', activateKirin);
-      addButton('btn-sharingan', 'Sharingan').addEventListener('touchstart', activateSharingan);
-      addButton('btn-amaterasu', 'Amaterasu').addEventListener('touchstart', activateAmaterasu);
+      addButton('btn-chidori', 'CHID').addEventListener('touchstart', activateChidori);
+      addButton('btn-kirin', 'KIRI').addEventListener('touchstart', activateKirin);
+      addButton('btn-sharingan', 'SHAR').addEventListener('touchstart', activateSharingan);
+      addButton('btn-amaterasu', 'AMAT').addEventListener('touchstart', activateAmaterasu);
     } else if(char === 'hashirama') {
-      addButton('btn-mokuton', 'Mokuton').addEventListener('touchstart', activateMokuton);
-      addButton('btn-senjutsu', 'Senjutsu').addEventListener('touchstart', activateSenjutsu);
-      addButton('btn-regen', 'Regenerar').addEventListener('touchstart', activateRegeneration);
-      addButton('btn-goju', 'Gōjū').addEventListener('touchstart', activateGojuMokuton);
+      addButton('btn-mokuton', 'MOKU').addEventListener('touchstart', activateMokuton);
+      addButton('btn-senjutsu', 'SENJ').addEventListener('touchstart', activateSenjutsu);
+      addButton('btn-regen', 'REGEN').addEventListener('touchstart', activateRegeneration);
+      addButton('btn-goju', 'GOJU').addEventListener('touchstart', activateGojuMokuton);
     }
 
     // Habilidades de Hashirama
@@ -1104,20 +1219,18 @@ function showCharacterName() {
     scene.fog = new THREE.FogExp2(0x000033, 0.02);
     camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,500);
 
-    // Crear textura para las paredes
-    const textureLoader = new THREE.TextureLoader();
-    const wallTexture = textureLoader.load('https://wallpapers.com/images/hd/hidden-leaf-village-96kizz8o1c5ev6sf.jpg');
-
-    // Crear paredes
-    const wallGeometry = new THREE.PlaneGeometry(200, 20);
+    // Crear textura para las paredes con patrón pixelado
     const wallMaterial = new THREE.MeshStandardMaterial({ 
-      map: wallTexture,
+      color: 0x1a1a2e,
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.9,
-      emissive: 0x444444,
+      emissive: 0x004400,
       emissiveIntensity: 0.2
     });
+
+    // Crear paredes pixeladas
+    const wallGeometry = new THREE.PlaneGeometry(200, 20);
 
     // Pared Norte
     const wallNorth = new THREE.Mesh(wallGeometry, wallMaterial);
@@ -1141,8 +1254,9 @@ function showCharacterName() {
     wallWest.position.set(-100, 10, 0);
     wallWest.rotation.y = Math.PI/2;
     scene.add(wallWest);
+    
     camera.position.set(0,5,10);
-    renderer=new THREE.WebGLRenderer({antialias:true});
+    renderer=new THREE.WebGLRenderer({antialias:false});
     renderer.setSize(innerWidth,innerHeight);
     document.body.appendChild(renderer.domElement);
 
@@ -1151,14 +1265,16 @@ function showCharacterName() {
     let dl=new THREE.DirectionalLight(0xffffff,0.8);
     dl.position.set(5,10,7); scene.add(dl);
 
-    // suelo + hierba (idéntico)
+    // suelo pixelado
     floor=new THREE.Mesh(
       new THREE.PlaneGeometry(200,200),
       new THREE.MeshStandardMaterial({color:0x228B22})
     ); floor.rotation.x=-Math.PI/2; scene.add(floor);
+    
+    // hierba pixelada
     for(let i=0;i<500;i++){
       let b=new THREE.Mesh(
-        new THREE.CylinderGeometry(0.02,0.02,0.6),
+        new THREE.BoxGeometry(0.04,0.6,0.04),
         new THREE.MeshStandardMaterial({color:0x00aa00})
       );
       b.position.set(Math.random()*180-90,0.3,Math.random()*180-90);
@@ -1166,26 +1282,26 @@ function showCharacterName() {
       scene.add(b);
     }
 
-    // personaje con brazos y piernas animadas
+    // personaje pixelado con brazos y piernas cubicos
     let body=new THREE.Mesh(
-      new THREE.CylinderGeometry(0.6,0.6,2.5),
+      new THREE.BoxGeometry(1.2,2.5,0.8),
       new THREE.MeshStandardMaterial({color:0xeeeeee})
     );
     let head=new THREE.Mesh(
-      new THREE.SphereGeometry(0.6),
+      new THREE.BoxGeometry(1,1,1),
       new THREE.MeshStandardMaterial({color:0xdddddd})
     );
     head.position.y=1.8;
 
-    // Brazos
-    let armGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1.5);
+    // Brazos pixelados
+    let armGeometry = new THREE.BoxGeometry(0.4, 1.5, 0.4);
     let leftArm = new THREE.Mesh(armGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
     let rightArm = new THREE.Mesh(armGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
     leftArm.position.set(-0.8, 0.5, 0);
     rightArm.position.set(0.8, 0.5, 0);
 
-    // Piernas más visibles
-    let legGeometry = new THREE.CylinderGeometry(0.25, 0.25, 2);
+    // Piernas pixeladas
+    let legGeometry = new THREE.BoxGeometry(0.5, 2, 0.5);
     let leftLeg = new THREE.Mesh(legGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
     let rightLeg = new THREE.Mesh(legGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee}));
     leftLeg.position.set(-0.4, -0.8, 0);
@@ -1242,6 +1358,7 @@ function showCharacterName() {
       return;
     }
     let g=new THREE.Group();
+    // Cuerpo pixelado
     let b=new THREE.Mesh(
       new THREE.BoxGeometry(1,1.5,1),
       new THREE.MeshStandardMaterial({
@@ -1255,8 +1372,9 @@ function showCharacterName() {
       hp: STAGES[currentStage].enemyHealth,
       id: THREE.MathUtils.generateUUID()
     };
+    // Cabeza pixelada
     let h=new THREE.Mesh(
-      new THREE.SphereGeometry(0.5, 32, 32),
+      new THREE.BoxGeometry(1, 1, 1),
       new THREE.MeshStandardMaterial({
         color:0xFF4444,
         emissive: 0xFF0000,
@@ -1265,8 +1383,8 @@ function showCharacterName() {
     );
     h.position.y=1.25;
 
-    // Garras y detalles monstruosos
-    let clawGeometry = new THREE.ConeGeometry(0.1, 0.3, 4);
+    // Garras pixeladas
+    let clawGeometry = new THREE.BoxGeometry(0.2, 0.3, 0.1);
     for(let i = 0; i < 3; i++) {
       let claw = new THREE.Mesh(clawGeometry, new THREE.MeshStandardMaterial({color: 0x660000}));
       claw.position.set(0.3 * (i-1), 0, 0.6);
@@ -1297,11 +1415,11 @@ function showCharacterName() {
     allyData.forEach(data => {
       let allyChar = new THREE.Group();
       let body = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.6, 0.6, 2.5),
+        new THREE.BoxGeometry(1.2, 2.5, 0.8),
         new THREE.MeshStandardMaterial({color: data.color})
       );
       let head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.6),
+        new THREE.BoxGeometry(1, 1, 1),
         new THREE.MeshStandardMaterial({color: 0xFFE4B5})
       );
       head.position.y = 1.8;
@@ -1350,21 +1468,21 @@ function showCharacterName() {
 function createPainBoss() {
   pain = new THREE.Group();
 
-  // Crear modelo de Pain
+  // Crear modelo de Pain pixelado
   let body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.8, 0.8, 3),
+    new THREE.BoxGeometry(1.6, 3, 1.2),
     new THREE.MeshStandardMaterial({color: 0x000000})
   );
   let head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.7),
+    new THREE.BoxGeometry(1.4, 1.4, 1.4),
     new THREE.MeshStandardMaterial({color: 0xFF4500})
   );
   head.position.y = 2;
 
-  // Añadir piercings característicos
+  // Añadir piercings característicos pixelados
   for(let i = 0; i < 6; i++) {
     let piercing = new THREE.Mesh(
-      new THREE.SphereGeometry(0.1),
+      new THREE.BoxGeometry(0.2, 0.2, 0.2),
       new THREE.MeshStandardMaterial({color: 0x808080})
     );
     piercing.position.set(
@@ -1397,7 +1515,7 @@ function createPainBoss() {
         switch(attack) {
           case 0: // Shinra Tensei
             let blast = new THREE.Mesh(
-              new THREE.SphereGeometry(10),
+              new THREE.BoxGeometry(20, 20, 20),
               new THREE.MeshBasicMaterial({color: 0x4B0082, transparent: true, opacity: 0.3})
             );
             blast.position.copy(pain.position);
@@ -1415,7 +1533,7 @@ function createPainBoss() {
 
           case 2: // Chibaku Tensei
             let sphere = new THREE.Mesh(
-              new THREE.SphereGeometry(2),
+              new THREE.BoxGeometry(4, 4, 4),
               new THREE.MeshBasicMaterial({color: 0x000000})
             );
             sphere.position.copy(player.position).add(new THREE.Vector3(0, 10, 0));
@@ -1498,7 +1616,7 @@ function animate(){
 
         updatePlayerHUD();
         if(playerHealth <= 0) {
-          alert('¡Game Over! - Nivel ' + currentStage);
+          alert('¡GAME OVER! - NIVEL ' + currentStage);
           location.reload();
         }
       }
@@ -1511,10 +1629,10 @@ function animate(){
         if(enemies.length === 0) {
           currentStage++;
           if(currentStage in STAGES) {
-            alert('¡Nivel ' + currentStage + ' - ' + STAGES[currentStage].name + '!');
+            alert('¡NIVEL ' + currentStage + ' - ' + STAGES[currentStage].name + '!');
             changeStage(currentStage);
           } else {
-            alert('¡Felicidades! ¡Has completado todos los niveles!');
+            alert('¡FELICIDADES! ¡HAS COMPLETADO TODOS LOS NIVELES!');
             location.reload();
           }
         }
@@ -1525,7 +1643,7 @@ function animate(){
 
   function flash(pos){
     let m=new THREE.Mesh(
-      new THREE.SphereGeometry(0.5,8,8),
+      new THREE.BoxGeometry(1,1,1),
       new THREE.MeshBasicMaterial({color:0xffff00})
     );
     m.position.copy(pos); scene.add(m);
@@ -1557,16 +1675,19 @@ function animate(){
     let ov=document.createElement('div');
     ov.style.cssText=`
       position:fixed;top:0;left:0;width:100%;height:100%;
-      background:rgba(255,255,255,0.2);
-      pointer-events:none;mix-blend-mode:overlay;
-      mask: radial-gradient(circle at 50% 40%, transparent 20%, black 30%);
+      background:
+        repeating-linear-gradient(45deg,
+          rgba(255,255,255,0.3) 0px, rgba(255,255,255,0.3) 4px,
+          transparent 4px, transparent 8px);
+      pointer-events:none;
+      animation: pixel-scan 1.2s steps(4) forwards;
     `;
     document.body.appendChild(ov);
     setTimeout(()=>ov.remove(),1200);
-    // auras en enemigos
+    // auras en enemigos pixeladas
     enemies.forEach(e=>{
       let aura=new THREE.Mesh(
-        new THREE.RingGeometry(1.5,2.5,32),
+        new THREE.BoxGeometry(3,0.1,3),
         new THREE.MeshBasicMaterial({color:0x00ffff,side:THREE.DoubleSide,transparent:true,opacity:0.3})
       );
       aura.rotation.x=-Math.PI/2;
@@ -1577,9 +1698,9 @@ function animate(){
   }
 
   function activateJuken(){
-    // golpe suave: pulso puntual
+    // golpe suave: pulso pixelado
     let p=new THREE.Mesh(
-      new THREE.SphereGeometry(0.5,16,16),
+      new THREE.BoxGeometry(1,1,1),
       new THREE.MeshBasicMaterial({color:0xffa500,transparent:true,opacity:0.8})
     );
     // Posición de la mano derecha
@@ -1592,7 +1713,7 @@ function animate(){
     for(let i=0;i<64;i++){
       let a=(i/64)*Math.PI*2;
       let orb=new THREE.Mesh(
-        new THREE.SphereGeometry(0.15,8,8),
+        new THREE.BoxGeometry(0.3,0.3,0.3),
         new THREE.MeshBasicMaterial({color:0x66ccff})
       );
       orb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
@@ -1608,7 +1729,7 @@ function animate(){
   function activate128Palms(){
     for(let i=0;i<128;i++){      let a=(i/128)*Math.PI*2;
       let orb=new THREE.Mesh(
-        new THREE.SphereGeometry(0.12,8,8),
+        new THREE.BoxGeometry(0.24,0.24,0.24),
         new THREE.MeshBasicMaterial({color:0x00ffff})
       );
       orb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
@@ -1623,7 +1744,7 @@ function animate(){
 
   function activateKaiten(){
     let t=new THREE.Mesh(
-      new THREE.TorusGeometry(3,0.4,16,100),
+      new THREE.BoxGeometry(6,0.8,6),
       new THREE.MeshBasicMaterial({color:0x99ccff,transparent:true,opacity:0.4})
     );
     t.rotation.x=Math.PI/2; player.add(t);
@@ -1638,9 +1759,9 @@ function animate(){
   }
 
   function activateKusho(){
-    // onda de vacío
+    // onda de vacío pixelada
     let ring=new THREE.Mesh(
-      new THREE.RingGeometry(0.5,0.7,32),
+      new THREE.BoxGeometry(1.4,0.2,1.4),
       new THREE.MeshBasicMaterial({color:0xff00ff,side:THREE.DoubleSide,transparent:true,opacity:0.6})
     );
     ring.rotation.x=-Math.PI/2;
@@ -1662,7 +1783,7 @@ function animate(){
     // identifica clones/ilusiones: parpadea a los enemigos ocultos
     enemies.forEach(e=>{
       let highlight=new THREE.Mesh(
-        new THREE.SphereGeometry(1.8,16,16),
+        new THREE.BoxGeometry(3.6,3.6,3.6),
         new THREE.MeshBasicMaterial({color:0xffff00,wireframe:true,transparent:true,opacity:0.5})
       );
       highlight.position.copy(e.position);
@@ -1673,25 +1794,34 @@ function animate(){
 
   // Nuevos poderes de Itachi
   function activateSharingan() {
-    // Efecto visual mejorado del Sharingan
+    // Efecto visual mejorado del Sharingan pixelado
     let overlay = document.createElement('div');
     overlay.style.cssText = `
       position:fixed;top:0;left:0;width:100%;height:100%;
-      background:linear-gradient(rgba(255,0,0,0.2), rgba(0,0,0,0.4));
-      pointer-events:none;mix-blend-mode:multiply;
-      animation: sharingan-pulse 2s infinite;
+      background:
+        repeating-conic-gradient(from 0deg,
+          rgba(255,0,0,0.2) 0deg 45deg,
+          rgba(0,0,0,0.4) 45deg 90deg);
+      background-size: 32px 32px;
+      pointer-events:none;
+      animation: pixel-sharingan 2s steps(4) infinite;
     `;
     
-    // Añadir tomoes giratorios
+    // Añadir tomoes giratorios pixelados
     let tomoe = document.createElement('div');
     tomoe.style.cssText = `
       position:fixed;top:50%;left:50%;
       width:200px;height:200px;
       transform:translate(-50%,-50%);
-      background:url('https://i.imgur.com/XhWcYr3.png') center/contain;
-      animation:spin 4s linear infinite;
+      background:
+        repeating-conic-gradient(from 0deg,
+          #ff0000 0deg 30deg,
+          #000000 30deg 60deg);
+      background-size: 32px 32px;
+      animation: pixel-spin 4s steps(8) infinite;
       pointer-events:none;
       z-index:1000;
+      image-rendering: pixelated;
     `;
     
     document.body.appendChild(overlay);
@@ -1704,7 +1834,7 @@ function animate(){
     // Marcar enemigos con auras más visibles
     enemies.forEach(e => {
       let aura = new THREE.Mesh(
-        new THREE.RingGeometry(1.5,2.5,32),
+        new THREE.BoxGeometry(5,0.2,5),
         new THREE.MeshBasicMaterial({
           color:0xff0000,
           side:THREE.DoubleSide,
@@ -1713,10 +1843,10 @@ function animate(){
         })
       );
       
-      // Añadir tomoes alrededor del enemigo
+      // Añadir marcadores pixelados alrededor del enemigo
       for(let i = 0; i < 3; i++) {
         let marker = new THREE.Mesh(
-          new THREE.SphereGeometry(0.2),
+          new THREE.BoxGeometry(0.4,0.4,0.4),
           new THREE.MeshBasicMaterial({color:0xff0000})
         );
         marker.position.copy(e.position).add(new THREE.Vector3(
@@ -1762,7 +1892,7 @@ function animate(){
 
   function activateAmaterasu() {
     let flame = new THREE.Mesh(
-      new THREE.SphereGeometry(0.5),
+      new THREE.BoxGeometry(1,1,1),
       new THREE.MeshBasicMaterial({color:0x000000})
     );
     flame.position.copy(player.position).add(new THREE.Vector3(0,1,0));
@@ -1776,62 +1906,70 @@ function animate(){
   }
 
   function activateTsukuyomi() {
-    // Efecto visual mejorado de Tsukuyomi con cruz y lluvia de sangre
+    // Efecto visual mejorado de Tsukuyomi pixelado
     let overlay = document.createElement('div');
     overlay.style.cssText = `
       position:fixed;top:0;left:0;width:100%;height:100%;
-      background: rgba(0,0,0,0.95);
+      background: 
+        repeating-linear-gradient(45deg,
+          rgba(0,0,0,0.95) 0px, rgba(0,0,0,0.95) 8px,
+          rgba(128,0,0,0.95) 8px, rgba(128,0,0,0.95) 16px);
+      background-size: 16px 16px;
       opacity:0;pointer-events:none;
       transition:all 0.5s;
-      animation: tsukuyomi-world 8s forwards;
-      filter: contrast(150%) saturate(150%);
-      transform-style: preserve-3d;
-      perspective: 1000px;
+      animation: pixel-tsukuyomi-world 8s steps(8) forwards;
+      image-rendering: pixelated;
     `;
 
     const style = document.createElement('style');
     style.textContent = `
-      @keyframes tsukuyomi-world {
-        0% { filter: hue-rotate(0deg) invert(0); transform: scale(1); }
-        20% { filter: hue-rotate(180deg) invert(1); transform: scale(1.2); }
-        100% { filter: hue-rotate(360deg) invert(0.5); transform: scale(1.1); }
+      @keyframes pixel-tsukuyomi-world {
+        0% { filter: hue-rotate(0deg) contrast(100%); transform: scale(1); }
+        20% { filter: hue-rotate(180deg) contrast(200%); transform: scale(1.2); }
+        100% { filter: hue-rotate(360deg) contrast(150%); transform: scale(1.1); }
       }
       
-      @keyframes blood-rain {
+      @keyframes pixel-blood-rain {
         from { transform: translateY(-100%); }
         to { transform: translateY(100%); }
       }
       
-      @keyframes float-victim {
-        0% { transform: translateY(0); }
-        50% { transform: translateY(-20px); }
-        100% { transform: translateY(0); }
+      @keyframes pixel-sharingan {
+        0% { background-position: 0 0; }
+        100% { background-position: 32px 32px; }
       }
-      @keyframes sharingan-spin {
+      
+      @keyframes pixel-spin {
         from { transform: translate(-50%, -50%) rotate(0deg); }
         to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+      
+      @keyframes pixel-scan {
+        0% { background-position: 0 0; }
+        100% { background-position: 32px 32px; }
       }
     `;
     document.head.appendChild(style);
 
-    // Añadir Sharingan giratorio
+    // Añadir Sharingan giratorio pixelado
     let sharingan = document.createElement('div');
     sharingan.style.cssText = `
       position:fixed;
       top:50%;left:50%;
       width:200px;height:200px;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Sharingan_triple.svg/1024px-Sharingan_triple.svg.png') center/cover;
-      animation: sharingan-spin 2s linear infinite;
+      background: 
+        repeating-conic-gradient(from 0deg,
+          #ff0000 0deg 30deg,
+          #000000 30deg 60deg);
+      background-size: 32px 32px;
+      animation: pixel-spin 2s steps(8) infinite;
       z-index:1000;
       pointer-events:none;
+      image-rendering: pixelated;
     `;
 
     document.body.appendChild(overlay);
     document.body.appendChild(sharingan);
-
-    // Efecto de sonido
-    let tsukuyomiSound = new Audio('https://example.com/tsukuyomi.mp3');
-    tsukuyomiSound.play();
 
     setTimeout(() => {
       overlay.style.opacity = '0.95';
@@ -1839,51 +1977,45 @@ function animate(){
       
       enemies.forEach(enemy => {
         if(enemy.position.distanceTo(player.position) < 10) {
-          // Crear cruz que emerge del suelo
+          // Crear cruz pixelada que emerge del suelo
           const cross = document.createElement('div');
           cross.style.cssText = `
             position: fixed;
             width: 200px;
             height: 300px;
-            background: linear-gradient(#8B0000, #4B0000);
+            background: 
+              repeating-linear-gradient(90deg,
+                #8B0000 0px, #8B0000 8px,
+                #4B0000 8px, #4B0000 16px);
             top: 50%;
             left: 50%;
             transform: translate(-50%, 100%);
             box-shadow: 0 0 20px #FF0000;
-            animation: crossRise 2s forwards, crossFloat 2s infinite;
+            animation: crossRise 2s steps(4) forwards, crossFloat 2s steps(2) infinite;
+            image-rendering: pixelated;
           `;
 
-          // Añadir animación de la cruz emergiendo y flotando
-          const crossAnimation = document.createElement('style');
-          crossAnimation.textContent = `
-            @keyframes crossRise {
-              from { transform: translate(-50%, 100%); }
-              to { transform: translate(-50%, -50%); }
-            }
-            @keyframes crossFloat {
-              0%, 100% { transform: translate(-50%, -50%); }
-              50% { transform: translate(-50%, -55%); }
-            }
-          `;
-          document.head.appendChild(crossAnimation);
-          
-          // Brazos de la cruz
+          // Brazos de la cruz pixelados
           const crossArm = document.createElement('div');
           crossArm.style.cssText = `
             position: absolute;
             width: 150px;
             height: 40px;
-            background: linear-gradient(to right, #8B0000, #4B0000);
+            background: 
+              repeating-linear-gradient(90deg,
+                #8B0000 0px, #8B0000 8px,
+                #4B0000 8px, #4B0000 16px);
             top: 30%;
             left: 50%;
             transform: translateX(-50%);
             box-shadow: 0 0 20px #FF0000;
+            image-rendering: pixelated;
           `;
           
           cross.appendChild(crossArm);
           document.body.appendChild(cross);
           
-          // Enemigo flotando con animación suave
+          // Enemigo flotando con animación pixelada
           let floatHeight = 0;
           const floatInterval = setInterval(() => {
             floatHeight += 0.2;
@@ -1895,18 +2027,22 @@ function animate(){
           enemy.userData.inTsukuyomi = true;
           enemy.userData.floatInterval = floatInterval;
           
-          // Lluvia de sangre
+          // Lluvia de sangre pixelada
           for(let i = 0; i < 50; i++) {
             const drop = document.createElement('div');
             drop.style.cssText = `
               position: fixed;
-              width: 2px;
+              width: 4px;
               height: 20px;
-              background: #FF0000;
+              background: 
+                repeating-linear-gradient(180deg,
+                  #FF0000 0px, #FF0000 4px,
+                  #CC0000 4px, #CC0000 8px);
               left: ${Math.random() * 100}%;
               top: -20px;
-              animation: blood-rain 2s linear infinite;
+              animation: pixel-blood-rain 2s steps(4) infinite;
               animation-delay: ${Math.random() * 2}s;
+              image-rendering: pixelated;
             `;
             document.body.appendChild(drop);
             
@@ -1947,7 +2083,7 @@ function animate(){
         e.userData.hp -= 150;
         // Efecto visual de daño
         let flash = new THREE.Mesh(
-          new THREE.SphereGeometry(2),
+          new THREE.BoxGeometry(4,4,4),
           new THREE.MeshBasicMaterial({
             color: 0xff0000,
             transparent: true,
@@ -1963,9 +2099,9 @@ function animate(){
 
   function activateSusanoo() {
     let susanoo = new THREE.Group();
-    // Crear forma básica del Susanoo
+    // Crear forma básica del Susanoo pixelado
     let body = new THREE.Mesh(
-      new THREE.CylinderGeometry(2,2,4),
+      new THREE.BoxGeometry(4,8,4),
       new THREE.MeshBasicMaterial({color:0xff0000,transparent:true,opacity:0.3})
     );
     susanoo.add(body);
@@ -1987,7 +2123,7 @@ function animate(){
   // Habilidades de Ino
   function activateMindTransfer() {
     let beam = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.1, 0.1, 10),
+      new THREE.BoxGeometry(0.2, 0.2, 20),
       new THREE.MeshBasicMaterial({color: 0x9932CC, transparent: true, opacity: 0.6})
     );
     beam.rotation.x = Math.PI/2;
@@ -2009,7 +2145,7 @@ function animate(){
 
   function activateChakraBomb() {
     let bomb = new THREE.Mesh(
-      new THREE.SphereGeometry(0.3),
+      new THREE.BoxGeometry(0.6,0.6,0.6),
       new THREE.MeshBasicMaterial({color: 0x00FF7F})
     );
     bomb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
@@ -2024,7 +2160,7 @@ function animate(){
 
   function activateMindControl() {
     let circle = new THREE.Mesh(
-      new THREE.RingGeometry(0.5, 4, 32),
+      new THREE.BoxGeometry(1, 0.2, 8),
       new THREE.MeshBasicMaterial({color: 0x9400D3, side: THREE.DoubleSide, transparent: true, opacity: 0.4})
     );
     circle.rotation.x = -Math.PI/2;
@@ -2050,7 +2186,7 @@ function animate(){
 
   function activateHealing() {
     let healingField = new THREE.Mesh(
-      new THREE.CircleGeometry(3, 32),
+      new THREE.BoxGeometry(6, 0.2, 6),
       new THREE.MeshBasicMaterial({color: 0x98FB98, transparent: true, opacity: 0.3, side: THREE.DoubleSide})
     );
     healingField.rotation.x = -Math.PI/2;
@@ -2060,7 +2196,7 @@ function animate(){
     let particles = [];
     for(let i = 0; i < 20; i++) {
       let particle = new THREE.Mesh(
-        new THREE.SphereGeometry(0.1),
+        new THREE.BoxGeometry(0.2,0.2,0.2),
         new THREE.MeshBasicMaterial({color: 0x00FF7F})
       );
       particle.position.copy(player.position);
@@ -2084,7 +2220,7 @@ function animate(){
 
   // Habilidades de Shikamaru
   function activateShadowPossession() {
-    // Animación de sombra emergiendo y extendiéndose
+    // Animación de sombra emergiendo y extendiéndose pixelada
     let shadowLength = 0;
     let shadowSegments = [];
     const SEGMENTS = 20;
@@ -2092,7 +2228,7 @@ function animate(){
 
     function createShadowSegment() {
       let segment = new THREE.Mesh(
-        new THREE.BoxGeometry(0.8, 0.1, 0.5),
+        new THREE.BoxGeometry(1.6, 0.2, 1),
         new THREE.MeshBasicMaterial({
           color: 0x000000, 
           transparent: true, 
@@ -2145,7 +2281,7 @@ function animate(){
           segment.lookAt(targetEnemy.position);
           segment.material.opacity = Math.min(0.7, (1 - t) * 0.7);
 
-          // Efecto de emergencia
+          // Efecto de emergencia pixelado
           segment.position.y = Math.sin(t * Math.PI) * 0.5;
           segment.scale.y = 1 + Math.sin(t * Math.PI) * 0.5;
         }
@@ -2174,9 +2310,9 @@ function animate(){
       enemies.forEach(e => {
         if(e.userData.controlled) {
           e.position.copy(e.userData.originalPosition);
-          // Efecto visual de parálisis
+          // Efecto visual de parálisis pixelado
           let sparkle = new THREE.Mesh(
-            new THREE.SphereGeometry(0.1),
+            new THREE.BoxGeometry(0.2,0.2,0.2),
             new THREE.MeshBasicMaterial({color: 0x000000})
           );
           sparkle.position.copy(e.position).add(new THREE.Vector3(
@@ -2192,7 +2328,6 @@ function animate(){
 
     setTimeout(() => {
       clearInterval(controlInterval);
-      scene.remove(shadow);
       enemies.forEach(e => {
         e.userData.frozen = false;
         e.userData.controlled = false;
@@ -2207,7 +2342,7 @@ function animate(){
       if(e.position.distanceTo(player.position) < range) {
         e.userData.hp -= 70;
         let shadow = new THREE.Mesh(
-          new THREE.TorusGeometry(0.5, 0.1, 8, 24),
+          new THREE.BoxGeometry(1, 0.2, 1),
           new THREE.MeshBasicMaterial({color: 0x000000})
         );
         shadow.position.copy(e.position).add(new THREE.Vector3(0, 1, 0));
@@ -2219,20 +2354,20 @@ function animate(){
 
   // Habilidades de Tenten
   function activateWeaponSummoning() {
-    // Pergamino giratorio
+    // Pergamino giratorio pixelado
     let scroll = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.1, 0.1, 2),
+      new THREE.BoxGeometry(0.2, 0.2, 4),
       new THREE.MeshBasicMaterial({color: 0xF5DEB3})
     );
     scroll.position.copy(player.position).add(new THREE.Vector3(0, 2, 0));
     scroll.rotation.x = Math.PI/2;
     scene.add(scroll);
 
-    // Diferentes tipos de armas
+    // Diferentes tipos de armas pixeladas
     const weaponTypes = [
-      {geo: new THREE.ConeGeometry(0.1, 0.6), color: 0x808080, name: 'kunai'}, // Kunai
-      {geo: new THREE.BoxGeometry(0.1, 0.7, 0.1), color: 0x4A4A4A, name: 'sword'}, // Espada
-      {geo: new THREE.SphereGeometry(0.15), color: 0x696969, name: 'shuriken'} // Shuriken
+      {geo: new THREE.BoxGeometry(0.2, 1.2, 0.2), color: 0x808080, name: 'kunai'}, // Kunai
+      {geo: new THREE.BoxGeometry(0.2, 1.4, 0.2), color: 0x4A4A4A, name: 'sword'}, // Espada
+      {geo: new THREE.BoxGeometry(0.3, 0.3, 0.3), color: 0x696969, name: 'shuriken'} // Shuriken
     ];
 
     let cnt = 0;
@@ -2295,7 +2430,7 @@ function animate(){
     for(let i = 0; i < 30; i++) {
       setTimeout(() => {
         let kunai = new THREE.Mesh(
-          new THREE.ConeGeometry(0.1, 0.4),
+          new THREE.BoxGeometry(0.2, 0.8, 0.2),
           new THREE.MeshBasicMaterial({color: 0x606060})
         );
         kunai.position.copy(player.position).add(new THREE.Vector3(
@@ -2316,20 +2451,20 @@ function animate(){
 
   // Habilidades de Hinata
   function activateGentleFist() {
-    // Animación de Byakugan activándose
+    // Animación de Byakugan activándose pixelado
     let byakuganRing = new THREE.Mesh(
-      new THREE.RingGeometry(0.5, 1, 32),
+      new THREE.BoxGeometry(1, 0.2, 2),
       new THREE.MeshBasicMaterial({color: 0xFFFFFF, side: THREE.DoubleSide, transparent: true, opacity: 0.5})
     );
     byakuganRing.rotation.x = -Math.PI/2;
     byakuganRing.position.copy(player.position);
     scene.add(byakuganRing);
 
-    // Múltiples golpes de Puño Suave
+    // Múltiples golpes de Puño Suave pixelados
     for(let i = 0; i < 5; i++) {
       setTimeout(() => {
         let chakra = new THREE.Mesh(
-          new THREE.SphereGeometry(0.3),
+          new THREE.BoxGeometry(0.6,0.6,0.6),
           new THREE.MeshBasicMaterial({color: 0x4169E1, transparent: true, opacity: 0.8})
         );
         chakra.position.copy(player.position).add(new THREE.Vector3(
@@ -2353,7 +2488,7 @@ function animate(){
   // Temari's Powers
   function activateFanDance() {
     let fan = new THREE.Mesh(
-      new THREE.BoxGeometry(3, 1.5, 0.1),
+      new THREE.BoxGeometry(6, 3, 0.2),
       new THREE.MeshBasicMaterial({color: 0xF5F5F5})
     );
     fan.position.copy(player.position).add(new THREE.Vector3(0, 1, 1));
@@ -2364,11 +2499,11 @@ function animate(){
       angle += 0.3;
       fan.rotation.y = Math.sin(angle) * 2;
       
-      // Múltiples ondas de viento
+      // Múltiples ondas de viento pixeladas
       if(angle > Math.PI) {
         for(let i = 0; i < 3; i++) {
           let wind = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.5, 3, 10, 16),
+            new THREE.BoxGeometry(1, 6, 20),
             new THREE.MeshBasicMaterial({color: 0xADD8E6, transparent: true, opacity: 0.4})
           );
           wind.position.copy(player.position).add(new THREE.Vector3(i*2-2, 1, -4));
@@ -2391,7 +2526,7 @@ function animate(){
     let tornado = new THREE.Group();
     for(let i = 0; i < 5; i++) {
       let ring = new THREE.Mesh(
-        new THREE.TorusGeometry(1 + i*0.3, 0.2, 16, 32),
+        new THREE.BoxGeometry(2 + i*0.6, 0.4, 2 + i*0.6),
         new THREE.MeshBasicMaterial({color: 0x87CEEB, transparent: true, opacity: 0.4})
       );
       ring.position.y = i;
@@ -2427,7 +2562,7 @@ function animate(){
     let lightning = new THREE.Group();
     for(let i = 0; i < 20; i++) {
       let bolt = new THREE.Mesh(
-        new THREE.BoxGeometry(0.1, 0.1, 0.5),
+        new THREE.BoxGeometry(0.2, 0.2, 1),
         new THREE.MeshBasicMaterial({color: 0x00FFFF})
       );
       bolt.position.set(
@@ -2451,9 +2586,9 @@ function animate(){
   }
 
   function activateKirin() {
-    // Efecto de rayo en el cielo
+    // Efecto de rayo en el cielo pixelado
     let skyLightning = new THREE.Mesh(
-      new THREE.PlaneGeometry(100, 100),
+      new THREE.BoxGeometry(200, 0.4, 200),
       new THREE.MeshBasicMaterial({color: 0x4169E1, transparent: true, opacity: 0.3})
     );
     skyLightning.position.y = 50;
@@ -2462,13 +2597,13 @@ function animate(){
 
     setTimeout(() => {
       let dragon = new THREE.Group();
-      // Crear forma de dragón eléctrico
+      // Crear forma de dragón eléctrico pixelado
       for(let i = 0; i < 30; i++) {
         let segment = new THREE.Mesh(
-          new THREE.BoxGeometry(0.5, 0.5, 1),
+          new THREE.BoxGeometry(1, 1, 2),
           new THREE.MeshBasicMaterial({color: 0x00FFFF})
         );
-        segment.position.z = -i;
+        segment.position.z = -i * 2;
         dragon.add(segment);
       }
       dragon.position.set(0, 40, 0);
@@ -2501,20 +2636,20 @@ function animate(){
 
   function activateTwinLionFists() {
     let lions = [];
-    // Leones más grandes y más detallados
+    // Leones pixelados más grandes y más detallados
     for(let i = 0; i < 2; i++) {
       let lionGroup = new THREE.Group();
 
-      // Cuerpo del león
+      // Cuerpo del león pixelado
       let body = new THREE.Mesh(
-        new THREE.SphereGeometry(0.7),
+        new THREE.BoxGeometry(1.4,1.4,1.4),
         new THREE.MeshBasicMaterial({color: 0x4B0082})
       );
 
-      // Melena
+      // Melena pixelada
       for(let j = 0; j < 8; j++) {
         let hair = new THREE.Mesh(
-          new THREE.ConeGeometry(0.2, 0.4),
+          new THREE.BoxGeometry(0.4, 0.8, 0.4),
           new THREE.MeshBasicMaterial({color: 0x6A5ACD})
         );
         hair.position.set(
@@ -2545,10 +2680,10 @@ function animate(){
         lion.position.add(target.multiplyScalar(0.15));
         lion.rotation.z = Math.sin(cnt * 0.1) * 0.2;
 
-        // Efecto de chakra
+        // Efecto de chakra pixelado
         if(cnt % 3 === 0) {
           let chakraSpark = new THREE.Mesh(
-            new THREE.SphereGeometry(0.1),
+            new THREE.BoxGeometry(0.2,0.2,0.2),
             new THREE.MeshBasicMaterial({color: 0x4B0082, transparent: true, opacity: 0.6})
           );
           chakraSpark.position.copy(lion.position);
@@ -2561,9 +2696,9 @@ function animate(){
         lions.forEach(lion => {
           if(lion.position.distanceTo(e.position) < 1.5) {
             e.userData.hp -= 8;
-            // Efecto de impacto
+            // Efecto de impacto pixelado
             let impact = new THREE.Mesh(
-              new THREE.RingGeometry(0.2, 0.4, 16),
+              new THREE.BoxGeometry(0.8, 0.8, 0.8),
               new THREE.MeshBasicMaterial({color: 0x4B0082, side: THREE.DoubleSide})
             );
             impact.position.copy(e.position);
@@ -2607,7 +2742,7 @@ function animate(){
   let speedButton = document.createElement('div');
   speedButton.id = 'speed-button';
   speedButton.className = 'action-btn';
-  speedButton.textContent = 'Speed Up';
+  speedButton.textContent = 'SPEED';
   speedButton.addEventListener('touchstart', function() {
     playerSpeed = 0.5;
     setTimeout(function() {
