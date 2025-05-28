@@ -855,13 +855,11 @@
   <div id="video-intro" style="display:none;">
     <video id="intro-video" 
            style="width:100%;height:100%;object-fit:cover;background:#000;" 
-           autoplay 
-           muted 
            playsinline
            preload="auto">
       <source src="https://ik.imagekit.io/lcpvlmgbf/copy_DBDB6139-95C4-4DBB-A0DF-78E4B5FED009.mov/ik-video.mp4?updatedAt=1748452619471" type="video/mp4">
     </video>
-    <div id="video-skip-button">PRESIONA PARA SALTAR</div>
+    <div id="video-skip-button" style="display:none;">PRESIONA PARA SALTAR</div>
   </div>
 
   <!-- Pantalla de inicio con logo Naruto arreglado -->
@@ -991,29 +989,78 @@
       videoCreditsOverlay.style.display = 'none';
     }
     
-    // Intentar reproducir el video automáticamente
-    introVideo.play().catch(e => {
-      console.log('Video no pudo reproducirse automáticamente:', e);
-    });
+    // Reproducir el video automáticamente con audio
+    const startVideo = () => {
+      // Intentar reproducir con audio inmediatamente
+      introVideo.muted = false;
+      introVideo.play().then(() => {
+        console.log('Video iniciado con audio');
+      }).catch(e => {
+        console.log('Autoplay bloqueado, requiere interacción:', e);
+        // Si falla, mostrar mensaje para interactuar
+        showPlayMessage();
+      });
+    };
     
-    // Permitir skip después de 3 segundos
+    const showPlayMessage = () => {
+      let playMessage = document.createElement('div');
+      playMessage.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #00ffff;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 12px;
+        text-align: center;
+        background: rgba(0,0,0,0.8);
+        padding: 20px;
+        border: 2px solid #00ffff;
+        z-index: 1001;
+        animation: pixelBlink 1.5s steps(2) infinite;
+        cursor: pointer;
+      `;
+      playMessage.innerHTML = 'TOCA PARA REPRODUCIR<br>EL VIDEO CON AUDIO';
+      videoIntro.appendChild(playMessage);
+      
+      // Reproducir cuando se haga clic en el mensaje
+      playMessage.addEventListener('click', () => {
+        introVideo.muted = false;
+        introVideo.play().then(() => {
+          playMessage.remove();
+        });
+      });
+      
+      // También permitir clic en cualquier parte del video
+      videoIntro.addEventListener('click', () => {
+        introVideo.muted = false;
+        introVideo.play().then(() => {
+          playMessage.remove();
+        });
+      }, {once: true});
+    };
+    
+    // Iniciar inmediatamente
+    startVideo();
+    
+    // Mostrar botón de skip después de 10 segundos
     setTimeout(() => {
       canSkip = true;
-    }, 3000);
+      videoSkipButton.style.display = 'block';
+    }, 10000);
     
-    // Auto-avanzar cuando termine el video O después de 10 segundos
+    // Auto-avanzar SOLO cuando termine el video
     introVideo.addEventListener('ended', () => {
       if(currentStep === 2) {
+        console.log('Video terminó, avanzando...');
         nextStep();
       }
     });
     
-    // Backup: auto-avanzar después de 10 segundos por si no detecta el final
-    setTimeout(() => {
-      if(currentStep === 2) {
-        nextStep();
-      }
-    }, 10000);
+    // Detectar duración del video y ajustar tiempo
+    introVideo.addEventListener('loadedmetadata', () => {
+      console.log('Duración del video:', introVideo.duration, 'segundos');
+    });
   }
 
   // PASO 3: Logo Naruto
