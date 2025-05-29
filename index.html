@@ -1621,7 +1621,7 @@
     document.getElementById('player-level').textContent = 'NIVEL ' + playerLevel;
   }
   let currentCharacter = '';
-let playerSpeed = 0.15; // Velocidad base
+let playerSpeed = 0.25; // Velocidad base aumentada
 let characterNames = {
   'neji': 'NEJI HYUGA',
   'itachi': 'ITACHI UCHIHA',
@@ -1996,7 +1996,7 @@ function showCharacterName() {
     }
 
     // Ajustar velocidad a partir del nivel 5
-    playerSpeed = level >= 5 ? 0.3 : 0.15;
+    playerSpeed = level >= 5 ? 0.4 : 0.25;
 
     // Cambiar escenario según el nivel
     switch(level) {
@@ -2418,7 +2418,7 @@ function showCharacterName() {
           max=50;
       if(dist>max){ dx*=max/dist; dy*=max/dist; }
       thumb.style.transform=`translate(${dx}px,${dy}px)`;
-      moveDir.x=dx/max*0.15; moveDir.z=dy/max*0.15;
+      moveDir.x=dx/max*0.25; moveDir.z=dy/max*0.25;
     });
     joy.addEventListener('touchend',()=>{
       tracking=false;
@@ -4073,9 +4073,9 @@ function animate(){
       let deltaX = event.clientX - lastMouseX;
       let deltaY = event.clientY - lastMouseY;
       
-      // Actualizar ángulos de cámara
-      cameraAngleX += deltaX * 0.01; // Sensibilidad horizontal
-      cameraAngleY -= deltaY * 0.01; // Sensibilidad vertical
+      // Actualizar ángulos de cámara - CORREGIDOS los controles
+      cameraAngleX += deltaX * 0.005; // Sensibilidad horizontal reducida
+      cameraAngleY += deltaY * 0.005; // CORREGIDO: + en lugar de - para movimiento natural
       
       // Limitar rotación vertical para evitar que se voltee completamente
       cameraAngleY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, cameraAngleY));
@@ -4103,9 +4103,9 @@ function animate(){
       let deltaX = event.touches[0].clientX - lastMouseX;
       let deltaY = event.touches[0].clientY - lastMouseY;
       
-      // Actualizar ángulos de cámara
-      cameraAngleX += deltaX * 0.01;
-      cameraAngleY -= deltaY * 0.01;
+      // Actualizar ángulos de cámara - CORREGIDOS los controles táctiles
+      cameraAngleX += deltaX * 0.005; // Sensibilidad reducida
+      cameraAngleY += deltaY * 0.005; // CORREGIDO: + en lugar de - para movimiento natural
       
       // Limitar rotación vertical
       cameraAngleY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, cameraAngleY));
@@ -4165,9 +4165,9 @@ function animate(){
   speedButton.className = 'action-btn';
   speedButton.textContent = 'SPEED';
   speedButton.addEventListener('touchstart', function() {
-    playerSpeed = 0.5;
+    playerSpeed = 0.6;
     setTimeout(function() {
-      playerSpeed = 0.15;
+      playerSpeed = 0.25;
     }, 5000);
   });
 
