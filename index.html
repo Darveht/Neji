@@ -4138,9 +4138,9 @@ function animate(){
         -Math.sin(cameraAngleX)
       ).normalize();
       
-      // Aplicar movimiento relativo a la cámara
+      // Aplicar movimiento relativo a la cámara - CORREGIDO
       let moveVector = new THREE.Vector3();
-      moveVector.add(forward.clone().multiplyScalar(-moveDir.z * playerSpeed));
+      moveVector.add(forward.clone().multiplyScalar(moveDir.z * playerSpeed)); // Removido el negativo
       moveVector.add(right.clone().multiplyScalar(moveDir.x * playerSpeed));
       
       // Verificar límites de las paredes
