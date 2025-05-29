@@ -1582,6 +1582,14 @@
   let playerHealth = 5; // 5 vidas
   let playerLevel = 1;
   let currentStage = 1;
+  
+  // Variables para cámara libre 360°
+  let cameraAngleX = 0; // Rotación horizontal (izquierda/derecha)
+  let cameraAngleY = 0; // Rotación vertical (arriba/abajo)
+  let cameraDistance = 10; // Distancia de la cámara al jugador
+  let isDragging = false;
+  let lastMouseX = 0;
+  let lastMouseY = 0;
   const MAX_HEALTH = 5;
   const STAGES = {
     1: {name: 'Bosque de Konoha', enemies: 3, enemyHealth: 5, enemyDamage: 10},
@@ -2177,7 +2185,7 @@ function showCharacterName() {
         );
         hairMain.position.set(0, 2.1, 0);
         
-        // Cabello trasero largo hasta la cintura
+        // Cabello trasero largo hasta la cintura - MECHÓN PRINCIPAL
         let hairBack = new THREE.Mesh(
           new THREE.BoxGeometry(1.0, 3.5, 0.4),
           new THREE.MeshStandardMaterial({
@@ -2186,6 +2194,26 @@ function showCharacterName() {
           })
         );
         hairBack.position.set(0, 1.0, -0.6);
+        
+        // MECHÓN TRASERO EXTRA LARGO característico de Neji
+        let hairBackLong = new THREE.Mesh(
+          new THREE.BoxGeometry(0.6, 4.2, 0.3),
+          new THREE.MeshStandardMaterial({
+            color: 0x6B4423,
+            roughness: 0.7
+          })
+        );
+        hairBackLong.position.set(0, 0.5, -0.8); // Más atrás y más largo
+        
+        // Mechón trasero que llega hasta la espalda baja
+        let hairTail = new THREE.Mesh(
+          new THREE.BoxGeometry(0.4, 2.8, 0.2),
+          new THREE.MeshStandardMaterial({
+            color: 0x6B4423,
+            roughness: 0.7
+          })
+        );
+        hairTail.position.set(0, -0.8, -0.9); // Llega hasta la espalda baja
         
         // Mechones laterales largos característicos
         let hairLeft = new THREE.Mesh(
@@ -2308,7 +2336,7 @@ function showCharacterName() {
         byakuganAura.visible = false; // Solo visible cuando se activa Byakugan
         
         characterGroup.add(
-          body, vest, head, hairMain, hairBack, hairLeft, hairRight, 
+          body, vest, head, hairMain, hairBack, hairBackLong, hairTail, hairLeft, hairRight, 
           hairFrontLeft, hairFrontRight,
           leftArm, rightArm, leftGlove, rightGlove,
           leftLeg, rightLeg, leftSandal, rightSandal,
@@ -2636,20 +2664,13 @@ function animate(){
       if(player.userData.rightLeg) player.userData.rightLeg.rotation.x = 0;
       if(player.userData.body) player.userData.body.rotation.z = 0;
     }
-    // movimiento + salto + colisiones con paredes
-    let nextX = player.position.x + moveDir.x;
-    let nextZ = player.position.z + moveDir.z;
-
-    // Límites de las paredes
-    const WALL_LIMIT = 95;
-    if(Math.abs(nextX) < WALL_LIMIT) player.position.x = nextX;
-    if(Math.abs(nextZ) < WALL_LIMIT) player.position.z = nextZ;
+    // movimiento + salto + colisiones con paredes (ahora relativo a la cámara)
+    updateMovementDirection();
 
     velY+=GRAV; player.position.y+=velY;
     if(player.position.y<=1.25){player.position.y=1.25;velY=0;onGround=true;}
-    // cámara
-    camera.position.set(player.position.x+6,player.position.y+4,player.position.z+8);
-    camera.lookAt(player.position);
+    // Cámara libre 360° tipo Roblox
+    updateFreeCamera();
     // poderes y colisiones (como antes)...
     powers.forEach((p,i)=>{
       p.mesh.position.add(p.vel);
@@ -4021,26 +4042,121 @@ function animate(){
     }, 50);
   }
 
-  // Adding 360 degree view
-  let isDragging = false;
-  let previousMouseX = 0;
+  // Función para actualizar la cámara libre 360°
+  function updateFreeCamera() {
+    // Calcular posición de la cámara basada en los ángulos
+    let cameraX = player.position.x + Math.sin(cameraAngleX) * Math.cos(cameraAngleY) * cameraDistance;
+    let cameraY = player.position.y + Math.sin(cameraAngleY) * cameraDistance + 4;
+    let cameraZ = player.position.z + Math.cos(cameraAngleX) * Math.cos(cameraAngleY) * cameraDistance;
+    
+    camera.position.set(cameraX, cameraY, cameraZ);
+    camera.lookAt(player.position.x, player.position.y + 1, player.position.z);
+  }
 
+  // Controles de mouse para PC
   document.addEventListener('mousedown', (event) => {
-    isDragging = true;
-    previousMouseX = event.clientX;
+    if(event.button === 0) { // Solo botón izquierdo
+      isDragging = true;
+      lastMouseX = event.clientX;
+      lastMouseY = event.clientY;
+    }
   });
 
-  document.addEventListener('mouseup', () => {
-    isDragging = false;
+  document.addEventListener('mouseup', (event) => {
+    if(event.button === 0) {
+      isDragging = false;
+    }
   });
 
   document.addEventListener('mousemove', (event) => {
-    if (isDragging) {
-      const deltaX = event.clientX - previousMouseX;
-      player.rotation.y += deltaX * 0.01;
-      previousMouseX = event.clientX;
+    if(isDragging) {
+      let deltaX = event.clientX - lastMouseX;
+      let deltaY = event.clientY - lastMouseY;
+      
+      // Actualizar ángulos de cámara
+      cameraAngleX += deltaX * 0.01; // Sensibilidad horizontal
+      cameraAngleY -= deltaY * 0.01; // Sensibilidad vertical
+      
+      // Limitar rotación vertical para evitar que se voltee completamente
+      cameraAngleY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, cameraAngleY));
+      
+      lastMouseX = event.clientX;
+      lastMouseY = event.clientY;
     }
   });
+
+  // Controles táctiles para móviles
+  document.addEventListener('touchstart', (event) => {
+    if(event.touches.length === 1) {
+      isDragging = true;
+      lastMouseX = event.touches[0].clientX;
+      lastMouseY = event.touches[0].clientY;
+    }
+  });
+
+  document.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+
+  document.addEventListener('touchmove', (event) => {
+    if(isDragging && event.touches.length === 1) {
+      let deltaX = event.touches[0].clientX - lastMouseX;
+      let deltaY = event.touches[0].clientY - lastMouseY;
+      
+      // Actualizar ángulos de cámara
+      cameraAngleX += deltaX * 0.01;
+      cameraAngleY -= deltaY * 0.01;
+      
+      // Limitar rotación vertical
+      cameraAngleY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, cameraAngleY));
+      
+      lastMouseX = event.touches[0].clientX;
+      lastMouseY = event.touches[0].clientY;
+    }
+  });
+
+  // Control de zoom con rueda del mouse
+  document.addEventListener('wheel', (event) => {
+    cameraDistance += event.deltaY * 0.01;
+    cameraDistance = Math.max(3, Math.min(20, cameraDistance)); // Limitar zoom
+    event.preventDefault();
+  });
+
+  // Movimiento relativo a la cámara
+  function updateMovementDirection() {
+    if(moveDir.x !== 0 || moveDir.z !== 0) {
+      // Calcular dirección basada en la orientación de la cámara
+      let forward = new THREE.Vector3(
+        Math.sin(cameraAngleX),
+        0,
+        Math.cos(cameraAngleX)
+      ).normalize();
+      
+      let right = new THREE.Vector3(
+        Math.cos(cameraAngleX),
+        0,
+        -Math.sin(cameraAngleX)
+      ).normalize();
+      
+      // Aplicar movimiento relativo a la cámara
+      let moveVector = new THREE.Vector3();
+      moveVector.add(forward.clone().multiplyScalar(-moveDir.z * playerSpeed));
+      moveVector.add(right.clone().multiplyScalar(moveDir.x * playerSpeed));
+      
+      // Verificar límites de las paredes
+      const WALL_LIMIT = 95;
+      let nextX = player.position.x + moveVector.x;
+      let nextZ = player.position.z + moveVector.z;
+      
+      if(Math.abs(nextX) < WALL_LIMIT) player.position.x = nextX;
+      if(Math.abs(nextZ) < WALL_LIMIT) player.position.z = nextZ;
+      
+      // Rotar el jugador hacia la dirección de movimiento
+      if(moveVector.length() > 0) {
+        player.lookAt(player.position.x + moveVector.x, player.position.y, player.position.z + moveVector.z);
+      }
+    }
+  }
 
   // Add Speed Button
 
