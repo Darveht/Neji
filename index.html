@@ -537,6 +537,11 @@
       to { transform: rotate(360deg); }
     }
 
+    @keyframes fadeInSubtitle {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0px); }
+    }
+
     canvas{
       display:block;
       image-rendering: pixelated;
@@ -1172,12 +1177,69 @@
       videoCreditsOverlay.style.display = 'none';
     }
     
+    // Crear subtítulos en japonés
+    const createSubtitles = () => {
+      let subtitlesContainer = document.createElement('div');
+      subtitlesContainer.id = 'japanese-subtitles';
+      subtitlesContainer.style.cssText = `
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        color: #FFD700;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 10px;
+        padding: 10px 20px;
+        border: 2px solid #FF4500;
+        text-align: center;
+        z-index: 1002;
+        max-width: 80%;
+        box-shadow: 0 0 10px rgba(255,69,0,0.5);
+        image-rendering: pixelated;
+      `;
+      
+      videoIntro.appendChild(subtitlesContainer);
+      
+      // Subtítulos con timing
+      const subtitles = [
+        {time: 1, text: 'ヒナタの愛の物語<br>Hinata no Ai no Monogatari<br>(La Historia del Amor de Hinata)'},
+        {time: 3, text: '彼女は常に彼を見つめていた<br>Kanojo wa tsuneni kare wo mitsumete ita<br>(Ella siempre lo miraba)'},
+        {time: 6, text: 'ナルトの勇気に心を奪われた<br>Naruto no yuuki ni kokoro wo ubawareta<br>(Su corazón fue robado por el valor de Naruto)'},
+        {time: 9, text: '彼は決して諦めなかった<br>Kare wa kesshite akiramenakatta<br>(Él nunca se rindió)'},
+        {time: 12, text: 'その強さがヒナタを変えた<br>Sono tsuyosa ga Hinata wo kaeta<br>(Esa fuerza cambió a Hinata)'},
+        {time: 15, text: '真の愛は勇気から生まれる<br>Shin no ai wa yuuki kara umareru<br>(El amor verdadero nace del valor)'},
+        {time: 18, text: 'ヒナタ❤ナルト<br>Hinata ❤ Naruto<br>(Para siempre juntos)'}
+      ];
+      
+      // Mostrar subtítulos con timing
+      subtitles.forEach(subtitle => {
+        setTimeout(() => {
+          if(subtitlesContainer.parentNode) {
+            subtitlesContainer.innerHTML = subtitle.text;
+            subtitlesContainer.style.animation = 'fadeInSubtitle 0.5s ease-in';
+          }
+        }, subtitle.time * 1000);
+      });
+      
+      // Limpiar subtítulos cuando termine el video
+      introVideo.addEventListener('ended', () => {
+        if(subtitlesContainer.parentNode) {
+          subtitlesContainer.remove();
+        }
+      });
+      
+      return subtitlesContainer;
+    };
+    
     // Reproducir el video automáticamente con audio
     const startVideo = () => {
       // Intentar reproducir con audio inmediatamente
       introVideo.muted = false;
       introVideo.play().then(() => {
         console.log('Video iniciado con audio');
+        // Crear subtítulos cuando el video empiece
+        createSubtitles();
       }).catch(e => {
         console.log('Autoplay bloqueado, requiere interacción:', e);
         // Si falla, mostrar mensaje para interactuar
@@ -1211,6 +1273,7 @@
         introVideo.muted = false;
         introVideo.play().then(() => {
           playMessage.remove();
+          createSubtitles();
         });
       });
       
@@ -1219,6 +1282,7 @@
         introVideo.muted = false;
         introVideo.play().then(() => {
           playMessage.remove();
+          createSubtitles();
         });
       }, {once: true});
     };
@@ -1831,6 +1895,36 @@ function showCharacterName() {
   `;
   nameDiv.textContent = characterNames[currentCharacter];
   document.body.appendChild(nameDiv);
+  
+  // Mostrar controles para PC
+  let controlsDiv = document.createElement('div');
+  controlsDiv.style.cssText = `
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FFD700;
+    font-size: 8px;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    z-index: 100;
+    background: rgba(0,0,0,0.8);
+    padding: 6px 10px;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 0 1px #000, 0 0 10px rgba(255,215,0,0.5);
+    max-width: 400px;
+  `;
+  controlsDiv.innerHTML = `
+    PC: WASD=MOVER | MOUSE=CAMARA | ESPACIO=SALTO<br>
+    PODERES: 1,2,3,4,5,6,7 | MOVIL: JOYSTICK + BOTONES
+  `;
+  document.body.appendChild(controlsDiv);
+  
+  // Remover después de 8 segundos
+  setTimeout(() => {
+    if(nameDiv.parentNode) nameDiv.remove();
+    if(controlsDiv.parentNode) controlsDiv.remove();
+  }, 8000);
 }
 
   // Sistema de carga con almacenamiento local
@@ -2811,6 +2905,10 @@ function createPainBoss() {
 
 function animate(){
     requestAnimationFrame(animate);
+    
+    // Actualizar movimiento con teclado para PC
+    updateKeyboardMovement();
+    
     // Animación de brazos y piernas al moverse - MEJORADA
     if(moveDir.x !== 0 || moveDir.z !== 0) {
       let time = Date.now() * 0.002; // Velocidad más lenta para animación más natural
@@ -4298,6 +4396,112 @@ function animate(){
     cameraDistance = Math.max(3, Math.min(20, cameraDistance)); // Limitar zoom
     event.preventDefault();
   });
+
+  // CONTROLES DE TECLADO PARA PC
+  let keys = {};
+  
+  document.addEventListener('keydown', (event) => {
+    keys[event.code] = true;
+    
+    // Prevenir comportamiento por defecto
+    if(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7'].includes(event.code)) {
+      event.preventDefault();
+    }
+    
+    // Activar poderes con teclas numéricas
+    if(event.code === 'Space' && onGround) {
+      velY = 0.5;
+      onGround = false;
+    }
+    
+    // Poderes según el personaje seleccionado
+    if(currentCharacter === 'neji') {
+      switch(event.code) {
+        case 'Digit1': activateByakugan(); break;
+        case 'Digit2': activateJuken(); break;
+        case 'Digit3': activate64Palms(); break;
+        case 'Digit4': activate128Palms(); break;
+        case 'Digit5': activateKaiten(); break;
+        case 'Digit6': activateKusho(); break;
+        case 'Digit7': activateDetect(); break;
+      }
+    } else if(currentCharacter === 'itachi') {
+      switch(event.code) {
+        case 'Digit1': activateSharingan(); break;
+        case 'Digit2': activateAmaterasu(); break;
+        case 'Digit3': activateTsukuyomi(); break;
+        case 'Digit4': activateSusanoo(); break;
+      }
+    } else if(currentCharacter === 'ino') {
+      switch(event.code) {
+        case 'Digit1': activateMindTransfer(); break;
+        case 'Digit2': activateChakraBomb(); break;
+        case 'Digit3': activateMindControl(); break;
+        case 'Digit4': activateHealing(); break;
+      }
+    } else if(currentCharacter === 'shikamaru') {
+      switch(event.code) {
+        case 'Digit1': activateShadowPossession(); break;
+        case 'Digit2': activateShadowStrangle(); break;
+      }
+    } else if(currentCharacter === 'tenten') {
+      switch(event.code) {
+        case 'Digit1': activateWeaponSummoning(); break;
+        case 'Digit2': activateKunaiRain(); break;
+      }
+    } else if(currentCharacter === 'hinata') {
+      switch(event.code) {
+        case 'Digit1': activateGentleFist(); break;
+        case 'Digit2': activateTwinLionFists(); break;
+      }
+    } else if(currentCharacter === 'temari') {
+      switch(event.code) {
+        case 'Digit1': activateFanDance(); break;
+        case 'Digit2': activateWhirlwind(); break;
+      }
+    } else if(currentCharacter === 'sasuke') {
+      switch(event.code) {
+        case 'Digit1': activateChidori(); break;
+        case 'Digit2': activateKirin(); break;
+        case 'Digit3': activateSharingan(); break;
+        case 'Digit4': activateAmaterasu(); break;
+      }
+    } else if(currentCharacter === 'hashirama') {
+      switch(event.code) {
+        case 'Digit1': activateMokuton(); break;
+        case 'Digit2': activateSenjutsu(); break;
+        case 'Digit3': activateRegeneration(); break;
+        case 'Digit4': activateGojuMokuton(); break;
+      }
+    }
+  });
+  
+  document.addEventListener('keyup', (event) => {
+    keys[event.code] = false;
+  });
+  
+  // Función para actualizar movimiento con teclado
+  function updateKeyboardMovement() {
+    // Resetear movimiento
+    moveDir = {x: 0, z: 0};
+    
+    // WASD para movimiento
+    if(keys['KeyW']) moveDir.z = -1; // Adelante
+    if(keys['KeyS']) moveDir.z = 1;  // Atrás
+    if(keys['KeyA']) moveDir.x = -1; // Izquierda
+    if(keys['KeyD']) moveDir.x = 1;  // Derecha
+    
+    // Normalizar movimiento diagonal
+    if(moveDir.x !== 0 && moveDir.z !== 0) {
+      let length = Math.sqrt(moveDir.x * moveDir.x + moveDir.z * moveDir.z);
+      moveDir.x /= length;
+      moveDir.z /= length;
+    }
+    
+    // Aplicar velocidad
+    moveDir.x *= playerSpeed;
+    moveDir.z *= playerSpeed;
+  }
 
   // Movimiento relativo a la cámara
   function updateMovementDirection() {
