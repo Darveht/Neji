@@ -1171,16 +1171,16 @@
   // Variables globales para idioma
   let currentLanguage = 'japanese'; // Por defecto japonés
   
-  // Traducciones para subtítulos
+  // Traducciones para subtítulos - SEPARADAS POR IDIOMA
   const subtitles = {
     japanese: [
-      {time: 1, text: 'ヒナタの愛の物語<br>Hinata no Ai no Monogatari<br>(La Historia del Amor de Hinata)'},
-      {time: 3, text: '彼女は常に彼を見つめていた<br>Kanojo wa tsuneni kare wo mitsumete ita<br>(Ella siempre lo miraba)'},
-      {time: 6, text: 'ナルトの勇気に心を奪われた<br>Naruto no yuuki ni kokoro wo ubawareta<br>(Su corazón fue robado por el valor de Naruto)'},
-      {time: 9, text: '彼は決して諦めなかった<br>Kare wa kesshite akiramenakatta<br>(Él nunca se rindió)'},
-      {time: 12, text: 'その強さがヒナタを変えた<br>Sono tsuyosa ga Hinata wo kaeta<br>(Esa fuerza cambió a Hinata)'},
-      {time: 15, text: '真の愛は勇気から生まれる<br>Shin no ai wa yuuki kara umareru<br>(El amor verdadero nace del valor)'},
-      {time: 18, text: 'ヒナタ❤ナルト<br>Hinata ❤ Naruto<br>(Para siempre juntos)'}
+      {time: 1, text: 'ヒナタの愛の物語<br>Hinata no Ai no Monogatari'},
+      {time: 3, text: '彼女は常に彼を見つめていた<br>Kanojo wa tsuneni kare wo mitsumete ita'},
+      {time: 6, text: 'ナルトの勇気に心を奪われた<br>Naruto no yuuki ni kokoro wo ubawareta'},
+      {time: 9, text: '彼は決して諦めなかった<br>Kare wa kesshite akiramenakatta'},
+      {time: 12, text: 'その強さがヒナタを変えた<br>Sono tsuyosa ga Hinata wo kaeta'},
+      {time: 15, text: '真の愛は勇気から生まれる<br>Shin no ai wa yuuki kara umareru'},
+      {time: 18, text: 'ヒナタ❤ナルト<br>Hinata ❤ Naruto'}
     ],
     spanish: [
       {time: 1, text: 'La Historia del Amor de Hinata'},
@@ -1236,7 +1236,7 @@
       videoCreditsOverlay.style.display = 'none';
     }
     
-    // Crear subtítulos según el idioma seleccionado
+    // Crear subtítulos SOLO en el idioma seleccionado - MEJORADO
     const createSubtitles = () => {
       let subtitlesContainer = document.createElement('div');
       subtitlesContainer.id = 'dynamic-subtitles';
@@ -1245,40 +1245,55 @@
         bottom: 80px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0,0,0,0.8);
+        background: rgba(0,0,0,0.9);
         color: #FFD700;
         font-family: 'Press Start 2P', cursive;
-        font-size: 10px;
-        padding: 10px 20px;
+        font-size: ${currentLanguage === 'japanese' ? '8px' : '10px'};
+        padding: 12px 24px;
         border: 2px solid #FF4500;
         text-align: center;
         z-index: 1002;
         max-width: 80%;
-        box-shadow: 0 0 10px rgba(255,69,0,0.5);
+        box-shadow: 0 0 15px rgba(255,69,0,0.8);
         image-rendering: pixelated;
+        line-height: 1.4;
       `;
       
       videoIntro.appendChild(subtitlesContainer);
       
-      // Usar subtítulos según el idioma actual
-      const currentSubtitles = subtitles[currentLanguage];
+      // USAR SOLO EL IDIOMA SELECCIONADO - SIN MEZCLAR
+      const selectedSubtitles = subtitles[currentLanguage];
+      console.log(`📝 Mostrando subtítulos en: ${currentLanguage === 'japanese' ? 'japonés' : 'español'}`);
       
-      // Mostrar subtítulos con timing
-      currentSubtitles.forEach(subtitle => {
-        setTimeout(() => {
-          if(subtitlesContainer.parentNode) {
-            subtitlesContainer.innerHTML = subtitle.text;
-            subtitlesContainer.style.animation = 'fadeInSubtitle 0.5s ease-in';
-          }
-        }, subtitle.time * 1000);
-      });
+      // Mostrar primer subtítulo inmediatamente para confirmar idioma
+      if(selectedSubtitles && selectedSubtitles.length > 0) {
+        subtitlesContainer.innerHTML = `Idioma: ${currentLanguage === 'japanese' ? '日本語' : 'Español'}`;
+        
+        // Mostrar subtítulos con timing correcto
+        selectedSubtitles.forEach((subtitle, index) => {
+          setTimeout(() => {
+            if(subtitlesContainer.parentNode) {
+              subtitlesContainer.innerHTML = subtitle.text;
+              subtitlesContainer.style.animation = 'fadeInSubtitle 0.5s ease-in';
+              
+              // Efecto especial para el último subtítulo
+              if(index === selectedSubtitles.length - 1) {
+                subtitlesContainer.style.background = 'rgba(255,69,0,0.9)';
+                subtitlesContainer.style.color = '#FFFFFF';
+              }
+            }
+          }, subtitle.time * 1000);
+        });
+      }
       
       // Limpiar subtítulos cuando termine el video
-      introVideo.addEventListener('ended', () => {
+      const cleanup = () => {
         if(subtitlesContainer.parentNode) {
           subtitlesContainer.remove();
         }
-      });
+      };
+      
+      introVideo.addEventListener('ended', cleanup);
       
       return subtitlesContainer;
     };
@@ -1829,32 +1844,45 @@
     }
   });
 
-  // Event listeners para selector de idioma
+  // Event listeners para selector de idioma - MEJORADO
   document.addEventListener('DOMContentLoaded', () => {
-    // Configurar botones de idioma
-    setTimeout(() => {
+    // Configurar botones de idioma inmediatamente
+    setupLanguageButtons();
+  });
+
+  function setupLanguageButtons() {
+    // Intentar configurar botones cada 500ms hasta que existan
+    const trySetup = () => {
       const btnJapanese = document.getElementById('btn-japanese');
       const btnSpanish = document.getElementById('btn-spanish');
       
-      if(btnJapanese) {
+      if(btnJapanese && btnSpanish) {
         btnJapanese.addEventListener('click', () => {
           currentLanguage = 'japanese';
           updateLanguageButtons();
-          console.log('Idioma cambiado a japonés');
+          console.log('✅ Idioma cambiado a japonés - solo subtítulos en japonés');
+          // Actualizar subtítulos si el video ya está reproduciéndose
+          updateCurrentSubtitles();
         });
-      }
-      
-      if(btnSpanish) {
+        
         btnSpanish.addEventListener('click', () => {
           currentLanguage = 'spanish';
           updateLanguageButtons();
-          console.log('Idioma cambiado a español');
+          console.log('✅ Idioma cambiado a español - solo subtítulos en español');
+          // Actualizar subtítulos si el video ya está reproduciéndose
+          updateCurrentSubtitles();
         });
+        
+        updateLanguageButtons();
+        console.log('🌐 Selector de idioma configurado correctamente');
+      } else {
+        // Reintentar después de 500ms
+        setTimeout(trySetup, 500);
       }
-      
-      updateLanguageButtons();
-    }, 1000);
-  });
+    };
+    
+    trySetup();
+  }
 
   function updateLanguageButtons() {
     const btnJapanese = document.getElementById('btn-japanese');
@@ -1863,16 +1891,31 @@
     if(btnJapanese && btnSpanish) {
       // Resetear estilos
       btnJapanese.style.background = '#FF4500';
+      btnJapanese.style.color = '#FFD700';
       btnSpanish.style.background = '#FF4500';
+      btnSpanish.style.color = '#FFD700';
       
       // Destacar idioma seleccionado
       if(currentLanguage === 'japanese') {
         btnJapanese.style.background = '#FFD700';
         btnJapanese.style.color = '#000000';
+        btnJapanese.style.fontWeight = 'bold';
+        btnSpanish.style.fontWeight = 'normal';
       } else {
         btnSpanish.style.background = '#FFD700';
         btnSpanish.style.color = '#000000';
+        btnSpanish.style.fontWeight = 'bold';
+        btnJapanese.style.fontWeight = 'normal';
       }
+    }
+  }
+
+  function updateCurrentSubtitles() {
+    // Actualizar subtítulos existentes según el nuevo idioma
+    const subtitlesContainer = document.getElementById('dynamic-subtitles');
+    if(subtitlesContainer) {
+      // Limpiar subtítulos actuales y regenerar según el idioma seleccionado
+      subtitlesContainer.innerHTML = `Idioma cambiado a: ${currentLanguage === 'japanese' ? '日本語' : 'Español'}`;
     }
   }
 
