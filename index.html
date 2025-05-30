@@ -2660,6 +2660,15 @@ function showCharacterName() {
       painPaths = [];
     }
 
+    // Limpiar elementos del escenario anterior
+    scene.children.filter(child => 
+      child.userData.isScenery || 
+      child.userData.isWater || 
+      child.userData.isMountain ||
+      child.userData.isTree ||
+      child.userData.isRock
+    ).forEach(child => scene.remove(child));
+
     // Ajustar vida del jugador según el nivel
     if(level === 11) {
       playerHealth = 18;
@@ -2676,9 +2685,10 @@ function showCharacterName() {
 
     // Cambiar escenario según el nivel
     switch(level) {
-      case 1: // Bosque
-        scene.background = new THREE.Color(0x2E8B57);
+      case 1: // Bosque de Konoha mejorado
+        scene.background = new THREE.Color(0x87CEEB); // Cielo azul como en Naruto
         floor.material.color.setHex(0x228B22);
+        createKonohaForest();
         break;
       case 2: // Lluvia
         scene.background = new THREE.Color(0x4A708B);
@@ -2704,6 +2714,311 @@ function showCharacterName() {
     // Restaurar algo de vida al jugador
     playerHealth = Math.min(playerHealth + 30, 100);
     updatePlayerHUD();
+  }
+
+  // Función para crear el bosque de Konoha detallado
+  function createKonohaForest() {
+    // Crear montañas de fondo pixeladas
+    for(let i = 0; i < 8; i++) {
+      let mountain = new THREE.Group();
+      mountain.userData.isMountain = true;
+      
+      // Base de la montaña
+      let mountainBase = new THREE.Mesh(
+        new THREE.BoxGeometry(30, 40, 20),
+        new THREE.MeshStandardMaterial({
+          color: 0x696969,
+          roughness: 0.9,
+          metalness: 0.1
+        })
+      );
+      
+      // Pico de la montaña
+      let mountainPeak = new THREE.Mesh(
+        new THREE.BoxGeometry(20, 25, 15),
+        new THREE.MeshStandardMaterial({
+          color: 0x778899,
+          roughness: 0.9
+        })
+      );
+      mountainPeak.position.y = 32;
+      
+      // Nieve en la cima
+      let snow = new THREE.Mesh(
+        new THREE.BoxGeometry(15, 8, 12),
+        new THREE.MeshStandardMaterial({
+          color: 0xFFFAFA,
+          roughness: 0.8
+        })
+      );
+      snow.position.y = 42;
+      
+      mountain.add(mountainBase, mountainPeak, snow);
+      mountain.position.set(
+        Math.cos(i * Math.PI / 4) * 150,
+        20,
+        Math.sin(i * Math.PI / 4) * 150
+      );
+      scene.add(mountain);
+    }
+
+    // Crear cascada principal
+    let waterfall = new THREE.Group();
+    waterfall.userData.isWater = true;
+    
+    // Montaña de la cascada
+    let waterfallMountain = new THREE.Mesh(
+      new THREE.BoxGeometry(25, 60, 15),
+      new THREE.MeshStandardMaterial({color: 0x555555})
+    );
+    waterfallMountain.position.set(80, 30, -80);
+    
+    // Agua cayendo (animada)
+    for(let i = 0; i < 10; i++) {
+      let waterStrip = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 50, 1),
+        new THREE.MeshStandardMaterial({
+          color: 0x00BFFF,
+          transparent: true,
+          opacity: 0.7,
+          emissive: 0x004499,
+          emissiveIntensity: 0.2
+        })
+      );
+      waterStrip.position.set(
+        80 + (i - 5) * 0.5,
+        5,
+        -75 + Math.random() * 2
+      );
+      waterfall.add(waterStrip);
+    }
+    
+    // Lago al pie de la cascada
+    let lake = new THREE.Mesh(
+      new THREE.BoxGeometry(30, 0.5, 20),
+      new THREE.MeshStandardMaterial({
+        color: 0x0077BE,
+        transparent: true,
+        opacity: 0.8,
+        emissive: 0x002244,
+        emissiveIntensity: 0.3
+      })
+    );
+    lake.position.set(80, -0.2, -60);
+    
+    waterfall.add(waterfallMountain, lake);
+    scene.add(waterfall);
+
+    // Crear río que fluye desde el lago
+    for(let i = 0; i < 15; i++) {
+      let riverSegment = new THREE.Mesh(
+        new THREE.BoxGeometry(8, 0.3, 6),
+        new THREE.MeshStandardMaterial({
+          color: 0x4169E1,
+          transparent: true,
+          opacity: 0.7
+        })
+      );
+      riverSegment.userData.isWater = true;
+      riverSegment.position.set(
+        70 - i * 5,
+        -0.1,
+        -50 + Math.sin(i * 0.5) * 10
+      );
+      riverSegment.rotation.y = Math.sin(i * 0.3) * 0.2;
+      scene.add(riverSegment);
+    }
+
+    // Crear árboles más detallados tipo Konoha
+    for(let i = 0; i < 50; i++) {
+      let tree = new THREE.Group();
+      tree.userData.isTree = true;
+      
+      // Tronco del árbol
+      let trunk = new THREE.Mesh(
+        new THREE.BoxGeometry(1.5, 12, 1.5),
+        new THREE.MeshStandardMaterial({
+          color: 0x8B4513,
+          roughness: 0.9
+        })
+      );
+      trunk.position.y = 6;
+      
+      // Follaje en capas (típico de árboles de Naruto)
+      for(let layer = 0; layer < 3; layer++) {
+        let foliage = new THREE.Mesh(
+          new THREE.BoxGeometry(
+            8 - layer * 1.5,
+            4,
+            8 - layer * 1.5
+          ),
+          new THREE.MeshStandardMaterial({
+            color: layer === 0 ? 0x228B22 : (layer === 1 ? 0x32CD32 : 0x00FF00),
+            roughness: 0.8
+          })
+        );
+        foliage.position.y = 10 + layer * 3;
+        tree.add(foliage);
+      }
+      
+      // Ramas salientes
+      for(let branch = 0; branch < 4; branch++) {
+        let branchMesh = new THREE.Mesh(
+          new THREE.BoxGeometry(0.5, 0.5, 3),
+          new THREE.MeshStandardMaterial({color: 0x8B4513})
+        );
+        branchMesh.position.set(
+          Math.cos(branch * Math.PI / 2) * 2,
+          8 + Math.random() * 4,
+          Math.sin(branch * Math.PI / 2) * 2
+        );
+        branchMesh.rotation.y = branch * Math.PI / 2;
+        tree.add(branchMesh);
+      }
+      
+      tree.add(trunk);
+      
+      // Posicionar árboles aleatoriamente evitando el centro
+      let angle = Math.random() * Math.PI * 2;
+      let distance = 30 + Math.random() * 60;
+      tree.position.set(
+        Math.cos(angle) * distance,
+        0,
+        Math.sin(angle) * distance
+      );
+      
+      // Rotar aleatoriamente
+      tree.rotation.y = Math.random() * Math.PI * 2;
+      scene.add(tree);
+    }
+
+    // Crear rocas dispersas
+    for(let i = 0; i < 30; i++) {
+      let rock = new THREE.Mesh(
+        new THREE.BoxGeometry(
+          2 + Math.random() * 3,
+          1 + Math.random() * 2,
+          2 + Math.random() * 3
+        ),
+        new THREE.MeshStandardMaterial({
+          color: 0x696969,
+          roughness: 0.95,
+          metalness: 0.05
+        })
+      );
+      rock.userData.isRock = true;
+      rock.position.set(
+        Math.random() * 160 - 80,
+        rock.geometry.parameters.height / 2,
+        Math.random() * 160 - 80
+      );
+      rock.rotation.set(
+        Math.random() * 0.3,
+        Math.random() * Math.PI * 2,
+        Math.random() * 0.3
+      );
+      scene.add(rock);
+    }
+
+    // Crear flores y arbustos pequeños
+    for(let i = 0; i < 100; i++) {
+      if(Math.random() < 0.7) {
+        // Arbustos
+        let bush = new THREE.Mesh(
+          new THREE.BoxGeometry(
+            1 + Math.random(),
+            0.8 + Math.random() * 0.5,
+            1 + Math.random()
+          ),
+          new THREE.MeshStandardMaterial({
+            color: 0x228B22,
+            roughness: 0.9
+          })
+        );
+        bush.userData.isScenery = true;
+        bush.position.set(
+          Math.random() * 140 - 70,
+          bush.geometry.parameters.height / 2,
+          Math.random() * 140 - 70
+        );
+        scene.add(bush);
+      } else {
+        // Flores
+        let flower = new THREE.Group();
+        flower.userData.isScenery = true;
+        
+        let stem = new THREE.Mesh(
+          new THREE.BoxGeometry(0.1, 1, 0.1),
+          new THREE.MeshStandardMaterial({color: 0x228B22})
+        );
+        stem.position.y = 0.5;
+        
+        let petal = new THREE.Mesh(
+          new THREE.BoxGeometry(0.4, 0.1, 0.4),
+          new THREE.MeshStandardMaterial({
+            color: Math.random() < 0.5 ? 0xFF69B4 : 0xFFFFFF
+          })
+        );
+        petal.position.y = 1;
+        
+        flower.add(stem, petal);
+        flower.position.set(
+          Math.random() * 120 - 60,
+          0,
+          Math.random() * 120 - 60
+        );
+        scene.add(flower);
+      }
+    }
+
+    // Crear postes de madera ninja (típicos de Konoha)
+    for(let i = 0; i < 6; i++) {
+      let post = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 8, 1),
+        new THREE.MeshStandardMaterial({
+          color: 0x8B4513,
+          roughness: 0.9
+        })
+      );
+      post.userData.isScenery = true;
+      
+      // Cuerda entre postes
+      if(i > 0) {
+        let rope = new THREE.Mesh(
+          new THREE.BoxGeometry(0.2, 0.2, 10),
+          new THREE.MeshStandardMaterial({color: 0x654321})
+        );
+        rope.position.set(
+          Math.cos(i * Math.PI / 3) * 45 - 5,
+          6,
+          Math.sin(i * Math.PI / 3) * 45
+        );
+        rope.rotation.y = i * Math.PI / 3;
+        rope.userData.isScenery = true;
+        scene.add(rope);
+      }
+      
+      post.position.set(
+        Math.cos(i * Math.PI / 3) * 45,
+        4,
+        Math.sin(i * Math.PI / 3) * 45
+      );
+      scene.add(post);
+    }
+
+    // Animar la cascada
+    let waterfallAnimation = () => {
+      waterfall.children.forEach((child, index) => {
+        if(child.geometry && child.geometry.parameters.height > 40) {
+          child.position.y = 5 + Math.sin(Date.now() * 0.003 + index) * 2;
+          child.material.opacity = 0.5 + Math.sin(Date.now() * 0.004 + index) * 0.2;
+        }
+      });
+      requestAnimationFrame(waterfallAnimation);
+    };
+    waterfallAnimation();
+
+    console.log('🌲 Bosque de Konoha creado con montañas, cascada y vegetación detallada');
   }
 
   function addRainEffect() {
