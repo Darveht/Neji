@@ -1034,6 +1034,40 @@
 
   <!-- Pantalla de video personalizado -->
   <div id="video-intro" style="display:none;">
+    <!-- Selector de idioma -->
+    <div id="language-selector" style="
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 1003;
+      background: rgba(0,0,0,0.8);
+      padding: 10px;
+      border: 2px solid #FF4500;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 8px;
+    ">
+      <div style="color: #FFD700; margin-bottom: 8px;">IDIOMA:</div>
+      <button id="btn-japanese" style="
+        background: #FF4500;
+        color: #FFD700;
+        border: 1px solid #FFD700;
+        padding: 4px 8px;
+        margin-right: 5px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 6px;
+        cursor: pointer;
+      ">日本語</button>
+      <button id="btn-spanish" style="
+        background: #FF4500;
+        color: #FFD700;
+        border: 1px solid #FFD700;
+        padding: 4px 8px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 6px;
+        cursor: pointer;
+      ">ESPAÑOL</button>
+    </div>
+    
     <video id="intro-video" 
            style="width:100%;height:100%;object-fit:cover;background:#000;" 
            playsinline
@@ -1134,6 +1168,31 @@
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
   <script>
+  // Variables globales para idioma
+  let currentLanguage = 'japanese'; // Por defecto japonés
+  
+  // Traducciones para subtítulos
+  const subtitles = {
+    japanese: [
+      {time: 1, text: 'ヒナタの愛の物語<br>Hinata no Ai no Monogatari<br>(La Historia del Amor de Hinata)'},
+      {time: 3, text: '彼女は常に彼を見つめていた<br>Kanojo wa tsuneni kare wo mitsumete ita<br>(Ella siempre lo miraba)'},
+      {time: 6, text: 'ナルトの勇気に心を奪われた<br>Naruto no yuuki ni kokoro wo ubawareta<br>(Su corazón fue robado por el valor de Naruto)'},
+      {time: 9, text: '彼は決して諦めなかった<br>Kare wa kesshite akiramenakatta<br>(Él nunca se rindió)'},
+      {time: 12, text: 'その強さがヒナタを変えた<br>Sono tsuyosa ga Hinata wo kaeta<br>(Esa fuerza cambió a Hinata)'},
+      {time: 15, text: '真の愛は勇気から生まれる<br>Shin no ai wa yuuki kara umareru<br>(El amor verdadero nace del valor)'},
+      {time: 18, text: 'ヒナタ❤ナルト<br>Hinata ❤ Naruto<br>(Para siempre juntos)'}
+    ],
+    spanish: [
+      {time: 1, text: 'La Historia del Amor de Hinata'},
+      {time: 3, text: 'Ella siempre lo miraba en silencio'},
+      {time: 6, text: 'Su corazón fue conquistado por el valor de Naruto'},
+      {time: 9, text: 'Él nunca se rindió ante nada'},
+      {time: 12, text: 'Esa fuerza interior cambió a Hinata'},
+      {time: 15, text: 'El amor verdadero nace del valor'},
+      {time: 18, text: 'Hinata ❤ Naruto - Para siempre juntos'}
+    ]
+  };
+
   // Secuencia completa: Glam Works → Video → Logo → Personajes
   const glamCredits = document.getElementById('glam-credits');
   const glamSkip = document.getElementById('glam-skip');
@@ -1177,10 +1236,10 @@
       videoCreditsOverlay.style.display = 'none';
     }
     
-    // Crear subtítulos en japonés
+    // Crear subtítulos según el idioma seleccionado
     const createSubtitles = () => {
       let subtitlesContainer = document.createElement('div');
-      subtitlesContainer.id = 'japanese-subtitles';
+      subtitlesContainer.id = 'dynamic-subtitles';
       subtitlesContainer.style.cssText = `
         position: absolute;
         bottom: 80px;
@@ -1201,19 +1260,11 @@
       
       videoIntro.appendChild(subtitlesContainer);
       
-      // Subtítulos con timing
-      const subtitles = [
-        {time: 1, text: 'ヒナタの愛の物語<br>Hinata no Ai no Monogatari<br>(La Historia del Amor de Hinata)'},
-        {time: 3, text: '彼女は常に彼を見つめていた<br>Kanojo wa tsuneni kare wo mitsumete ita<br>(Ella siempre lo miraba)'},
-        {time: 6, text: 'ナルトの勇気に心を奪われた<br>Naruto no yuuki ni kokoro wo ubawareta<br>(Su corazón fue robado por el valor de Naruto)'},
-        {time: 9, text: '彼は決して諦めなかった<br>Kare wa kesshite akiramenakatta<br>(Él nunca se rindió)'},
-        {time: 12, text: 'その強さがヒナタを変えた<br>Sono tsuyosa ga Hinata wo kaeta<br>(Esa fuerza cambió a Hinata)'},
-        {time: 15, text: '真の愛は勇気から生まれる<br>Shin no ai wa yuuki kara umareru<br>(El amor verdadero nace del valor)'},
-        {time: 18, text: 'ヒナタ❤ナルト<br>Hinata ❤ Naruto<br>(Para siempre juntos)'}
-      ];
+      // Usar subtítulos según el idioma actual
+      const currentSubtitles = subtitles[currentLanguage];
       
       // Mostrar subtítulos con timing
-      subtitles.forEach(subtitle => {
+      currentSubtitles.forEach(subtitle => {
         setTimeout(() => {
           if(subtitlesContainer.parentNode) {
             subtitlesContainer.innerHTML = subtitle.text;
@@ -1778,6 +1829,53 @@
     }
   });
 
+  // Event listeners para selector de idioma
+  document.addEventListener('DOMContentLoaded', () => {
+    // Configurar botones de idioma
+    setTimeout(() => {
+      const btnJapanese = document.getElementById('btn-japanese');
+      const btnSpanish = document.getElementById('btn-spanish');
+      
+      if(btnJapanese) {
+        btnJapanese.addEventListener('click', () => {
+          currentLanguage = 'japanese';
+          updateLanguageButtons();
+          console.log('Idioma cambiado a japonés');
+        });
+      }
+      
+      if(btnSpanish) {
+        btnSpanish.addEventListener('click', () => {
+          currentLanguage = 'spanish';
+          updateLanguageButtons();
+          console.log('Idioma cambiado a español');
+        });
+      }
+      
+      updateLanguageButtons();
+    }, 1000);
+  });
+
+  function updateLanguageButtons() {
+    const btnJapanese = document.getElementById('btn-japanese');
+    const btnSpanish = document.getElementById('btn-spanish');
+    
+    if(btnJapanese && btnSpanish) {
+      // Resetear estilos
+      btnJapanese.style.background = '#FF4500';
+      btnSpanish.style.background = '#FF4500';
+      
+      // Destacar idioma seleccionado
+      if(currentLanguage === 'japanese') {
+        btnJapanese.style.background = '#FFD700';
+        btnJapanese.style.color = '#000000';
+      } else {
+        btnSpanish.style.background = '#FFD700';
+        btnSpanish.style.color = '#000000';
+      }
+    }
+  }
+
   // Iniciar secuencia
   showGlamCredits();
 
@@ -1823,6 +1921,7 @@
   let playerHealth = 5; // 5 vidas
   let playerLevel = 1;
   let currentStage = 1;
+  let gameOver = false; // Detector de muerte
   
   // Variables para cámara libre 360°
   let cameraAngleX = 0; // Rotación horizontal (izquierda/derecha)
@@ -2906,6 +3005,12 @@ function createPainBoss() {
 function animate(){
     requestAnimationFrame(animate);
     
+    // Detener todo si el juego terminó
+    if(gameOver) {
+      renderer.render(scene,camera);
+      return;
+    }
+    
     // Actualizar movimiento con teclado para PC
     updateKeyboardMovement();
     
@@ -2978,8 +3083,8 @@ function animate(){
         container.appendChild(heart);
       }
 
-      // Daño al jugador cuando está cerca
-      if(e.position.distanceTo(player.position) < 2) {
+      // Daño al jugador cuando está cerca - SOLO si no está muerto
+      if(!gameOver && e.position.distanceTo(player.position) < 2) {
         playerHealth -= 1; // Quitar 1 vida por golpe
         // Reproducir sonido de impacto cuando el enemigo golpea al jugador
         playImpactSound();
@@ -2996,8 +3101,8 @@ function animate(){
 
         updatePlayerHUD();
         if(playerHealth <= 0) {
-          alert('¡GAME OVER! - NIVEL ' + currentStage);
-          location.reload();
+          gameOver = true; // Marcar que el juego terminó
+          showGameOverScreen();
         }
       }
 
@@ -4539,8 +4644,254 @@ function animate(){
     }
   }
 
-  // Add Speed Button
+  // Función para mostrar pantalla de Game Over
+  function showGameOverScreen() {
+    // Prevenir múltiples pantallas de Game Over
+    if(document.getElementById('game-over-screen')) {
+      return;
+    }
+    
+    // Detener música de batalla si existe
+    const battleMusic = document.getElementById('battle-music-video');
+    if(battleMusic) {
+      battleMusic.pause();
+      battleMusic.muted = true;
+    }
 
+    // Crear pantalla de Game Over
+    let gameOverScreen = document.createElement('div');
+    gameOverScreen.id = 'game-over-screen';
+    gameOverScreen.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 50% 50%, rgba(255,0,0,0.3) 2px, transparent 3px),
+        repeating-linear-gradient(45deg, 
+          rgba(0,0,0,0.95) 0px, rgba(0,0,0,0.95) 4px,
+          rgba(128,0,0,0.95) 4px, rgba(128,0,0,0.95) 8px);
+      background-size: 32px 32px, 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      font-family: 'Press Start 2P', cursive;
+      animation: gameOverFade 1s ease-in-out;
+    `;
+
+    gameOverScreen.innerHTML = `
+      <h1 style="
+        color: #FF0000;
+        font-size: 32px;
+        text-shadow: 
+          3px 3px 0px #000,
+          6px 6px 0px rgba(255,0,0,0.5),
+          0 0 20px #FF0000;
+        margin: 0 0 20px 0;
+        letter-spacing: 4px;
+        animation: pixelBlink 1s steps(2) infinite;
+        text-align: center;
+      ">GAME OVER</h1>
+      
+      <h2 style="
+        color: #FFD700;
+        font-size: 16px;
+        text-shadow: 2px 2px 0px #000;
+        margin: 0 0 40px 0;
+        text-align: center;
+      ">NIVEL ${currentStage} - ${STAGES[currentStage] ? STAGES[currentStage].name : 'BATALLA FINAL'}</h2>
+      
+      <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;">
+        <button id="retry-btn" style="
+          background: 
+            repeating-conic-gradient(from 0deg, 
+              rgba(0,255,0,0.8) 0deg 90deg, 
+              rgba(0,200,0,0.8) 90deg 180deg);
+          border: 3px solid #00FF00;
+          color: #ffffff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 12px;
+          padding: 15px 25px;
+          cursor: pointer;
+          transition: all 0.2s steps(2);
+          box-shadow: 
+            0 0 0 1px #000,
+            3px 3px 0px #000,
+            0 0 15px rgba(0,255,0,0.5);
+          text-shadow: 2px 2px 0px #000;
+        ">INTENTAR DE NUEVO</button>
+        
+        <button id="menu-btn" style="
+          background: 
+            repeating-conic-gradient(from 0deg, 
+              rgba(255,69,0,0.8) 0deg 90deg, 
+              rgba(255,140,0,0.8) 90deg 180deg);
+          border: 3px solid #FF4500;
+          color: #ffffff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 12px;
+          padding: 15px 25px;
+          cursor: pointer;
+          transition: all 0.2s steps(2);
+          box-shadow: 
+            0 0 0 1px #000,
+            3px 3px 0px #000,
+            0 0 15px rgba(255,69,0,0.5);
+          text-shadow: 2px 2px 0px #000;
+        ">VOLVER AL MENÚ</button>
+      </div>
+    `;
+
+    // Añadir efectos de partículas
+    for(let i = 0; i < 20; i++) {
+      let particle = document.createElement('div');
+      particle.style.cssText = `
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: #FF0000;
+        left: ${Math.random() * 100}%;
+        top: ${Math.random() * 100}%;
+        animation: particleFall ${2 + Math.random() * 3}s linear infinite;
+        animation-delay: ${Math.random() * 2}s;
+      `;
+      gameOverScreen.appendChild(particle);
+    }
+
+    // Añadir estilos de animación
+    const gameOverStyles = document.createElement('style');
+    gameOverStyles.textContent = `
+      @keyframes gameOverFade {
+        0% { opacity: 0; transform: scale(0.8); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      
+      @keyframes particleFall {
+        0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(gameOverStyles);
+
+    document.body.appendChild(gameOverScreen);
+
+    // Event listeners para los botones
+    document.getElementById('retry-btn').addEventListener('click', () => {
+      gameOverScreen.remove();
+      gameOverStyles.remove();
+      retryLevel();
+    });
+
+    document.getElementById('menu-btn').addEventListener('click', () => {
+      gameOverScreen.remove();
+      gameOverStyles.remove();
+      returnToCharacterSelect();
+    });
+
+    // Efectos hover para botones
+    document.getElementById('retry-btn').addEventListener('mouseover', function() {
+      this.style.transform = 'scale(1.1)';
+      this.style.borderColor = '#00FFFF';
+    });
+    document.getElementById('retry-btn').addEventListener('mouseout', function() {
+      this.style.transform = 'scale(1)';
+      this.style.borderColor = '#00FF00';
+    });
+
+    document.getElementById('menu-btn').addEventListener('mouseover', function() {
+      this.style.transform = 'scale(1.1)';
+      this.style.borderColor = '#FFFF00';
+    });
+    document.getElementById('menu-btn').addEventListener('mouseout', function() {
+      this.style.transform = 'scale(1)';
+      this.style.borderColor = '#FF4500';
+    });
+  }
+
+  // Función para reintentar el nivel actual
+  function retryLevel() {
+    // Reiniciar detector de muerte
+    gameOver = false;
+    
+    // Reiniciar vida del jugador
+    playerHealth = MAX_HEALTH;
+    updatePlayerHUD();
+    
+    // Reiniciar posición del jugador
+    player.position.set(0, 1.25, 0);
+    
+    // Limpiar enemigos actuales
+    enemies.forEach(e => {
+      scene.remove(e);
+      if(enemyHUD[e.userData.id]) {
+        enemyHUD[e.userData.id].remove();
+        delete enemyHUD[e.userData.id];
+      }
+    });
+    enemies = [];
+    
+    // Limpiar poderes
+    powers.forEach(p => scene.remove(p.mesh));
+    powers = [];
+    
+    // Reiniciar el mismo nivel
+    changeStage(currentStage);
+    
+    console.log('🔄 Nivel reiniciado - Nivel ' + currentStage);
+  }
+
+  // Función para volver a la selección de personajes
+  function returnToCharacterSelect() {
+    // Detener todas las músicas
+    const battleMusic = document.getElementById('battle-music-video');
+    if(battleMusic) {
+      battleMusic.pause();
+      battleMusic.remove();
+    }
+    
+    // Limpiar escena
+    enemies.forEach(e => {
+      scene.remove(e);
+      if(enemyHUD[e.userData.id]) {
+        enemyHUD[e.userData.id].remove();
+        delete enemyHUD[e.userData.id];
+      }
+    });
+    enemies = [];
+    powers.forEach(p => scene.remove(p.mesh));
+    powers = [];
+    
+    // Remover canvas y elementos del juego
+    if(renderer && renderer.domElement) {
+      renderer.domElement.remove();
+    }
+    
+    // Remover controles
+    const joystick = document.getElementById('joystick');
+    const actions = document.getElementById('actions');
+    const playerHud = document.getElementById('player-hud');
+    
+    if(joystick) joystick.style.display = 'none';
+    if(actions) actions.style.display = 'none';
+    if(playerHud) playerHud.style.display = 'none';
+    
+    // Reiniciar variables
+    gameOver = false; // Reiniciar detector de muerte
+    currentStage = 1;
+    playerHealth = MAX_HEALTH;
+    playerLevel = 1;
+    currentCharacter = '';
+    
+    // Mostrar pantalla de selección de personajes
+    document.getElementById('char-select').style.display = 'flex';
+    
+    console.log('🏠 Volviendo al menú de selección de personajes');
+  }
+
+  // Add Speed Button
   let speedButton = document.createElement('div');
   speedButton.id = 'speed-button';
   speedButton.className = 'action-btn';
