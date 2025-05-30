@@ -65,18 +65,18 @@
       h2 { font-size: 12px; }
       h3 { font-size: 10px; }
       p { font-size: 6px; }
-      
+
       .characters-grid {
         grid-template-columns: 1fr;
         gap: 15px;
         padding: 0 10px;
       }
-      
+
       .char-card {
         max-width: 100%;
         padding: 15px;
       }
-      
+
       .char-img {
         height: 120px;
       }
@@ -1067,12 +1067,12 @@
         cursor: pointer;
       ">ESPAÑOL</button>
     </div>
-    
+
     <video id="intro-video" 
            style="width:100%;height:100%;object-fit:cover;background:#000;" 
            playsinline
            preload="auto">
-      <source src="https://ik.imagekit.io/lcpvlmgbf/copy_DBDB6139-95C4-4DBB-A0DF-78E4B5FED009.mov/ik-video.mp4?updatedAt=1748452619471" type="video/mp4">
+      <source src="https://www.dropbox.com/scl/fi/f5qq6dgnlxidywwy1lpkt/copy_6D6E0B3D-1282-4F5B-A6D1-A0F5128B8C58.mov?rlkey=fsxtkk4gfpqjsntckvmc5xwdo&st=42rx8l0i&dl=1" type="video/mp4">
     </video>
     <div id="video-skip-button" style="display:none;">PRESIONA PARA SALTAR</div>
   </div>
@@ -1101,7 +1101,7 @@
     </div>
     <audio id="hover-sound" src="https://www.soundjay.com/buttons/button-09a.mp3"></audio>
     <audio id="select-sound" src="https://www.soundjay.com/buttons/button-37a.mp3"></audio>
-    
+
     <div class="characters-grid">
       <div class="char-card" onclick="selectCharacter('neji')" onmouseover="playHoverSound()">
         <h3>NEJI HYUGA</h3>
@@ -1170,7 +1170,7 @@
   <script>
   // Variables globales para idioma
   let currentLanguage = 'japanese'; // Por defecto japonés
-  
+
   // Traducciones para subtítulos - SEPARADAS POR IDIOMA
   const subtitles = {
     japanese: [
@@ -1208,12 +1208,12 @@
   function showGlamCredits() {
     glamCredits.style.display = 'flex';
     canSkip = false;
-    
+
     // Permitir skip después de 2 segundos
     setTimeout(() => {
       canSkip = true;
     }, 2000);
-    
+
     // NO auto-avanzar - solo manual
   }
 
@@ -1222,97 +1222,39 @@
     glamCredits.style.display = 'none';
     videoIntro.style.display = 'flex';
     canSkip = false;
-    
+
     // SILENCIAR COMPLETAMENTE YouTube durante el video del intro
     if(youtubePlayer && youtubePlayer.pauseVideo) {
       youtubePlayer.pauseVideo();
       youtubePlayer.mute();
       console.log('YouTube silenciado para el video del intro');
     }
-    
+
     // Quitar la superposición de créditos del video
     const videoCreditsOverlay = document.getElementById('video-credits-overlay');
     if(videoCreditsOverlay) {
       videoCreditsOverlay.style.display = 'none';
     }
-    
-    // Crear subtítulos SOLO en el idioma seleccionado - MEJORADO
+
+    // NO crear subtítulos ya que el video tiene subtítulos incorporados
     const createSubtitles = () => {
-      let subtitlesContainer = document.createElement('div');
-      subtitlesContainer.id = 'dynamic-subtitles';
-      subtitlesContainer.style.cssText = `
-        position: absolute;
-        bottom: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.9);
-        color: #FFD700;
-        font-family: 'Press Start 2P', cursive;
-        font-size: ${currentLanguage === 'japanese' ? '8px' : '10px'};
-        padding: 12px 24px;
-        border: 2px solid #FF4500;
-        text-align: center;
-        z-index: 1002;
-        max-width: 80%;
-        box-shadow: 0 0 15px rgba(255,69,0,0.8);
-        image-rendering: pixelated;
-        line-height: 1.4;
-      `;
-      
-      videoIntro.appendChild(subtitlesContainer);
-      
-      // USAR SOLO EL IDIOMA SELECCIONADO - SIN MEZCLAR
-      const selectedSubtitles = subtitles[currentLanguage];
-      console.log(`📝 Mostrando subtítulos en: ${currentLanguage === 'japanese' ? 'japonés' : 'español'}`);
-      
-      // Mostrar primer subtítulo inmediatamente para confirmar idioma
-      if(selectedSubtitles && selectedSubtitles.length > 0) {
-        subtitlesContainer.innerHTML = `Idioma: ${currentLanguage === 'japanese' ? '日本語' : 'Español'}`;
-        
-        // Mostrar subtítulos con timing correcto
-        selectedSubtitles.forEach((subtitle, index) => {
-          setTimeout(() => {
-            if(subtitlesContainer.parentNode) {
-              subtitlesContainer.innerHTML = subtitle.text;
-              subtitlesContainer.style.animation = 'fadeInSubtitle 0.5s ease-in';
-              
-              // Efecto especial para el último subtítulo
-              if(index === selectedSubtitles.length - 1) {
-                subtitlesContainer.style.background = 'rgba(255,69,0,0.9)';
-                subtitlesContainer.style.color = '#FFFFFF';
-              }
-            }
-          }, subtitle.time * 1000);
-        });
-      }
-      
-      // Limpiar subtítulos cuando termine el video
-      const cleanup = () => {
-        if(subtitlesContainer.parentNode) {
-          subtitlesContainer.remove();
-        }
-      };
-      
-      introVideo.addEventListener('ended', cleanup);
-      
-      return subtitlesContainer;
+      console.log('📝 Subtítulos deshabilitados - el video ya tiene subtítulos incorporados');
+      return null;
     };
-    
-    // Reproducir el video automáticamente con audio
+
+    // Reproducir el video automáticamente y completo
     const startVideo = () => {
-      // Intentar reproducir con audio inmediatamente
+      // Reproducir automáticamente con audio
       introVideo.muted = false;
       introVideo.play().then(() => {
-        console.log('Video iniciado con audio');
-        // Crear subtítulos cuando el video empiece
-        createSubtitles();
+        console.log('Video reproduciéndose automáticamente con subtítulos incorporados');
       }).catch(e => {
         console.log('Autoplay bloqueado, requiere interacción:', e);
         // Si falla, mostrar mensaje para interactuar
         showPlayMessage();
       });
     };
-    
+
     const showPlayMessage = () => {
       let playMessage = document.createElement('div');
       playMessage.style.cssText = `
@@ -1331,37 +1273,37 @@
         animation: pixelBlink 1.5s steps(2) infinite;
         cursor: pointer;
       `;
-      playMessage.innerHTML = 'TOCA PARA REPRODUCIR<br>EL VIDEO CON AUDIO';
+      playMessage.innerHTML = 'TOCA PARA REPRODUCIR<br>VIDEO COMPLETO CON<br>SUBTITULOS INCORPORADOS';
       videoIntro.appendChild(playMessage);
-      
+
       // Reproducir cuando se haga clic en el mensaje
       playMessage.addEventListener('click', () => {
         introVideo.muted = false;
         introVideo.play().then(() => {
           playMessage.remove();
-          createSubtitles();
+          console.log('Video reproduciéndose con subtítulos incorporados');
         });
       });
-      
+
       // También permitir clic en cualquier parte del video
       videoIntro.addEventListener('click', () => {
         introVideo.muted = false;
         introVideo.play().then(() => {
           playMessage.remove();
-          createSubtitles();
+          console.log('Video reproduciéndose con subtítulos incorporados');
         });
       }, {once: true});
     };
-    
+
     // Iniciar inmediatamente
     startVideo();
-    
+
     // Mostrar botón de skip después de 10 segundos
     setTimeout(() => {
       canSkip = true;
       videoSkipButton.style.display = 'block';
     }, 10000);
-    
+
     // Auto-avanzar SOLO cuando termine el video
     introVideo.addEventListener('ended', () => {
       if(currentStep === 2) {
@@ -1369,7 +1311,7 @@
         nextStep();
       }
     });
-    
+
     // Detectar duración del video y ajustar tiempo
     introVideo.addEventListener('loadedmetadata', () => {
       console.log('Duración del video:', introVideo.duration, 'segundos');
@@ -1379,14 +1321,14 @@
   // PASO 3: Pantalla de inicialización del juego
   function showGameInitialization() {
     videoIntro.style.display = 'none';
-    
+
     // MANTENER YouTube silenciado durante la carga
     if(youtubePlayer && youtubePlayer.pauseVideo) {
       youtubePlayer.pauseVideo();
       youtubePlayer.mute();
       console.log('YouTube mantiene silencio durante carga');
     }
-    
+
     // Crear pantalla de inicialización
     let initScreen = document.createElement('div');
     initScreen.id = 'game-init-screen';
@@ -1409,7 +1351,7 @@
       z-index: 1000;
       font-family: 'Press Start 2P', cursive;
     `;
-    
+
     initScreen.innerHTML = `
       <h1 style="
         color: #00ffff;
@@ -1418,14 +1360,14 @@
         margin-bottom: 30px;
         animation: pixel-blink 1s steps(2) infinite;
       ">INICIALIZANDO JUEGO...</h1>
-      
+
       <div id="init-status" style="
         color: #ffff00;
         font-size: 12px;
         text-shadow: 1px 1px 0px #000;
         margin-bottom: 20px;
       ">CARGANDO SISTEMA...</div>
-      
+
       <div style="
         width: 400px;
         height: 20px;
@@ -1445,14 +1387,14 @@
         "></div>
       </div>
     `;
-    
+
     document.body.appendChild(initScreen);
-    
+
     // Simular proceso de carga
     let progress = 0;
     let statusEl = document.getElementById('init-status');
     let progressEl = document.getElementById('init-progress');
-    
+
     const loadingSteps = [
       "DESCARGANDO PAQUETES DE JUTSU...",
       "INSTALANDO EFECTOS DE CHAKRA...",
@@ -1462,30 +1404,30 @@
       "SINCRONIZANDO PODERES NINJA...",
       "PREPARANDO EXPERIENCIA COMPLETA..."
     ];
-    
+
     let stepIndex = 0;
     let loadInterval = setInterval(() => {
       progress += Math.random() * 15 + 5;
       if(progress > 100) progress = 100;
-      
+
       progressEl.style.width = progress + '%';
-      
+
       if(stepIndex < loadingSteps.length && progress > (stepIndex + 1) * 14) {
         statusEl.textContent = loadingSteps[stepIndex];
         stepIndex++;
       }
-      
+
       if(progress >= 100) {
         clearInterval(loadInterval);
         statusEl.textContent = "¡SISTEMA LISTO!";
-        
+
         setTimeout(() => {
           initScreen.remove();
           nextStep(); // Ir a la pantalla del título
         }, 1500);
       }
     }, 200);
-    
+
     canSkip = false;
     setTimeout(() => canSkip = true, 3000);
   }
@@ -1498,7 +1440,7 @@
       youtubePlayer.mute();
       console.log('YouTube silenciado en pantalla de título');
     }
-    
+
     // Crear pantalla de título
     let titleScreen = document.createElement('div');
     titleScreen.id = 'title-screen';
@@ -1521,7 +1463,7 @@
       z-index: 1000;
       font-family: 'Press Start 2P', cursive;
     `;
-    
+
     titleScreen.innerHTML = `
       <div style="
         display: flex;
@@ -1542,7 +1484,7 @@
              " 
              onerror="this.style.display='none';"
              alt="Naruto" />
-        
+
         <div style="text-align: center;">
           <h1 style="
             color: #ff4500;
@@ -1555,7 +1497,7 @@
             letter-spacing: 4px;
             animation: pixelGlow 2s steps(4) infinite;
           ">NARUTO</h1>
-          
+
           <h2 style="
             color: #00ffff;
             font-size: 24px;
@@ -1563,7 +1505,7 @@
             margin: 0 0 40px 0;
             letter-spacing: 3px;
           ">FINAL TIME</h2>
-          
+
           <button id="play-game-btn" style="
             background: 
               repeating-conic-gradient(from 0deg, 
@@ -1590,7 +1532,7 @@
         </div>
       </div>
     `;
-    
+
     // Añadir estilos de animación
     const titleStyles = document.createElement('style');
     titleStyles.textContent = `
@@ -1598,7 +1540,7 @@
         0%, 100% { transform: translateY(0px); }
         50% { transform: translateY(-10px); }
       }
-      
+
       @keyframes pixelGlow {
         0%, 100% { 
           text-shadow: 3px 3px 0px #000, 6px 6px 0px rgba(255,69,0,0.5);
@@ -1607,16 +1549,16 @@
           text-shadow: 3px 3px 0px #000, 6px 6px 0px rgba(255,255,0,0.8), 0 0 15px #ff4500;
         }
       }
-      
+
       @keyframes pixelBlink {
         0%, 50% { opacity: 1; }
         51%, 100% { opacity: 0.7; }
       }
     `;
     document.head.appendChild(titleStyles);
-    
+
     document.body.appendChild(titleScreen);
-    
+
     // Event listener para el botón de jugar
     document.getElementById('play-game-btn').addEventListener('click', () => {
       titleScreen.remove();
@@ -1624,7 +1566,7 @@
       console.log('🎮 Play button clicked - iniciando música de batalla');
       nextStep(); // Ir a selección de personajes
     });
-    
+
     canSkip = false;
     setTimeout(() => canSkip = true, 2000);
   }
@@ -1654,9 +1596,9 @@
       battleMusicVideo.muted = false;
       battleMusicVideo.volume = 0.7;
       battleMusicVideo.preload = 'auto';
-      
+
       document.body.appendChild(battleMusicVideo);
-      
+
       // INTENTAR REPRODUCIR CON MÚLTIPLES MÉTODOS
       const playAttempts = [
         // Intento 1: Reproducción directa
@@ -1666,7 +1608,7 @@
             return true;
           });
         },
-        
+
         // Intento 2: Con mute temporal
         () => {
           battleMusicVideo.muted = true;
@@ -1678,7 +1620,7 @@
             return true;
           });
         },
-        
+
         // Intento 3: Reiniciar y reproducir
         () => {
           battleMusicVideo.currentTime = 0;
@@ -1726,7 +1668,7 @@
     // Crear activador manual en caso de fallos
     function createManualMusicActivator() {
       if(document.getElementById('manual-music-activator')) return;
-      
+
       let activator = document.createElement('div');
       activator.id = 'manual-music-activator';
       activator.style.cssText = `
@@ -1744,7 +1686,7 @@
         animation: pixelBlink 1s steps(2) infinite;
       `;
       activator.textContent = 'ACTIVAR MÚSICA';
-      
+
       activator.addEventListener('click', () => {
         const music = document.getElementById('battle-music-video');
         if(music) {
@@ -1756,9 +1698,9 @@
           });
         }
       });
-      
+
       document.body.appendChild(activator);
-      
+
       // Auto-remover después de 15 segundos
       setTimeout(() => {
         if(activator.parentNode) activator.remove();
@@ -1772,7 +1714,7 @@
   // Función para avanzar al siguiente paso
   function nextStep() {
     if(!canSkip && currentStep < 5) return; // No permitir skip si no está habilitado
-    
+
     // DETENER Y SILENCIAR VIDEO SI ESTÁ REPRODUCIÉNDOSE
     if(introVideo && !introVideo.paused) {
       introVideo.pause();
@@ -1780,7 +1722,7 @@
       introVideo.muted = true;
       console.log('Video del intro detenido por skip');
     }
-    
+
     currentStep++;
     switch(currentStep) {
       case 2:
@@ -1803,7 +1745,7 @@
   glamSkip.addEventListener('click', () => {
     if(canSkip) nextStep();
   });
-  
+
   videoSkipButton.addEventListener('click', () => {
     if(canSkip) {
       // Detener video inmediatamente cuando se presiona skip
@@ -1815,12 +1757,12 @@
       nextStep();
     }
   });
-  
+
   // Clicks en las pantallas - SOLO cuando canSkip es true
   glamCredits.addEventListener('click', () => {
     if(canSkip) nextStep();
   });
-  
+
   videoIntro.addEventListener('click', () => {
     if(canSkip) {
       // Detener video inmediatamente cuando se hace clic para skip
@@ -1832,7 +1774,7 @@
       nextStep();
     }
   });
-  
+
   // Agregar click handlers para las nuevas pantallas
   document.addEventListener('click', (e) => {
     if(canSkip) {
@@ -1855,7 +1797,7 @@
     const trySetup = () => {
       const btnJapanese = document.getElementById('btn-japanese');
       const btnSpanish = document.getElementById('btn-spanish');
-      
+
       if(btnJapanese && btnSpanish) {
         btnJapanese.addEventListener('click', () => {
           currentLanguage = 'japanese';
@@ -1864,7 +1806,7 @@
           // Actualizar subtítulos si el video ya está reproduciéndose
           updateCurrentSubtitles();
         });
-        
+
         btnSpanish.addEventListener('click', () => {
           currentLanguage = 'spanish';
           updateLanguageButtons();
@@ -1872,7 +1814,7 @@
           // Actualizar subtítulos si el video ya está reproduciéndose
           updateCurrentSubtitles();
         });
-        
+
         updateLanguageButtons();
         console.log('🌐 Selector de idioma configurado correctamente');
       } else {
@@ -1880,21 +1822,21 @@
         setTimeout(trySetup, 500);
       }
     };
-    
+
     trySetup();
   }
 
   function updateLanguageButtons() {
     const btnJapanese = document.getElementById('btn-japanese');
     const btnSpanish = document.getElementById('btn-spanish');
-    
+
     if(btnJapanese && btnSpanish) {
       // Resetear estilos
       btnJapanese.style.background = '#FF4500';
       btnJapanese.style.color = '#FFD700';
       btnSpanish.style.background = '#FF4500';
       btnSpanish.style.color = '#FFD700';
-      
+
       // Destacar idioma seleccionado
       if(currentLanguage === 'japanese') {
         btnJapanese.style.background = '#FFD700';
@@ -1911,12 +1853,8 @@
   }
 
   function updateCurrentSubtitles() {
-    // Actualizar subtítulos existentes según el nuevo idioma
-    const subtitlesContainer = document.getElementById('dynamic-subtitles');
-    if(subtitlesContainer) {
-      // Limpiar subtítulos actuales y regenerar según el idioma seleccionado
-      subtitlesContainer.innerHTML = `Idioma cambiado a: ${currentLanguage === 'japanese' ? '日本語' : 'Español'}`;
-    }
+    // No hay subtítulos para actualizar - el video tiene subtítulos incorporados
+    console.log('Subtítulos incorporados en el video - no requiere actualización');
   }
 
   // Iniciar secuencia
@@ -1965,7 +1903,7 @@
   let playerLevel = 1;
   let currentStage = 1;
   let gameOver = false; // Detector de muerte
-  
+
   // Variables para cámara libre 360°
   let cameraAngleX = 0; // Rotación horizontal (izquierda/derecha)
   let cameraAngleY = 0; // Rotación vertical (arriba/abajo)
@@ -2037,7 +1975,7 @@ function showCharacterName() {
   `;
   nameDiv.textContent = characterNames[currentCharacter];
   document.body.appendChild(nameDiv);
-  
+
   // Mostrar controles para PC
   let controlsDiv = document.createElement('div');
   controlsDiv.style.cssText = `
@@ -2061,7 +1999,7 @@ function showCharacterName() {
     PODERES: 1,2,3,4,5,6,7 | MOVIL: JOYSTICK + BOTONES
   `;
   document.body.appendChild(controlsDiv);
-  
+
   // Remover después de 8 segundos
   setTimeout(() => {
     if(nameDiv.parentNode) nameDiv.remove();
@@ -2128,7 +2066,7 @@ function showCharacterName() {
   function selectCharacter(char) {
     document.getElementById('select-sound').play();
     currentCharacter = char;
-    
+
     // Mostrar pantalla de transición con animación
     showCharacterTransition(char);
   }
@@ -2234,7 +2172,7 @@ function showCharacterName() {
             margin: 0 0 20px 0;
             letter-spacing: 2px;
           ">${selectedChar.name}</h1>
-          
+
           <div style="
             color: #FFD700;
             font-size: 12px;
@@ -2243,7 +2181,7 @@ function showCharacterName() {
             margin: 20px 0;
             line-height: 1.6;
           ">HABILIDADES:</div>
-          
+
           <div style="
             color: #00FFFF;
             font-size: 10px;
@@ -2252,7 +2190,7 @@ function showCharacterName() {
             margin: 0 0 40px 0;
             line-height: 1.8;
           ">${selectedChar.abilities}</div>
-          
+
           <button id="start-battle-btn" style="
             background: 
               repeating-conic-gradient(from 0deg, 
@@ -2280,7 +2218,7 @@ function showCharacterName() {
             ¡COMENZAR BATALLA!
           </button>
         </div>
-        
+
         <!-- Imagen del personaje (lado derecho) -->
         <div id="char-image-container" style="
           flex: 1;
@@ -2337,12 +2275,12 @@ function showCharacterName() {
         0%, 100% { transform: translateY(0px) scale(1); }
         50% { transform: translateY(-20px) scale(1.05); }
       }
-      
+
       @keyframes particleMove {
         0% { background-position: 0 0, 0 0; }
         100% { background-position: 40px 40px, -50px -50px; }
       }
-      
+
       @keyframes buttonAppear {
         0% { transform: scale(0.8); opacity: 0; }
         50% { transform: scale(1.2); opacity: 0.8; }
@@ -2377,13 +2315,13 @@ function showCharacterName() {
       // Animar salida
       transitionScreen.style.opacity = '0';
       transitionScreen.style.transform = 'scale(0.9)';
-      
+
       setTimeout(() => {
         transitionScreen.remove();
         transitionStyles.remove();
         document.getElementById('char-select').style.display = 'none';
         document.getElementById('char-select').style.filter = 'none';
-        
+
         // Iniciar el juego
         startGameWithCharacter(char);
       }, 1000);
@@ -2394,7 +2332,7 @@ function showCharacterName() {
     currentCharacter = char;
     updatePlayerHUD();
     showCharacterName();
-    
+
     // DETENER COMPLETAMENTE la música de batalla al entrar al campo de batalla
     const battleMusic = document.getElementById('battle-music-video');
     if(battleMusic) {
@@ -2404,7 +2342,7 @@ function showCharacterName() {
       battleMusic.remove();
       console.log('🔇 Música de batalla detenida completamente - entrando al campo de batalla');
     }
-    
+
     // Remover activador manual si existe
     const manualActivator = document.getElementById('manual-music-activator');
     if(manualActivator) {
@@ -2473,7 +2411,7 @@ function showCharacterName() {
     function activateMokuton() {
       // Crear plataforma principal de madera
       let mainWood = new THREE.Group(); // Usar un grupo para mejor control
-      
+
       let woodBase = new THREE.Mesh(
         new THREE.BoxGeometry(2, 0.3, 4),
         new THREE.MeshStandardMaterial({
@@ -2483,7 +2421,7 @@ function showCharacterName() {
         })
       );
       mainWood.add(woodBase);
-      
+
       // Añadir barandillas para mejor estabilidad visual
       for(let x = -1; x <= 1; x += 2) {
         let rail = new THREE.Mesh(
@@ -2512,25 +2450,25 @@ function showCharacterName() {
       mainWood.position.copy(player.position);
       mainWood.position.y = player.position.y - 0.5; // Ajustar altura inicial
       scene.add(mainWood);
-      
+
       // Vincular el jugador a la plataforma
       let playerOffset = new THREE.Vector3(0, 1.75, 0);
-      
+
       // Animación de surfeo mejorada
       let time = 0;
       let woodPath = [];
       let pathInterval = setInterval(() => {
         time += 0.1;
-        
+
         // Movimiento más suave
         mainWood.position.y += Math.sin(time * 2) * 0.015; // Movimiento vertical más sutil
         mainWood.position.z -= 0.4; // Velocidad reducida para mayor control
         mainWood.rotation.x = Math.sin(time) * 0.05; // Rotación más suave
-        
+
         // Mantener al jugador firmemente sobre la plataforma
         player.position.copy(mainWood.position).add(playerOffset);
         player.rotation.x = mainWood.rotation.x; // Sincronizar rotación
-        
+
         // Crear rastro de madera
         let trail = new THREE.Mesh(
           new THREE.CylinderGeometry(0.15, 0.1, 2),
@@ -2618,7 +2556,7 @@ function showCharacterName() {
       golem.add(body);
       golem.position.copy(player.position);
       scene.add(golem);
-      
+
       let cnt = 0;
       let iv = setInterval(() => {
         golem.position.z -= 0.5;
@@ -2722,7 +2660,7 @@ function showCharacterName() {
     for(let i = 0; i < 8; i++) {
       let mountain = new THREE.Group();
       mountain.userData.isMountain = true;
-      
+
       // Base de la montaña
       let mountainBase = new THREE.Mesh(
         new THREE.BoxGeometry(30, 40, 20),
@@ -2732,7 +2670,7 @@ function showCharacterName() {
           metalness: 0.1
         })
       );
-      
+
       // Pico de la montaña
       let mountainPeak = new THREE.Mesh(
         new THREE.BoxGeometry(20, 25, 15),
@@ -2742,7 +2680,7 @@ function showCharacterName() {
         })
       );
       mountainPeak.position.y = 32;
-      
+
       // Nieve en la cima
       let snow = new THREE.Mesh(
         new THREE.BoxGeometry(15, 8, 12),
@@ -2752,7 +2690,7 @@ function showCharacterName() {
         })
       );
       snow.position.y = 42;
-      
+
       mountain.add(mountainBase, mountainPeak, snow);
       mountain.position.set(
         Math.cos(i * Math.PI / 4) * 150,
@@ -2765,14 +2703,14 @@ function showCharacterName() {
     // Crear cascada principal
     let waterfall = new THREE.Group();
     waterfall.userData.isWater = true;
-    
+
     // Montaña de la cascada
     let waterfallMountain = new THREE.Mesh(
       new THREE.BoxGeometry(25, 60, 15),
       new THREE.MeshStandardMaterial({color: 0x555555})
     );
     waterfallMountain.position.set(80, 30, -80);
-    
+
     // Agua cayendo (animada)
     for(let i = 0; i < 10; i++) {
       let waterStrip = new THREE.Mesh(
@@ -2792,7 +2730,7 @@ function showCharacterName() {
       );
       waterfall.add(waterStrip);
     }
-    
+
     // Lago al pie de la cascada
     let lake = new THREE.Mesh(
       new THREE.BoxGeometry(30, 0.5, 20),
@@ -2805,7 +2743,7 @@ function showCharacterName() {
       })
     );
     lake.position.set(80, -0.2, -60);
-    
+
     waterfall.add(waterfallMountain, lake);
     scene.add(waterfall);
 
@@ -2833,7 +2771,7 @@ function showCharacterName() {
     for(let i = 0; i < 50; i++) {
       let tree = new THREE.Group();
       tree.userData.isTree = true;
-      
+
       // Tronco del árbol
       let trunk = new THREE.Mesh(
         new THREE.BoxGeometry(1.5, 12, 1.5),
@@ -2843,7 +2781,7 @@ function showCharacterName() {
         })
       );
       trunk.position.y = 6;
-      
+
       // Follaje en capas (típico de árboles de Naruto)
       for(let layer = 0; layer < 3; layer++) {
         let foliage = new THREE.Mesh(
@@ -2860,7 +2798,7 @@ function showCharacterName() {
         foliage.position.y = 10 + layer * 3;
         tree.add(foliage);
       }
-      
+
       // Ramas salientes
       for(let branch = 0; branch < 4; branch++) {
         let branchMesh = new THREE.Mesh(
@@ -2875,9 +2813,9 @@ function showCharacterName() {
         branchMesh.rotation.y = branch * Math.PI / 2;
         tree.add(branchMesh);
       }
-      
+
       tree.add(trunk);
-      
+
       // Posicionar árboles aleatoriamente evitando el centro
       let angle = Math.random() * Math.PI * 2;
       let distance = 30 + Math.random() * 60;
@@ -2886,7 +2824,7 @@ function showCharacterName() {
         0,
         Math.sin(angle) * distance
       );
-      
+
       // Rotar aleatoriamente
       tree.rotation.y = Math.random() * Math.PI * 2;
       scene.add(tree);
@@ -2946,13 +2884,13 @@ function showCharacterName() {
         // Flores
         let flower = new THREE.Group();
         flower.userData.isScenery = true;
-        
+
         let stem = new THREE.Mesh(
           new THREE.BoxGeometry(0.1, 1, 0.1),
           new THREE.MeshStandardMaterial({color: 0x228B22})
         );
         stem.position.y = 0.5;
-        
+
         let petal = new THREE.Mesh(
           new THREE.BoxGeometry(0.4, 0.1, 0.4),
           new THREE.MeshStandardMaterial({
@@ -2960,7 +2898,7 @@ function showCharacterName() {
           })
         );
         petal.position.y = 1;
-        
+
         flower.add(stem, petal);
         flower.position.set(
           Math.random() * 120 - 60,
@@ -2981,7 +2919,7 @@ function showCharacterName() {
         })
       );
       post.userData.isScenery = true;
-      
+
       // Cuerda entre postes
       if(i > 0) {
         let rope = new THREE.Mesh(
@@ -2997,7 +2935,7 @@ function showCharacterName() {
         rope.userData.isScenery = true;
         scene.add(rope);
       }
-      
+
       post.position.set(
         Math.cos(i * Math.PI / 3) * 45,
         4,
@@ -3102,7 +3040,7 @@ function showCharacterName() {
     wallWest.position.set(-100, 10, 0);
     wallWest.rotation.y = Math.PI/2;
     scene.add(wallWest);
-    
+
     camera.position.set(0,5,10);
     renderer=new THREE.WebGLRenderer({antialias:false});
     renderer.setSize(innerWidth,innerHeight);
@@ -3118,7 +3056,7 @@ function showCharacterName() {
       new THREE.PlaneGeometry(200,200),
       new THREE.MeshStandardMaterial({color:0x228B22})
     ); floor.rotation.x=-Math.PI/2; scene.add(floor);
-    
+
     // hierba pixelada
     for(let i=0;i<500;i++){
       let b=new THREE.Mesh(
@@ -3133,7 +3071,7 @@ function showCharacterName() {
     // Crear modelo específico según el personaje seleccionado
     function createCharacterModel(characterType) {
       let characterGroup = new THREE.Group();
-      
+
       if(characterType === 'neji') {
         // Cuerpo de Neji con ropa típica de Konoha
         let body = new THREE.Mesh(
@@ -3144,7 +3082,7 @@ function showCharacterName() {
             metalness: 0.1
           })
         );
-        
+
         // Chaleco verde de Konoha
         let vest = new THREE.Mesh(
           new THREE.BoxGeometry(1.3, 1.8, 0.85),
@@ -3154,7 +3092,7 @@ function showCharacterName() {
           })
         );
         vest.position.y = 0.3;
-        
+
         // Cabeza con tono de piel realista
         let head = new THREE.Mesh(
           new THREE.BoxGeometry(1, 1, 1),
@@ -3164,7 +3102,7 @@ function showCharacterName() {
           })
         );
         head.position.y = 1.8;
-        
+
         // CABELLO LARGO DE NEJI - Mejorado para ser más fiel al personaje
         // Cabello principal largo hasta los hombros
         let hairMain = new THREE.Mesh(
@@ -3175,7 +3113,7 @@ function showCharacterName() {
           })
         );
         hairMain.position.set(0, 2.1, 0);
-        
+
         // Cabello trasero largo hasta la cintura - MECHÓN PRINCIPAL
         let hairBack = new THREE.Mesh(
           new THREE.BoxGeometry(1.0, 3.5, 0.4),
@@ -3185,7 +3123,7 @@ function showCharacterName() {
           })
         );
         hairBack.position.set(0, 1.0, -0.6);
-        
+
         // MECHÓN TRASERO EXTRA LARGO característico de Neji
         let hairBackLong = new THREE.Mesh(
           new THREE.BoxGeometry(0.6, 4.2, 0.3),
@@ -3195,7 +3133,7 @@ function showCharacterName() {
           })
         );
         hairBackLong.position.set(0, 0.5, -0.8); // Más atrás y más largo
-        
+
         // Mechón trasero que llega hasta la espalda baja
         let hairTail = new THREE.Mesh(
           new THREE.BoxGeometry(0.4, 2.8, 0.2),
@@ -3205,7 +3143,7 @@ function showCharacterName() {
           })
         );
         hairTail.position.set(0, -0.8, -0.9); // Llega hasta la espalda baja
-        
+
         // Mechones laterales largos característicos
         let hairLeft = new THREE.Mesh(
           new THREE.BoxGeometry(0.3, 2.8, 0.3),
@@ -3215,7 +3153,7 @@ function showCharacterName() {
           })
         );
         hairLeft.position.set(-0.65, 1.2, 0.2);
-        
+
         let hairRight = new THREE.Mesh(
           new THREE.BoxGeometry(0.3, 2.8, 0.3),
           new THREE.MeshStandardMaterial({
@@ -3224,7 +3162,7 @@ function showCharacterName() {
           })
         );
         hairRight.position.set(0.65, 1.2, 0.2);
-        
+
         // Flequillo dividido característico de Neji
         let hairFrontLeft = new THREE.Mesh(
           new THREE.BoxGeometry(0.4, 0.8, 0.3),
@@ -3234,7 +3172,7 @@ function showCharacterName() {
           })
         );
         hairFrontLeft.position.set(-0.3, 2.3, 0.5);
-        
+
         let hairFrontRight = new THREE.Mesh(
           new THREE.BoxGeometry(0.4, 0.8, 0.3),
           new THREE.MeshStandardMaterial({
@@ -3243,7 +3181,7 @@ function showCharacterName() {
           })
         );
         hairFrontRight.position.set(0.3, 2.3, 0.5);
-        
+
         // Brazos con guantes ninja
         let leftArm = new THREE.Mesh(
           new THREE.BoxGeometry(0.4, 1.5, 0.4),
@@ -3255,7 +3193,7 @@ function showCharacterName() {
         );
         leftArm.position.set(-0.8, 0.5, 0);
         rightArm.position.set(0.8, 0.5, 0);
-        
+
         // Guantes ninja pixelados
         let leftGlove = new THREE.Mesh(
           new THREE.BoxGeometry(0.45, 0.6, 0.45),
@@ -3267,7 +3205,7 @@ function showCharacterName() {
         );
         leftGlove.position.set(-0.8, -0.2, 0);
         rightGlove.position.set(0.8, -0.2, 0);
-        
+
         // Piernas con pantalones ninja
         let leftLeg = new THREE.Mesh(
           new THREE.BoxGeometry(0.5, 2, 0.5),
@@ -3279,7 +3217,7 @@ function showCharacterName() {
         );
         leftLeg.position.set(-0.4, -0.8, 0);
         rightLeg.position.set(0.4, -0.8, 0);
-        
+
         // Sandalias ninja pixeladas
         let leftSandal = new THREE.Mesh(
           new THREE.BoxGeometry(0.6, 0.3, 0.8),
@@ -3291,7 +3229,7 @@ function showCharacterName() {
         );
         leftSandal.position.set(-0.4, -1.9, 0.1);
         rightSandal.position.set(0.4, -1.9, 0.1);
-        
+
         // Banda ninja en la frente
         let headband = new THREE.Mesh(
           new THREE.BoxGeometry(1.2, 0.3, 0.2),
@@ -3302,7 +3240,7 @@ function showCharacterName() {
           })
         );
         headband.position.set(0, 2.3, 0.4);
-        
+
         // Símbolo de Konoha en la banda
         let konohaSymbol = new THREE.Mesh(
           new THREE.BoxGeometry(0.4, 0.2, 0.05),
@@ -3313,7 +3251,7 @@ function showCharacterName() {
           })
         );
         konohaSymbol.position.set(0, 2.3, 0.5);
-        
+
         // Efectos especiales para Byakugan
         let byakuganAura = new THREE.Mesh(
           new THREE.SphereGeometry(2.5, 8, 8),
@@ -3325,7 +3263,7 @@ function showCharacterName() {
           })
         );
         byakuganAura.visible = false; // Solo visible cuando se activa Byakugan
-        
+
         characterGroup.add(
           body, vest, head, hairMain, hairBack, hairBackLong, hairTail, hairLeft, hairRight, 
           hairFrontLeft, hairFrontRight,
@@ -3333,7 +3271,7 @@ function showCharacterName() {
           leftLeg, rightLeg, leftSandal, rightSandal,
           headband, konohaSymbol, byakuganAura
         );
-        
+
         // Guardar referencias para animaciones
         characterGroup.userData.byakuganAura = byakuganAura;
         characterGroup.userData.body = body;
@@ -3342,7 +3280,7 @@ function showCharacterName() {
         characterGroup.userData.rightArm = rightArm;
         characterGroup.userData.leftLeg = leftLeg;
         characterGroup.userData.rightLeg = rightLeg;
-        
+
       } else {
         // Modelo genérico para otros personajes
         let body = new THREE.Mesh(
@@ -3354,7 +3292,7 @@ function showCharacterName() {
           new THREE.MeshStandardMaterial({color: 0xdddddd})
         );
         head.position.y = 1.8;
-        
+
         let leftArm = new THREE.Mesh(
           new THREE.BoxGeometry(0.4, 1.5, 0.4),
           new THREE.MeshStandardMaterial({color: 0xeeeeee})
@@ -3365,7 +3303,7 @@ function showCharacterName() {
         );
         leftArm.position.set(-0.8, 0.5, 0);
         rightArm.position.set(0.8, 0.5, 0);
-        
+
         let leftLeg = new THREE.Mesh(
           new THREE.BoxGeometry(0.5, 2, 0.5),
           new THREE.MeshStandardMaterial({color: 0xeeeeee})
@@ -3376,10 +3314,10 @@ function showCharacterName() {
         );
         leftLeg.position.set(-0.4, -0.8, 0);
         rightLeg.position.set(0.4, -0.8, 0);
-        
+
         characterGroup.add(body, head, leftArm, rightArm, leftLeg, rightLeg);
       }
-      
+
       return characterGroup;
     }
 
@@ -3625,20 +3563,20 @@ function createPainBoss() {
 
 function animate(){
     requestAnimationFrame(animate);
-    
+
     // Detener todo si el juego terminó
     if(gameOver) {
       renderer.render(scene,camera);
       return;
     }
-    
+
     // Actualizar movimiento con teclado para PC
     updateKeyboardMovement();
-    
+
     // Animación de brazos y piernas al moverse - MEJORADA
     if(moveDir.x !== 0 || moveDir.z !== 0) {
       let time = Date.now() * 0.002; // Velocidad más lenta para animación más natural
-      
+
       // Usar referencias específicas para animaciones más precisas
       if(player.userData.leftArm) {
         player.userData.leftArm.rotation.x = Math.sin(time * 4) * 0.3; // Movimiento más sutil
@@ -3652,7 +3590,7 @@ function animate(){
       if(player.userData.rightLeg) {
         player.userData.rightLeg.rotation.x = Math.sin(time * 4) * 0.4;
       }
-      
+
       // Balanceo sutil del cuerpo
       if(player.userData.body) {
         player.userData.body.rotation.z = Math.sin(time * 2) * 0.05;
@@ -3709,7 +3647,7 @@ function animate(){
         playerHealth -= 1; // Quitar 1 vida por golpe
         // Reproducir sonido de impacto cuando el enemigo golpea al jugador
         playImpactSound();
-        
+
         // Efecto visual de daño
         let dmgFlash = document.createElement('div');
         dmgFlash.style.cssText = `
@@ -3765,9 +3703,9 @@ function animate(){
     projectileSound.muted = false;
     projectileSound.volume = 0.7;
     projectileSound.preload = 'auto';
-    
+
     document.body.appendChild(projectileSound);
-    
+
     projectileSound.play().catch(e => {
       console.log('Projectile sound autoplay error:', e);
       projectileSound.muted = true;
@@ -3791,9 +3729,9 @@ function animate(){
     impactSound.muted = false;
     impactSound.volume = 0.8;
     impactSound.preload = 'auto';
-    
+
     document.body.appendChild(impactSound);
-    
+
     impactSound.play().catch(e => {
       console.log('Impact sound autoplay error:', e);
       impactSound.muted = true;
@@ -3826,10 +3764,10 @@ function animate(){
     byakuganSound.muted = false;
     byakuganSound.volume = 1.0;
     byakuganSound.preload = 'auto';
-    
+
     // Forzar reproducción inmediata
     document.body.appendChild(byakuganSound);
-    
+
     byakuganSound.play().then(() => {
       console.log('Byakugan sound playing!');
     }).catch(e => {
@@ -3860,7 +3798,7 @@ function animate(){
         player.userData.byakuganAura.material.opacity = 0.1 + Math.sin(pulseTime * 4) * 0.15;
         player.userData.byakuganAura.scale.setScalar(1 + Math.sin(pulseTime * 2) * 0.1);
       }, 50);
-      
+
       setTimeout(() => {
         clearInterval(pulseInterval);
         player.userData.byakuganAura.visible = false;
@@ -3885,7 +3823,7 @@ function animate(){
     `;
     document.body.appendChild(ov);
     setTimeout(()=>ov.remove(),1200);
-    
+
     // auras en enemigos mejoradas con efecto de rayos X
     enemies.forEach(e=>{
       let aura=new THREE.Mesh(
@@ -3895,7 +3833,7 @@ function animate(){
       aura.rotation.x=-Math.PI/2;
       aura.position.copy(e.position).add(new THREE.Vector3(0,1,0));
       scene.add(aura);
-      
+
       // Efecto de chakra visible
       let chakraPoints = [];
       for(let i = 0; i < 8; i++) {
@@ -3915,7 +3853,7 @@ function animate(){
         scene.add(chakraPoint);
         chakraPoints.push(chakraPoint);
       }
-      
+
       setTimeout(()=>{
         scene.remove(aura);
         chakraPoints.forEach(point => scene.remove(point));
@@ -3926,7 +3864,7 @@ function animate(){
   function activateJuken(){
     // Reproducir sonido de poder a distancia
     playProjectileSound();
-    
+
     // golpe suave: pulso pixelado
     let p=new THREE.Mesh(
       new THREE.BoxGeometry(1,1,1),
@@ -3941,7 +3879,7 @@ function animate(){
   function activate64Palms(){
     // Reproducir sonido de poder a distancia
     playProjectileSound();
-    
+
     for(let i=0;i<64;i++){
       let a=(i/64)*Math.PI*2;
       let orb=new THREE.Mesh(
@@ -3961,7 +3899,7 @@ function animate(){
   function activate128Palms(){
     // Reproducir sonido de poder a distancia
     playProjectileSound();
-    
+
     for(let i=0;i<128;i++){      let a=(i/128)*Math.PI*2;
       let orb=new THREE.Mesh(
         new THREE.BoxGeometry(0.24,0.24,0.24),
@@ -4044,10 +3982,10 @@ function animate(){
     sharinganSound.muted = false;
     sharinganSound.volume = 1.0;
     sharinganSound.preload = 'auto';
-    
+
     // Forzar reproducción inmediata
     document.body.appendChild(sharinganSound);
-    
+
     sharinganSound.play().then(() => {
       console.log('Sharingan sound playing!');
     }).catch(e => {
@@ -4081,7 +4019,7 @@ function animate(){
       pointer-events:none;
       animation: pixel-sharingan 2s steps(4) infinite;
     `;
-    
+
     // Añadir tomoes giratorios pixelados
     let tomoe = document.createElement('div');
     tomoe.style.cssText = `
@@ -4098,14 +4036,14 @@ function animate(){
       z-index:1000;
       image-rendering: pixelated;
     `;
-    
+
     document.body.appendChild(overlay);
     document.body.appendChild(tomoe);
-    
+
     // Aumentar velocidad y precisión temporalmente
     let originalSpeed = playerSpeed;
     playerSpeed *= 1.5;
-    
+
     // Marcar enemigos con auras más visibles
     enemies.forEach(e => {
       let aura = new THREE.Mesh(
@@ -4117,7 +4055,7 @@ function animate(){
           opacity:0.5
         })
       );
-      
+
       // Añadir marcadores pixelados alrededor del enemigo
       for(let i = 0; i < 3; i++) {
         let marker = new THREE.Mesh(
@@ -4132,22 +4070,22 @@ function animate(){
         scene.add(marker);
         setTimeout(() => scene.remove(marker), 5000);
       }
-      
+
       aura.rotation.x = -Math.PI/2;
       aura.position.copy(e.position).add(new THREE.Vector3(0,1,0));
       scene.add(aura);
-      
+
       // Animar aura
       let pulseInterval = setInterval(() => {
         aura.scale.x = 1 + Math.sin(Date.now() * 0.005) * 0.2;
         aura.scale.y = aura.scale.x;
       }, 50);
-      
+
       setTimeout(() => {
         clearInterval(pulseInterval);
         scene.remove(aura);
       }, 5000);
-      
+
       // Marcar enemigo como visible a través de paredes
       e.material.transparent = true;
       e.material.opacity = 0.7;
@@ -4168,7 +4106,7 @@ function animate(){
   function activateAmaterasu() {
     // Reproducir sonido de poder a distancia
     playProjectileSound();
-    
+
     let flame = new THREE.Mesh(
       new THREE.BoxGeometry(1,1,1),
       new THREE.MeshBasicMaterial({color:0x000000})
@@ -4206,22 +4144,22 @@ function animate(){
         20% { filter: hue-rotate(180deg) contrast(200%); transform: scale(1.2); }
         100% { filter: hue-rotate(360deg) contrast(150%); transform: scale(1.1); }
       }
-      
+
       @keyframes pixel-blood-rain {
         from { transform: translateY(-100%); }
         to { transform: translateY(100%); }
       }
-      
+
       @keyframes pixel-sharingan {
         0% { background-position: 0 0; }
         100% { background-position: 32px 32px; }
       }
-      
+
       @keyframes pixel-spin {
         from { transform: translate(-50%, -50%) rotate(0deg); }
         to { transform: translate(-50%, -50%) rotate(360deg); }
       }
-      
+
       @keyframes pixel-scan {
         0% { background-position: 0 0; }
         100% { background-position: 32px 32px; }
@@ -4252,7 +4190,7 @@ function animate(){
     setTimeout(() => {
       overlay.style.opacity = '0.95';
       scene.fog = new THREE.FogExp2(0xff0000, 0.1);
-      
+
       enemies.forEach(enemy => {
         if(enemy.position.distanceTo(player.position) < 10) {
           // Crear cruz pixelada que emerge del suelo
@@ -4289,10 +4227,10 @@ function animate(){
             box-shadow: 0 0 20px #FF0000;
             image-rendering: pixelated;
           `;
-          
+
           cross.appendChild(crossArm);
           document.body.appendChild(cross);
-          
+
           // Enemigo flotando con animación pixelada
           let floatHeight = 0;
           const floatInterval = setInterval(() => {
@@ -4304,7 +4242,7 @@ function animate(){
           }, 50);
           enemy.userData.inTsukuyomi = true;
           enemy.userData.floatInterval = floatInterval;
-          
+
           // Lluvia de sangre pixelada
           for(let i = 0; i < 50; i++) {
             const drop = document.createElement('div');
@@ -4323,16 +4261,16 @@ function animate(){
               image-rendering: pixelated;
             `;
             document.body.appendChild(drop);
-            
+
             setTimeout(() => drop.remove(), 8000);
           }
-          
+
           // Daño continuo
           const damageInterval = setInterval(() => {
             enemy.userData.hp -= 10;
             flash(enemy.position);
           }, 500);
-          
+
           setTimeout(() => {
             clearInterval(damageInterval);
             clearInterval(enemy.userData.floatInterval);
@@ -4342,7 +4280,7 @@ function animate(){
           }, 7500);
         }
       });
-      
+
     }, 100);
 
     setTimeout(() => {
@@ -4424,7 +4362,7 @@ function animate(){
   function activateChakraBomb() {
     // Reproducir sonido de poder a distancia
     playProjectileSound();
-    
+
     let bomb = new THREE.Mesh(
       new THREE.BoxGeometry(0.6,0.6,0.6),
       new THREE.MeshBasicMaterial({color: 0x00FF7F})
@@ -4747,10 +4685,10 @@ function animate(){
     byakuganSound.muted = false;
     byakuganSound.volume = 1.0;
     byakuganSound.preload = 'auto';
-    
+
     // Forzar reproducción inmediata
     document.body.appendChild(byakuganSound);
-    
+
     byakuganSound.play().then(() => {
       console.log('Hinata Byakugan sound playing!');
     }).catch(e => {
@@ -4783,7 +4721,7 @@ function animate(){
 
     // Reproducir sonido de poder a distancia para los proyectiles
     playProjectileSound();
-    
+
     // Múltiples golpes de Puño Suave pixelados
     for(let i = 0; i < 5; i++) {
       setTimeout(() => {
@@ -4822,7 +4760,7 @@ function animate(){
     let iv = setInterval(() => {
       angle += 0.3;
       fan.rotation.y = Math.sin(angle) * 2;
-      
+
       // Múltiples ondas de viento pixeladas
       if(angle > Math.PI) {
         for(let i = 0; i < 3; i++) {
@@ -4866,7 +4804,7 @@ function animate(){
       tornado.children.forEach(ring => {
         ring.scale.x = 1 + Math.sin(cnt * 0.2) * 0.2;
       });
-      
+
       enemies.forEach(e => {
         if(e.position.distanceTo(tornado.position) < 3) {
           e.userData.hp -= 5;
@@ -4885,7 +4823,7 @@ function animate(){
   function activateChidori() {
     // Reproducir sonido de poder a distancia
     playProjectileSound();
-    
+
     let lightning = new THREE.Group();
     for(let i = 0; i < 20; i++) {
       let bolt = new THREE.Mesh(
@@ -4899,7 +4837,7 @@ function animate(){
       );
       lightning.add(bolt);
     }
-    
+
     lightning.position.copy(player.position).add(new THREE.Vector3(0, 1, 0));
     scene.add(lightning);
 
@@ -5049,7 +4987,7 @@ function animate(){
     let cameraX = player.position.x + Math.sin(cameraAngleX) * Math.cos(cameraAngleY) * cameraDistance;
     let cameraY = player.position.y + Math.sin(cameraAngleY) * cameraDistance + 4;
     let cameraZ = player.position.z + Math.cos(cameraAngleX) * Math.cos(cameraAngleY) * cameraDistance;
-    
+
     camera.position.set(cameraX, cameraY, cameraZ);
     camera.lookAt(player.position.x, player.position.y + 1, player.position.z);
   }
@@ -5073,14 +5011,14 @@ function animate(){
     if(isDragging) {
       let deltaX = event.clientX - lastMouseX;
       let deltaY = event.clientY - lastMouseY;
-      
+
       // Actualizar ángulos de cámara - CORREGIDOS los controles
       cameraAngleX += deltaX * 0.005; // Sensibilidad horizontal reducida
       cameraAngleY += deltaY * 0.005; // CORREGIDO: + en lugar de - para movimiento natural
-      
+
       // Limitar rotación vertical para evitar que se voltee completamente
       cameraAngleY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, cameraAngleY));
-      
+
       lastMouseX = event.clientX;
       lastMouseY = event.clientY;
     }
@@ -5103,14 +5041,14 @@ function animate(){
     if(isDragging && event.touches.length === 1) {
       let deltaX = event.touches[0].clientX - lastMouseX;
       let deltaY = event.touches[0].clientY - lastMouseY;
-      
+
       // Actualizar ángulos de cámara - CORREGIDOS los controles táctiles
       cameraAngleX += deltaX * 0.005; // Sensibilidad reducida
       cameraAngleY += deltaY * 0.005; // CORREGIDO: + en lugar de - para movimiento natural
-      
+
       // Limitar rotación vertical
       cameraAngleY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, cameraAngleY));
-      
+
       lastMouseX = event.touches[0].clientX;
       lastMouseY = event.touches[0].clientY;
     }
@@ -5125,21 +5063,21 @@ function animate(){
 
   // CONTROLES DE TECLADO PARA PC
   let keys = {};
-  
+
   document.addEventListener('keydown', (event) => {
     keys[event.code] = true;
-    
+
     // Prevenir comportamiento por defecto
     if(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7'].includes(event.code)) {
       event.preventDefault();
     }
-    
+
     // Activar poderes con teclas numéricas
     if(event.code === 'Space' && onGround) {
       velY = 0.5;
       onGround = false;
     }
-    
+
     // Poderes según el personaje seleccionado
     if(currentCharacter === 'neji') {
       switch(event.code) {
@@ -5201,29 +5139,29 @@ function animate(){
       }
     }
   });
-  
+
   document.addEventListener('keyup', (event) => {
     keys[event.code] = false;
   });
-  
+
   // Función para actualizar movimiento con teclado
   function updateKeyboardMovement() {
     // Resetear movimiento
     moveDir = {x: 0, z: 0};
-    
+
     // WASD para movimiento
     if(keys['KeyW']) moveDir.z = -1; // Adelante
     if(keys['KeyS']) moveDir.z = 1;  // Atrás
     if(keys['KeyA']) moveDir.x = -1; // Izquierda
     if(keys['KeyD']) moveDir.x = 1;  // Derecha
-    
+
     // Normalizar movimiento diagonal
     if(moveDir.x !== 0 && moveDir.z !== 0) {
       let length = Math.sqrt(moveDir.x * moveDir.x + moveDir.z * moveDir.z);
       moveDir.x /= length;
       moveDir.z /= length;
     }
-    
+
     // Aplicar velocidad
     moveDir.x *= playerSpeed;
     moveDir.z *= playerSpeed;
@@ -5238,26 +5176,26 @@ function animate(){
         0,
         Math.cos(cameraAngleX)
       ).normalize();
-      
+
       let right = new THREE.Vector3(
         Math.cos(cameraAngleX),
         0,
         -Math.sin(cameraAngleX)
       ).normalize();
-      
+
       // Aplicar movimiento relativo a la cámara - CORREGIDO
       let moveVector = new THREE.Vector3();
       moveVector.add(forward.clone().multiplyScalar(moveDir.z * playerSpeed)); // Removido el negativo
       moveVector.add(right.clone().multiplyScalar(moveDir.x * playerSpeed));
-      
+
       // Verificar límites de las paredes
       const WALL_LIMIT = 95;
       let nextX = player.position.x + moveVector.x;
       let nextZ = player.position.z + moveVector.z;
-      
+
       if(Math.abs(nextX) < WALL_LIMIT) player.position.x = nextX;
       if(Math.abs(nextZ) < WALL_LIMIT) player.position.z = nextZ;
-      
+
       // Rotar el jugador hacia la dirección de movimiento
       if(moveVector.length() > 0) {
         player.lookAt(player.position.x + moveVector.x, player.position.y, player.position.z + moveVector.z);
@@ -5271,7 +5209,7 @@ function animate(){
     if(document.getElementById('game-over-screen')) {
       return;
     }
-    
+
     // Detener música de batalla si existe
     const battleMusic = document.getElementById('battle-music-video');
     if(battleMusic) {
@@ -5316,7 +5254,7 @@ function animate(){
         animation: pixelBlink 1s steps(2) infinite;
         text-align: center;
       ">GAME OVER</h1>
-      
+
       <h2 style="
         color: #FFD700;
         font-size: 16px;
@@ -5324,7 +5262,7 @@ function animate(){
         margin: 0 0 40px 0;
         text-align: center;
       ">NIVEL ${currentStage} - ${STAGES[currentStage] ? STAGES[currentStage].name : 'BATALLA FINAL'}</h2>
-      
+
       <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;">
         <button id="retry-btn" style="
           background: 
@@ -5344,7 +5282,7 @@ function animate(){
             0 0 15px rgba(0,255,0,0.5);
           text-shadow: 2px 2px 0px #000;
         ">INTENTAR DE NUEVO</button>
-        
+
         <button id="menu-btn" style="
           background: 
             repeating-conic-gradient(from 0deg, 
@@ -5389,7 +5327,7 @@ function animate(){
         0% { opacity: 0; transform: scale(0.8); }
         100% { opacity: 1; transform: scale(1); }
       }
-      
+
       @keyframes particleFall {
         0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
         100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
@@ -5436,14 +5374,14 @@ function animate(){
   function retryLevel() {
     // Reiniciar detector de muerte
     gameOver = false;
-    
+
     // Reiniciar vida del jugador
     playerHealth = MAX_HEALTH;
     updatePlayerHUD();
-    
+
     // Reiniciar posición del jugador
     player.position.set(0, 1.25, 0);
-    
+
     // Limpiar enemigos actuales
     enemies.forEach(e => {
       scene.remove(e);
@@ -5453,14 +5391,14 @@ function animate(){
       }
     });
     enemies = [];
-    
+
     // Limpiar poderes
     powers.forEach(p => scene.remove(p.mesh));
     powers = [];
-    
+
     // Reiniciar el mismo nivel
     changeStage(currentStage);
-    
+
     console.log('🔄 Nivel reiniciado - Nivel ' + currentStage);
   }
 
@@ -5472,7 +5410,7 @@ function animate(){
       battleMusic.pause();
       battleMusic.remove();
     }
-    
+
     // Limpiar escena
     enemies.forEach(e => {
       scene.remove(e);
@@ -5484,31 +5422,31 @@ function animate(){
     enemies = [];
     powers.forEach(p => scene.remove(p.mesh));
     powers = [];
-    
+
     // Remover canvas y elementos del juego
     if(renderer && renderer.domElement) {
       renderer.domElement.remove();
     }
-    
+
     // Remover controles
     const joystick = document.getElementById('joystick');
     const actions = document.getElementById('actions');
     const playerHud = document.getElementById('player-hud');
-    
+
     if(joystick) joystick.style.display = 'none';
     if(actions) actions.style.display = 'none';
     if(playerHud) playerHud.style.display = 'none';
-    
+
     // Reiniciar variables
     gameOver = false; // Reiniciar detector de muerte
     currentStage = 1;
     playerHealth = MAX_HEALTH;
     playerLevel = 1;
     currentCharacter = '';
-    
+
     // Mostrar pantalla de selección de personajes
     document.getElementById('char-select').style.display = 'flex';
-    
+
     console.log('🏠 Volviendo al menú de selección de personajes');
   }
 
