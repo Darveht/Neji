@@ -1914,22 +1914,10 @@
   const MAX_HEALTH = 5;
   const STAGES = {
     1: {name: 'Bosque de Konoha', enemies: 3, enemyHealth: 5, enemyDamage: 10},
-    2: {name: 'Aldea de la Lluvia', enemies: 4, enemyHealth: 6, enemyDamage: 12},
-    3: {name: 'Valle del Fin', enemies: 5, enemyHealth: 7, enemyDamage: 15},
-    4: {name: 'Cueva Akatsuki', enemies: 6, enemyHealth: 8, enemyDamage: 20},
-    5: {name: 'Templo del Fuego', enemies: 10, enemyHealth: 10, enemyDamage: 25},
-    6: {name: 'Montaña Cementerio', enemies: 15, enemyHealth: 12, enemyDamage: 30},
-    7: {name: 'País del Hierro', enemies: 25, enemyHealth: 15, enemyDamage: 35},
-    8: {name: 'Puente del Cielo y la Tierra', enemies: 50, enemyHealth: 18, enemyDamage: 40},
-    9: {name: 'Base de Orochimaru', enemies: 100, enemyHealth: 20, enemyDamage: 45},
-    10: {name: 'Guerra Ninja', enemies: 500, enemyHealth: 25, enemyDamage: 50, hasAlly: true},
-    11: {name: 'Batalla Final vs Pain', enemies: 1, enemyHealth: 1000, enemyDamage: 100, isBossFight: true}
+    2: {name: 'Aldea de la Lluvia', enemies: 4, enemyHealth: 6, enemyDamage: 12}
   };
 
-  // Variables globales para el aliado y el jefe
-  let ally = null;
-  let pain = null;
-  let painPaths = [];
+  
 
   function updatePlayerHUD() {
     const container = document.getElementById('health-container');
@@ -2578,25 +2566,13 @@ function showCharacterName() {
   }
 
   function changeStage(level) {
-    // Limpiar enemigos actuales y aliados
+    // Limpiar enemigos actuales
     enemies.forEach(e => {
       scene.remove(e);
       enemyHUD[e.userData.id].remove();
       delete enemyHUD[e.userData.id];
     });
     enemies = [];
-
-    if(ally) {
-      scene.remove(ally);
-      ally = null;
-    }
-
-    if(pain) {
-      scene.remove(pain);
-      painPaths.forEach(p => scene.remove(p));
-      pain = null;
-      painPaths = [];
-    }
 
     // Limpiar elementos del escenario anterior
     scene.children.filter(child => 
@@ -2606,20 +2582,6 @@ function showCharacterName() {
       child.userData.isTree ||
       child.userData.isRock
     ).forEach(child => scene.remove(child));
-
-    // Ajustar vida del jugador según el nivel
-    if(level === 11) {
-      playerHealth = 18;
-      createPainBoss();
-    } else if(level === 10) {
-      playerHealth = 15;
-      createAlly();
-      // Spawn en área más segura
-      player.position.set(-90, 1.25, -90);
-    }
-
-    // Ajustar velocidad a partir del nivel 5
-    playerSpeed = level >= 5 ? 0.4 : 0.25;
 
     // Cambiar escenario según el nivel
     switch(level) {
@@ -2634,14 +2596,6 @@ function showCharacterName() {
         // Efecto de lluvia
         addRainEffect();
         break;
-      case 3: // Valle del Fin
-        scene.background = new THREE.Color(0xCD853F);
-        floor.material.color.setHex(0x8B4513);
-        break;
-      case 4: // Cueva
-        scene.background = new THREE.Color(0x2F4F4F);
-        floor.material.color.setHex(0x363636);
-        break;
     }
 
     // Añadir nuevos enemigos
@@ -2650,7 +2604,7 @@ function showCharacterName() {
     }
 
     // Restaurar algo de vida al jugador
-    playerHealth = Math.min(playerHealth + 30, 100);
+    playerHealth = Math.min(playerHealth + 3, MAX_HEALTH);
     updatePlayerHUD();
   }
 
@@ -3367,10 +3321,6 @@ function showCharacterName() {
   }
 
   function addEnemy(){
-    // Limitar enemigos visibles en nivel 10
-    if(currentStage === 10 && enemies.length > 50) {
-      return;
-    }
     let g=new THREE.Group();
     // Cuerpo pixelado
     let b=new THREE.Mesh(
@@ -3418,148 +3368,7 @@ function showCharacterName() {
     enemyHUD[g.userData.id]=container;
   }
 
-  function createAlly() {
-    // Crear dos aliados: Ino y Hinata
-    allies = [];
-    const allyData = [
-      {name: 'Ino', color: 0x800080, x: 3},
-      {name: 'Hinata', color: 0x4B0082, x: -3}
-    ];
-
-    allyData.forEach(data => {
-      let allyChar = new THREE.Group();
-      let body = new THREE.Mesh(
-        new THREE.BoxGeometry(1.2, 2.5, 0.8),
-        new THREE.MeshStandardMaterial({color: data.color})
-      );
-      let head = new THREE.Mesh(
-        new THREE.BoxGeometry(1, 1, 1),
-        new THREE.MeshStandardMaterial({color: 0xFFE4B5})
-      );
-      head.position.y = 1.8;
-      allyChar.add(body, head);
-      allyChar.position.set(player.position.x + data.x, 1.25, player.position.z);
-      allyChar.userData = {name: data.name};
-      scene.add(allyChar);
-      allies.push(allyChar);
-    });
-    // IA del aliado
-    setInterval(() => {
-      allies.forEach(allyChar => {
-        if(enemies.length > 0) {
-          // Encontrar enemigo más cercano
-          let closest = enemies.reduce((prev, curr) => 
-            prev.position.distanceTo(allyChar.position) < curr.position.distanceTo(allyChar.position) ? prev : curr
-          );
-
-          // Moverse hacia el enemigo
-          let dir = closest.position.clone().sub(allyChar.position).normalize().multiplyScalar(0.1);
-          allyChar.position.add(dir);
-
-          // Usar poderes aleatorios
-          if(Math.random() < 0.1) {
-            if(allyChar.userData.name === 'Ino') {
-              let power = Math.floor(Math.random() * 4);
-              switch(power) {
-                case 0: activateMindTransfer(); break;
-                case 1: activateChakraBomb(); break;
-                case 2: activateMindControl(); break;
-                case 3: activateHealing(); break;
-              }
-            } else if(allyChar.userData.name === 'Hinata') {
-              let power = Math.floor(Math.random() * 2);
-              switch(power) {
-                case 0: activateGentleFist(); break;
-                case 1: activateTwinLionFists(); break;
-              }
-            }
-          }
-        }
-      });
-    }, 100);
-  }
-
-function createPainBoss() {
-  pain = new THREE.Group();
-
-  // Crear modelo de Pain pixelado
-  let body = new THREE.Mesh(
-    new THREE.BoxGeometry(1.6, 3, 1.2),
-    new THREE.MeshStandardMaterial({color: 0x000000})
-  );
-  let head = new THREE.Mesh(
-    new THREE.BoxGeometry(1.4, 1.4, 1.4),
-    new THREE.MeshStandardMaterial({color: 0xFF4500})
-  );
-  head.position.y = 2;
-
-  // Añadir piercings característicos pixelados
-  for(let i = 0; i < 6; i++) {
-    let piercing = new THREE.Mesh(
-      new THREE.BoxGeometry(0.2, 0.2, 0.2),
-      new THREE.MeshStandardMaterial({color: 0x808080})
-    );
-    piercing.position.set(
-      Math.cos(i * Math.PI/3) * 0.4,
-      2,
-      Math.sin(i * Math.PI/3) * 0.4
-    );
-    pain.add(piercing);
-  }
-
-  pain.add(body, head);
-  pain.position.set(0, 1.5, -20);
-  pain.userData = {hp: 1000, id: 'pain'};
-  scene.add(pain);
-  enemies.push(pain);
-
-  // IA de Pain
-  setInterval(() => {
-    if(pain.userData.hp > 0) {
-      // Movimiento estratégico
-      let dir = player.position.clone().sub(pain.position);
-      if(dir.length() > 10) {
-        dir.normalize().multiplyScalar(0.2);
-        pain.position.add(dir);
-      }
-
-      // Ataques de Pain
-      if(Math.random() < 0.1) {
-        let attack = Math.floor(Math.random() * 5);
-        switch(attack) {
-          case 0: // Shinra Tensei
-            let blast = new THREE.Mesh(
-              new THREE.BoxGeometry(20, 20, 20),
-              new THREE.MeshBasicMaterial({color: 0x4B0082, transparent: true, opacity: 0.3})
-            );
-            blast.position.copy(pain.position);
-            scene.add(blast);
-            setTimeout(() => scene.remove(blast), 1000);
-            if(player.position.distanceTo(pain.position) < 15) {
-              playerHealth -= 2;
-            }
-            break;
-
-          case 1: // Bansho Tenin
-            let pull = player.position.clone().sub(pain.position).normalize().multiplyScalar(-0.5);
-            player.position.add(pull);
-            break;
-
-          case 2: // Chibaku Tensei
-            let sphere = new THREE.Mesh(
-              new THREE.BoxGeometry(4, 4, 4),
-              new THREE.MeshBasicMaterial({color: 0x000000})
-            );
-            sphere.position.copy(player.position).add(new THREE.Vector3(0, 10, 0));
-            scene.add(sphere);
-            setTimeout(() => scene.remove(sphere), 3000);
-            player.position.y += 0.3;
-            break;
-        }
-      }
-    }
-  }, 100);
-}
+  
 
 function animate(){
     requestAnimationFrame(animate);
