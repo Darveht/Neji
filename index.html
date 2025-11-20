@@ -1221,12 +1221,7 @@
   // PASO 1: Créditos Glam Works
   function showGlamCredits() {
     glamCredits.style.display = 'flex';
-    canSkip = false;
-
-    // Permitir skip después de 2 segundos
-    setTimeout(() => {
-      canSkip = true;
-    }, 2000);
+    canSkip = true; // Permitir skip inmediatamente
 
     // NO auto-avanzar - solo manual
   }
@@ -1312,11 +1307,9 @@
     // Iniciar inmediatamente
     startVideo();
 
-    // Mostrar botón de skip después de 10 segundos
-    setTimeout(() => {
-      canSkip = true;
-      videoSkipButton.style.display = 'block';
-    }, 10000);
+    // Mostrar botón de skip inmediatamente
+    canSkip = true;
+    videoSkipButton.style.display = 'block';
 
     // Auto-avanzar SOLO cuando termine el video
     introVideo.addEventListener('ended', () => {
@@ -1442,8 +1435,7 @@
       }
     }, 200);
 
-    canSkip = false;
-    setTimeout(() => canSkip = true, 3000);
+    canSkip = true; // Permitir skip inmediatamente
   }
 
   // PASO 4: Pantalla de título "Naruto Final Time"
@@ -1581,8 +1573,7 @@
       nextStep(); // Ir a selección de personajes
     });
 
-    canSkip = false;
-    setTimeout(() => canSkip = true, 2000);
+    canSkip = true; // Permitir skip inmediatamente
   }
 
   // PASO 5: Selección de personajes  
@@ -1797,6 +1788,15 @@
       } else if(e.target.closest('#title-screen') && !e.target.closest('#play-game-btn')) {
         nextStep();
       }
+    }
+  });
+
+  // CONTROLES DE TECLADO PARA SKIP
+  document.addEventListener('keydown', (e) => {
+    if(canSkip && (e.code === 'Space' || e.code === 'Enter' || e.code === 'Escape')) {
+      e.preventDefault();
+      console.log('Tecla de skip presionada:', e.code);
+      nextStep();
     }
   });
 
