@@ -1221,9 +1221,25 @@
   // PASO 1: Créditos Glam Works
   function showGlamCredits() {
     glamCredits.style.display = 'flex';
-    canSkip = true; // Permitir skip inmediatamente
+    canSkip = true;
 
-    // NO auto-avanzar - solo manual
+    // Agregar event listeners AQUÍ para asegurar que funcionen
+    const skipBtn = document.getElementById('glam-skip');
+    if(skipBtn) {
+      skipBtn.addEventListener('click', () => {
+        console.log('✅ GLAM SKIP CLICKEADO!');
+        nextStep();
+      });
+      console.log('Event listener agregado al botón skip');
+    } else {
+      console.error('❌ Botón glam-skip no encontrado!');
+    }
+
+    // También agregar click a toda la pantalla
+    glamCredits.addEventListener('click', () => {
+      console.log('✅ PANTALLA GLAM CLICKEADA!');
+      nextStep();
+    });
   }
 
   // PASO 2: Video personalizado (SIN créditos encima)
@@ -1747,39 +1763,7 @@
     }
   }
 
-  // Event listeners para saltar - ARREGLADOS
-  glamSkip.addEventListener('click', () => {
-    console.log('Botón GLAM SKIP clickeado! canSkip:', canSkip, 'currentStep:', currentStep);
-    nextStep(); // Quitar verificación de canSkip
-  });
-
-  videoSkipButton.addEventListener('click', () => {
-    console.log('Botón VIDEO SKIP clickeado! canSkip:', canSkip);
-    // Detener video inmediatamente
-    if(introVideo && !introVideo.paused) {
-      introVideo.pause();
-      introVideo.currentTime = 0;
-      introVideo.muted = true;
-    }
-    nextStep(); // Quitar verificación de canSkip
-  });
-
-  // Clicks en las pantallas - ARREGLADOS
-  glamCredits.addEventListener('click', () => {
-    console.log('Pantalla GLAM clickeada! canSkip:', canSkip);
-    nextStep(); // Quitar verificación de canSkip
-  });
-
-  videoIntro.addEventListener('click', () => {
-    console.log('Pantalla VIDEO clickeada! canSkip:', canSkip);
-    // Detener video inmediatamente
-    if(introVideo && !introVideo.paused) {
-      introVideo.pause();
-      introVideo.currentTime = 0;
-      introVideo.muted = true;
-    }
-    nextStep(); // Quitar verificación de canSkip
-  });
+  // Event listeners movidos a las funciones individuales
 
   // Agregar click handlers para las nuevas pantallas
   document.addEventListener('click', (e) => {
@@ -1792,11 +1776,19 @@
     }
   });
 
-  // CONTROLES DE TECLADO PARA SKIP - SIEMPRE ACTIVOS
+  // CONTROLES DE TECLADO GLOBALES - ACTIVOS DESDE EL INICIO
   document.addEventListener('keydown', (e) => {
     if(e.code === 'Space' || e.code === 'Enter' || e.code === 'Escape') {
       e.preventDefault();
-      console.log('Tecla de skip presionada:', e.code, 'currentStep:', currentStep);
+      console.log('✅ TECLA SKIP:', e.code, 'currentStep:', currentStep);
+      nextStep();
+    }
+  });
+
+  // CLICK GLOBAL EN CUALQUIER PARTE - ACTIVO DESDE EL INICIO
+  document.addEventListener('click', (e) => {
+    console.log('✅ CLICK GLOBAL detectado en:', e.target.tagName, 'currentStep:', currentStep);
+    if(currentStep < 5) {
       nextStep();
     }
   });
