@@ -3807,8 +3807,8 @@ function animate(){
   // ─── TÉCNICAS ───
 
   function activateByakugan(){
-    // ANIMACIÓN ÉPICA DE NEJI ACTIVANDO BYAKUGAN
-    animateNejiByakuganPose();
+    // ANIMACIÓN ÉPICA DE BYAKUGAN
+    animateCharacterPower('byakugan');
     
     // Pausar YouTube mientras suena el Byakugan
     if(youtubePlayer && youtubePlayer.pauseVideo) {
@@ -4069,7 +4069,7 @@ function animate(){
 
   function activateJuken(){
     // ANIMACIÓN ÉPICA DE JUKEN
-    animateNejiJukenPose();
+    animateCharacterPower('juken');
     
     // Reproducir sonido de poder a distancia
     playProjectileSound();
@@ -4248,7 +4248,7 @@ function animate(){
 
   function activate64Palms(){
     // ANIMACIÓN ÉPICA DE 64 PALMAS
-    animateNeji64PalmsPose();
+    animateCharacterPower('64palms');
     
     // Reproducir sonido de poder a distancia
     playProjectileSound();
@@ -4477,7 +4477,7 @@ function animate(){
 
   function activate128Palms(){
     // ANIMACIÓN ÉPICA DE 128 PALMAS
-    animateNeji64PalmsPose(); // Misma animación pero más intensa
+    animateCharacterPower('128palms');
     
     // Reproducir sonido de poder a distancia
     playProjectileSound();
@@ -4768,7 +4768,7 @@ function animate(){
 
   function activateKaiten(){
     // ANIMACIÓN ÉPICA DE KAITEN
-    animateNejiKaitenPose();
+    animateCharacterPower('kaiten');
     // HAKKESHŌ KAITEN - ROTACIÓN CELESTIAL DE LOS 8 TRIGRAMAS
     
     // Crear sistema de rotación múltiple
@@ -5024,8 +5024,8 @@ function animate(){
   }
 
   function activateKusho(){
-    // ANIMACIÓN DE KUSHO - Palma extendida
-    animateNejiJukenPose();
+    // ANIMACIÓN DE KUSHO
+    animateCharacterPower('juken');
     // HAKKE KŪSHŌ - PALMA DE VACÍO DE LOS 8 TRIGRAMAS
     
     // Crear campo de vacío épico
@@ -5242,8 +5242,8 @@ function animate(){
   }
 
   function activateDetect(){
-    // ANIMACIÓN DE DETECCIÓN - Pose de concentración
-    animateNejiByakuganPose();
+    // ANIMACIÓN DE DETECCIÓN
+    animateCharacterPower('byakugan');
     // BYAKUGAN: DETECCIÓN AVANZADA Y ANÁLISIS DE CHAKRA
     
     // Crear pulso de detección desde el jugador
@@ -5521,6 +5521,9 @@ function animate(){
 
   // Nuevos poderes de Itachi
   function activateSharingan() {
+    // ANIMACIÓN ÉPICA DE SHARINGAN
+    animateCharacterPower('sharingan');
+    
     // Pausar YouTube mientras suena el Sharingan
     if(youtubePlayer && youtubePlayer.pauseVideo) {
       youtubePlayer.pauseVideo();
@@ -5658,6 +5661,9 @@ function animate(){
   }
 
   function activateAmaterasu() {
+    // ANIMACIÓN ÉPICA DE AMATERASU
+    animateCharacterPower('amaterasu');
+    
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
@@ -5676,6 +5682,9 @@ function animate(){
   }
 
   function activateTsukuyomi() {
+    // ANIMACIÓN ÉPICA DE TSUKUYOMI
+    animateCharacterPower('tsukuyomi');
+    
     // Efecto visual mejorado de Tsukuyomi pixelado
     let overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -5868,6 +5877,9 @@ function animate(){
   }
 
   function activateSusanoo() {
+    // ANIMACIÓN ÉPICA DE SUSANOO
+    animateCharacterPower('susanoo');
+    
     let susanoo = new THREE.Group();
     // Crear forma básica del Susanoo pixelado
     let body = new THREE.Mesh(
@@ -5890,48 +5902,255 @@ function animate(){
     }, 100);
   }
 
-  // Habilidades de Ino
+  // HABILIDADES ÉPICAS DE INO YAMANAKA
   function activateMindTransfer() {
-    let beam = new THREE.Mesh(
-      new THREE.BoxGeometry(0.2, 0.2, 20),
-      new THREE.MeshBasicMaterial({color: 0x9932CC, transparent: true, opacity: 0.6})
+    // ANIMACIÓN ÉPICA DE TRANSFERENCIA MENTAL
+    animateCharacterPower('mind-transfer');
+    
+    // SHINTENSHIN NO JUTSU - Transferencia de Mente
+    let mindBeam = new THREE.Group();
+    
+    // Rayo principal de transferencia mental
+    let mainBeam = new THREE.Mesh(
+      new THREE.BoxGeometry(0.3, 0.3, 25),
+      new THREE.MeshBasicMaterial({
+        color: 0x9932CC,
+        transparent: true,
+        opacity: 0.8
+      })
     );
-    beam.rotation.x = Math.PI/2;
-    beam.position.copy(player.position);
-    scene.add(beam);
-
-    enemies.forEach(e => {
-      if(e.position.distanceTo(player.position) < 10) {
-        e.userData.hp -= 80;
-        e.material = new THREE.MeshBasicMaterial({color: 0x9932CC});
+    mainBeam.rotation.x = Math.PI/2;
+    mindBeam.add(mainBeam);
+    
+    // Espirales de energía mental
+    for(let i = 0; i < 8; i++) {
+      let spiral = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 0.1, 25),
+        new THREE.MeshBasicMaterial({
+          color: 0xFF69B4,
+          transparent: true,
+          opacity: 0.6
+        })
+      );
+      let angle = (i / 8) * Math.PI * 2;
+      spiral.position.set(
+        Math.cos(angle) * 0.5,
+        0,
+        Math.sin(angle) * 0.5
+      );
+      spiral.rotation.x = Math.PI/2;
+      spiral.rotation.z = angle;
+      mindBeam.add(spiral);
+    }
+    
+    mindBeam.position.copy(player.position).add(new THREE.Vector3(0, 1.5, 0));
+    scene.add(mindBeam);
+    
+    // Animar espirales
+    let spiralTime = 0;
+    let spiralInterval = setInterval(() => {
+      spiralTime += 0.2;
+      mindBeam.children.forEach((child, i) => {
+        if(i > 0) {
+          child.rotation.z += 0.3;
+          child.material.opacity = 0.4 + Math.sin(spiralTime * 6 + i) * 0.3;
+        }
+      });
+    }, 50);
+    
+    // Efectos en enemigos
+    enemies.forEach(enemy => {
+      if(enemy.position.distanceTo(player.position) < 15) {
+        enemy.userData.hp -= 100;
+        
+        // Efecto de posesión
+        enemy.material.color.setHex(0x9932CC);
+        enemy.userData.possessed = true;
+        
+        // Partículas de control mental
+        let mindParticles = new THREE.Group();
+        for(let i = 0; i < 12; i++) {
+          let particle = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1, 6, 6),
+            new THREE.MeshBasicMaterial({
+              color: 0xFF69B4,
+              transparent: true,
+              opacity: 0.8
+            })
+          );
+          particle.position.set(
+            Math.random() * 4 - 2,
+            Math.random() * 3 + 1,
+            Math.random() * 4 - 2
+          );
+          mindParticles.add(particle);
+        }
+        mindParticles.position.copy(enemy.position);
+        scene.add(mindParticles);
+        
         setTimeout(() => {
-          e.material = new THREE.MeshStandardMaterial({color: 0xAA0000});
-        }, 2000);
+          enemy.material.color.setHex(0xAA0000);
+          enemy.userData.possessed = false;
+          scene.remove(mindParticles);
+        }, 3000);
       }
     });
-
-    setTimeout(() => scene.remove(beam), 1000);
+    
+    setTimeout(() => {
+      clearInterval(spiralInterval);
+      scene.remove(mindBeam);
+    }, 2000);
   }
 
   function activateChakraBomb() {
+    // ANIMACIÓN ÉPICA DE BOMBA DE CHAKRA
+    animateCharacterPower('chakra-bomb');
+    
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
-    let bomb = new THREE.Mesh(
-      new THREE.BoxGeometry(0.6,0.6,0.6),
-      new THREE.MeshBasicMaterial({color: 0x00FF7F})
+    // CHAKRA BAKUDAN - Bomba de Chakra Épica
+    let chakraBomb = new THREE.Group();
+    
+    // Núcleo de la bomba
+    let bombCore = new THREE.Mesh(
+      new THREE.SphereGeometry(0.4, 12, 12),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FF7F,
+        transparent: true,
+        opacity: 0.9
+      })
     );
-    bomb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
-    scene.add(bomb);
+    chakraBomb.add(bombCore);
+    
+    // Anillos de energía
+    for(let i = 0; i < 4; i++) {
+      let ring = new THREE.Mesh(
+        new THREE.RingGeometry(0.5 + i * 0.2, 0.7 + i * 0.2, 16),
+        new THREE.MeshBasicMaterial({
+          color: i % 2 ? 0xFF69B4 : 0x9932CC,
+          transparent: true,
+          opacity: 0.7 - i * 0.1,
+          side: THREE.DoubleSide
+        })
+      );
+      ring.rotation.x = Math.random() * Math.PI;
+      ring.rotation.y = Math.random() * Math.PI;
+      chakraBomb.add(ring);
+    }
+    
+    // Chispas de chakra
+    for(let i = 0; i < 8; i++) {
+      let spark = new THREE.Mesh(
+        new THREE.BoxGeometry(0.05, 0.05, 0.3),
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          transparent: true,
+          opacity: 0.8
+        })
+      );
+      let angle = (i / 8) * Math.PI * 2;
+      spark.position.set(
+        Math.cos(angle) * 0.8,
+        Math.sin(angle) * 0.8,
+        0
+      );
+      spark.rotation.z = angle;
+      chakraBomb.add(spark);
+    }
+    
+    chakraBomb.position.copy(player.position).add(new THREE.Vector3(0, 1, 0));
+    scene.add(chakraBomb);
+    
+    // Animar bomba
+    let bombTime = 0;
+    let bombInterval = setInterval(() => {
+      bombTime += 0.2;
+      
+      // Rotar anillos
+      chakraBomb.children.forEach((child, i) => {
+        if(child.geometry && child.geometry.type === 'RingGeometry') {
+          child.rotation.z += 0.2 * (i % 2 ? 1 : -1);
+        }
+        if(child.geometry && child.geometry.type === 'BoxGeometry') {
+          child.rotation.z += 0.4;
+        }
+      });
+      
+      // Pulso del núcleo
+      bombCore.scale.setScalar(1 + Math.sin(bombTime * 10) * 0.3);
+    }, 50);
+    
     powers.push({
-      mesh: bomb,
-      vel: new THREE.Vector3(0,0,-1),
-      life: 30,
-      damage: 60
+      mesh: chakraBomb,
+      vel: new THREE.Vector3(0, 0, -1.5),
+      life: 40,
+      damage: 80,
+      onHit: (enemy) => {
+        // Explosión épica
+        let explosion = new THREE.Group();
+        
+        // Esfera de explosión
+        let explosionSphere = new THREE.Mesh(
+          new THREE.SphereGeometry(3, 16, 16),
+          new THREE.MeshBasicMaterial({
+            color: 0x00FF7F,
+            transparent: true,
+            opacity: 0.6,
+            wireframe: true
+          })
+        );
+        explosion.add(explosionSphere);
+        
+        // Ondas de choque
+        for(let i = 0; i < 6; i++) {
+          let shockwave = new THREE.Mesh(
+            new THREE.RingGeometry(1 + i, 2 + i, 24),
+            new THREE.MeshBasicMaterial({
+              color: 0xFF69B4,
+              transparent: true,
+              opacity: 0.5 - i * 0.08,
+              side: THREE.DoubleSide
+            })
+          );
+          shockwave.rotation.x = -Math.PI/2;
+          shockwave.position.y = i * 0.3;
+          explosion.add(shockwave);
+        }
+        
+        explosion.position.copy(enemy.position);
+        scene.add(explosion);
+        
+        // Animar explosión
+        let expTime = 0;
+        let expInterval = setInterval(() => {
+          expTime += 0.3;
+          
+          explosionSphere.scale.setScalar(1 + expTime * 2);
+          explosionSphere.material.opacity = Math.max(0, 0.6 - expTime);
+          
+          explosion.children.forEach((child, i) => {
+            if(child.geometry && child.geometry.type === 'RingGeometry') {
+              child.scale.setScalar(1 + expTime * (i + 1));
+              child.material.opacity = Math.max(0, 0.5 - expTime * (i + 1) * 0.2);
+            }
+          });
+          
+          if(expTime > 1.5) {
+            clearInterval(expInterval);
+            scene.remove(explosion);
+          }
+        }, 50);
+        
+        clearInterval(bombInterval);
+      }
     });
   }
 
   function activateMindControl() {
+    // ANIMACIÓN ÉPICA DE CONTROL MENTAL
+    animateCharacterPower('mind-control');
+    
     let circle = new THREE.Mesh(
       new THREE.BoxGeometry(1, 0.2, 8),
       new THREE.MeshBasicMaterial({color: 0x9400D3, side: THREE.DoubleSide, transparent: true, opacity: 0.4})
@@ -5958,6 +6177,9 @@ function animate(){
   }
 
   function activateHealing() {
+    // ANIMACIÓN ÉPICA DE CURACIÓN
+    animateCharacterPower('healing');
+    
     let healingField = new THREE.Mesh(
       new THREE.BoxGeometry(6, 0.2, 6),
       new THREE.MeshBasicMaterial({color: 0x98FB98, transparent: true, opacity: 0.3, side: THREE.DoubleSide})
@@ -7002,100 +7224,205 @@ function animate(){
     console.log('🏠 Volviendo al menú de selección de personajes');
   }
 
-  // SISTEMA DE ANIMACIONES ÉPICAS DE NEJI
+  // SISTEMA DE ANIMACIONES ÉPICAS PARA TODOS LOS PERSONAJES
   
-  function animateNejiByakuganPose() {
+  function animateCharacterPower(powerType) {
     if(!player.userData.leftArm || !player.userData.rightArm) return;
     
-    // Pose clásica de Byakugan - manos en posición de sello
+    // Rotar personaje hacia la dirección del enemigo más cercano
+    rotatePlayerToTarget();
+    
+    switch(currentCharacter) {
+      case 'neji':
+        animateNejiPower(powerType);
+        break;
+      case 'itachi':
+        animateItachiPower(powerType);
+        break;
+      case 'ino':
+        animateInoPower(powerType);
+        break;
+      default:
+        animateGenericPower(powerType);
+    }
+  }
+  
+  function rotatePlayerToTarget() {
+    if(enemies.length > 0) {
+      let closestEnemy = enemies[0];
+      let minDist = player.position.distanceTo(closestEnemy.position);
+      
+      enemies.forEach(enemy => {
+        let dist = player.position.distanceTo(enemy.position);
+        if(dist < minDist) {
+          minDist = dist;
+          closestEnemy = enemy;
+        }
+      });
+      
+      // Rotar hacia el enemigo
+      let direction = closestEnemy.position.clone().sub(player.position);
+      let angle = Math.atan2(direction.x, direction.z);
+      player.rotation.y = angle;
+    }
+  }
+  
+  function animateNejiPower(powerType) {
     let animTime = 0;
+    let duration = powerType === 'kaiten' ? 2.5 : (powerType === '64palms' || powerType === '128palms' ? 3 : 1.5);
+    
     let poseInterval = setInterval(() => {
       animTime += 0.1;
       
-      // Brazos en posición de sello ninja
-      player.userData.leftArm.rotation.x = -Math.PI/3;
-      player.userData.leftArm.rotation.z = Math.PI/6;
-      player.userData.rightArm.rotation.x = -Math.PI/3;
-      player.userData.rightArm.rotation.z = -Math.PI/6;
-      
-      // Inclinación hacia adelante
-      if(player.userData.body) {
-        player.userData.body.rotation.x = Math.sin(animTime * 8) * 0.1;
+      switch(powerType) {
+        case 'byakugan':
+          // Pose de concentración con sellos
+          player.userData.leftArm.rotation.x = -Math.PI/3;
+          player.userData.leftArm.rotation.z = Math.PI/6;
+          player.userData.rightArm.rotation.x = -Math.PI/3;
+          player.userData.rightArm.rotation.z = -Math.PI/6;
+          if(player.userData.head) player.userData.head.rotation.x = -0.2;
+          break;
+          
+        case 'juken':
+          // Pose de Juken - palma extendida
+          player.userData.rightArm.rotation.x = -Math.PI/2;
+          player.userData.rightArm.rotation.z = 0;
+          player.userData.leftArm.rotation.x = -Math.PI/4;
+          player.userData.leftArm.rotation.z = Math.PI/4;
+          if(player.userData.rightLeg) player.userData.rightLeg.rotation.x = Math.PI/6;
+          break;
+          
+        case '64palms':
+        case '128palms':
+          // Movimiento rápido de palmas
+          let speed = animTime * 25;
+          player.userData.leftArm.rotation.x = Math.sin(speed) * 0.8 - Math.PI/4;
+          player.userData.rightArm.rotation.x = Math.sin(speed + Math.PI) * 0.8 - Math.PI/4;
+          player.userData.leftArm.rotation.z = Math.sin(speed * 2) * 0.4;
+          player.userData.rightArm.rotation.z = Math.sin(speed * 2 + Math.PI) * 0.4;
+          break;
+          
+        case 'kaiten':
+          // Rotación completa
+          player.rotation.y += 0.3;
+          player.userData.leftArm.rotation.z = Math.PI/2;
+          player.userData.rightArm.rotation.z = -Math.PI/2;
+          break;
       }
       
-      // Cabeza ligeramente hacia abajo
-      if(player.userData.head) {
-        player.userData.head.rotation.x = -0.2;
-      }
-      
-      if(animTime > 2) {
+      if(animTime > duration) {
         clearInterval(poseInterval);
-        resetNejiPose();
+        resetCharacterPose();
       }
     }, 50);
   }
   
-  function animateNejiJukenPose() {
-    if(!player.userData.leftArm || !player.userData.rightArm) return;
-    
-    // Pose de Juken - palma extendida
+  function animateItachiPower(powerType) {
     let animTime = 0;
+    let duration = powerType === 'tsukuyomi' ? 4 : (powerType === 'susanoo' ? 3 : 2);
+    
     let poseInterval = setInterval(() => {
-      animTime += 0.15;
+      animTime += 0.1;
       
-      // Brazo derecho extendido hacia adelante
-      player.userData.rightArm.rotation.x = -Math.PI/2;
-      player.userData.rightArm.rotation.z = 0;
-      
-      // Brazo izquierdo en guardia
-      player.userData.leftArm.rotation.x = -Math.PI/4;
-      player.userData.leftArm.rotation.z = Math.PI/4;
-      
-      // Pierna derecha adelante (stance de combate)
-      if(player.userData.rightLeg) {
-        player.userData.rightLeg.rotation.x = Math.PI/6;
+      switch(powerType) {
+        case 'sharingan':
+          // Pose de concentración Sharingan
+          player.userData.leftArm.rotation.x = -Math.PI/6;
+          player.userData.rightArm.rotation.x = -Math.PI/6;
+          if(player.userData.head) {
+            player.userData.head.rotation.x = -0.3;
+            player.userData.head.rotation.y = Math.sin(animTime * 8) * 0.1;
+          }
+          break;
+          
+        case 'amaterasu':
+          // Pose de Amaterasu - mano extendida
+          player.userData.rightArm.rotation.x = -Math.PI/3;
+          player.userData.rightArm.rotation.y = Math.PI/6;
+          player.userData.leftArm.rotation.x = -Math.PI/4;
+          if(player.userData.head) player.userData.head.rotation.x = -0.4;
+          break;
+          
+        case 'tsukuyomi':
+          // Pose de Tsukuyomi - dedo apuntando
+          player.userData.rightArm.rotation.x = -Math.PI/2;
+          player.userData.rightArm.rotation.y = 0;
+          player.userData.leftArm.rotation.x = -Math.PI/3;
+          if(player.userData.body) {
+            player.userData.body.rotation.x = Math.sin(animTime * 6) * 0.1;
+          }
+          break;
+          
+        case 'susanoo':
+          // Pose de Susanoo - brazos cruzados
+          player.userData.leftArm.rotation.x = -Math.PI/4;
+          player.userData.leftArm.rotation.z = Math.PI/3;
+          player.userData.rightArm.rotation.x = -Math.PI/4;
+          player.userData.rightArm.rotation.z = -Math.PI/3;
+          player.scale.setScalar(1 + Math.sin(animTime * 4) * 0.1);
+          break;
       }
       
-      // Torso ligeramente rotado
-      if(player.userData.body) {
-        player.userData.body.rotation.y = -0.2;
-      }
-      
-      if(animTime > 1.5) {
+      if(animTime > duration) {
         clearInterval(poseInterval);
-        resetNejiPose();
+        resetCharacterPose();
       }
     }, 50);
   }
   
-  function animateNeji64PalmsPose() {
-    if(!player.userData.leftArm || !player.userData.rightArm) return;
-    
-    // Pose de 64 Palmas - brazos en movimiento rápido
+  function animateInoPower(powerType) {
     let animTime = 0;
+    let duration = powerType === 'mind-control' ? 3 : 2;
+    
     let poseInterval = setInterval(() => {
-      animTime += 0.2;
+      animTime += 0.1;
       
-      // Movimiento rápido alternado de brazos
-      let speed = animTime * 20;
-      player.userData.leftArm.rotation.x = Math.sin(speed) * 0.8 - Math.PI/4;
-      player.userData.rightArm.rotation.x = Math.sin(speed + Math.PI) * 0.8 - Math.PI/4;
-      
-      // Rotación de muñecas
-      player.userData.leftArm.rotation.z = Math.sin(speed * 2) * 0.3;
-      player.userData.rightArm.rotation.z = Math.sin(speed * 2 + Math.PI) * 0.3;
-      
-      // Stance amplio
-      if(player.userData.leftLeg && player.userData.rightLeg) {
-        player.userData.leftLeg.rotation.z = 0.3;
-        player.userData.rightLeg.rotation.z = -0.3;
+      switch(powerType) {
+        case 'mind-transfer':
+          // Pose de transferencia mental - manos en la cabeza
+          player.userData.leftArm.rotation.x = -Math.PI/2;
+          player.userData.leftArm.rotation.z = Math.PI/4;
+          player.userData.rightArm.rotation.x = -Math.PI/2;
+          player.userData.rightArm.rotation.z = -Math.PI/4;
+          if(player.userData.head) {
+            player.userData.head.rotation.x = Math.sin(animTime * 8) * 0.2;
+          }
+          break;
+          
+        case 'chakra-bomb':
+          // Pose de bomba de chakra - manos juntas
+          player.userData.leftArm.rotation.x = -Math.PI/3;
+          player.userData.leftArm.rotation.y = Math.PI/6;
+          player.userData.rightArm.rotation.x = -Math.PI/3;
+          player.userData.rightArm.rotation.y = -Math.PI/6;
+          break;
+          
+        case 'mind-control':
+          // Pose de control mental - brazos extendidos
+          player.userData.leftArm.rotation.x = -Math.PI/6;
+          player.userData.leftArm.rotation.z = Math.PI/3;
+          player.userData.rightArm.rotation.x = -Math.PI/6;
+          player.userData.rightArm.rotation.z = -Math.PI/3;
+          if(player.userData.body) {
+            player.userData.body.rotation.y = Math.sin(animTime * 4) * 0.2;
+          }
+          break;
+          
+        case 'healing':
+          // Pose de curación - manos brillantes
+          player.userData.leftArm.rotation.x = -Math.PI/4;
+          player.userData.rightArm.rotation.x = -Math.PI/4;
+          player.userData.leftArm.rotation.z = Math.PI/8;
+          player.userData.rightArm.rotation.z = -Math.PI/8;
+          break;
       }
       
-      if(animTime > 3) {
+      if(animTime > duration) {
         clearInterval(poseInterval);
-        resetNejiPose();
+        resetCharacterPose();
       }
-    }, 30);
+    }, 50);
   }
   
   function animateNejiKaitenPose() {
@@ -7132,7 +7459,23 @@ function animate(){
     }, 40);
   }
   
-  function resetNejiPose() {
+  function animateGenericPower(powerType) {
+    let animTime = 0;
+    let poseInterval = setInterval(() => {
+      animTime += 0.1;
+      
+      // Animación genérica - brazos extendidos
+      player.userData.leftArm.rotation.x = -Math.PI/4;
+      player.userData.rightArm.rotation.x = -Math.PI/4;
+      
+      if(animTime > 1.5) {
+        clearInterval(poseInterval);
+        resetCharacterPose();
+      }
+    }, 50);
+  }
+  
+  function resetCharacterPose() {
     // Resetear todas las rotaciones a la posición neutral
     if(player.userData.leftArm) {
       player.userData.leftArm.rotation.set(0, 0, 0);
@@ -7152,6 +7495,7 @@ function animate(){
     if(player.userData.head) {
       player.userData.head.rotation.set(0, 0, 0);
     }
+    player.scale.setScalar(1);
   }
 
   // Add Speed Button
