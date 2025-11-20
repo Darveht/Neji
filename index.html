@@ -1998,7 +1998,7 @@ function showCharacterName() {
   `;
   controlsDiv.innerHTML = `
     PC: WASD=MOVER | MOUSE=CAMARA | ESPACIO=SALTO<br>
-    PODERES: 1,2,3,4,5,6,7 | MOVIL: JOYSTICK + BOTONES
+    PODERES: TECLAS 1-7 O BOTONES | MOVIL: JOYSTICK + BOTONES
   `;
   document.body.appendChild(controlsDiv);
 
@@ -2403,37 +2403,125 @@ function showCharacterName() {
       detectBtn.addEventListener('touchstart', e => {e.preventDefault(); activateDetect();});
       detectBtn.addEventListener('click', activateDetect);
     } else if(char === 'itachi') {
-      addButton('btn-sharingan', 'SHAR').addEventListener('touchstart', activateSharingan);
-      addButton('btn-amaterasu', 'AMAT').addEventListener('touchstart', activateAmaterasu);
-      addButton('btn-tsukuyomi', 'TSUK').addEventListener('touchstart', activateTsukuyomi);
-      addButton('btn-susanoo', 'SUSA').addEventListener('touchstart', activateSusanoo);
+      // Sharingan
+      let sharinganBtn = addButton('btn-sharingan', 'SHAR');
+      sharinganBtn.addEventListener('touchstart', e => {e.preventDefault(); activateSharingan();});
+      sharinganBtn.addEventListener('click', activateSharingan);
+      
+      // Amaterasu
+      let amaterasuBtn = addButton('btn-amaterasu', 'AMAT');
+      amaterasuBtn.addEventListener('touchstart', e => {e.preventDefault(); activateAmaterasu();});
+      amaterasuBtn.addEventListener('click', activateAmaterasu);
+      
+      // Tsukuyomi
+      let tsukuyomiBtn = addButton('btn-tsukuyomi', 'TSUK');
+      tsukuyomiBtn.addEventListener('touchstart', e => {e.preventDefault(); activateTsukuyomi();});
+      tsukuyomiBtn.addEventListener('click', activateTsukuyomi);
+      
+      // Susanoo
+      let susanooBtn = addButton('btn-susanoo', 'SUSA');
+      susanooBtn.addEventListener('touchstart', e => {e.preventDefault(); activateSusanoo();});
+      susanooBtn.addEventListener('click', activateSusanoo);
     } else if(char === 'ino') {
-      addButton('btn-mind-transfer', 'MIND').addEventListener('touchstart', activateMindTransfer);
-      addButton('btn-chakra-bomb', 'BOMB').addEventListener('touchstart', activateChakraBomb);
-      addButton('btn-mind-control', 'CTRL').addEventListener('touchstart', activateMindControl);
-      addButton('btn-healing', 'HEAL').addEventListener('touchstart', activateHealing);
+      // Transferencia Mental
+      let mindBtn = addButton('btn-mind-transfer', 'MIND');
+      mindBtn.addEventListener('touchstart', e => {e.preventDefault(); activateMindTransfer();});
+      mindBtn.addEventListener('click', activateMindTransfer);
+      
+      // Bomba de Chakra
+      let bombBtn = addButton('btn-chakra-bomb', 'BOMB');
+      bombBtn.addEventListener('touchstart', e => {e.preventDefault(); activateChakraBomb();});
+      bombBtn.addEventListener('click', activateChakraBomb);
+      
+      // Control Mental
+      let ctrlBtn = addButton('btn-mind-control', 'CTRL');
+      ctrlBtn.addEventListener('touchstart', e => {e.preventDefault(); activateMindControl();});
+      ctrlBtn.addEventListener('click', activateMindControl);
+      
+      // Curación
+      let healBtn = addButton('btn-healing', 'HEAL');
+      healBtn.addEventListener('touchstart', e => {e.preventDefault(); activateHealing();});
+      healBtn.addEventListener('click', activateHealing);
     } else if(char === 'shikamaru') {
-      addButton('btn-shadow-possession', 'POSS').addEventListener('touchstart', activateShadowPossession);
-      addButton('btn-shadow-strangle', 'STRN').addEventListener('touchstart', activateShadowStrangle);
+      // Posesión de Sombra
+      let possBtn = addButton('btn-shadow-possession', 'POSS');
+      possBtn.addEventListener('touchstart', e => {e.preventDefault(); activateShadowPossession();});
+      possBtn.addEventListener('click', activateShadowPossession);
+      
+      // Estrangulación de Sombra
+      let strnBtn = addButton('btn-shadow-strangle', 'STRN');
+      strnBtn.addEventListener('touchstart', e => {e.preventDefault(); activateShadowStrangle();});
+      strnBtn.addEventListener('click', activateShadowStrangle);
     } else if(char === 'tenten') {
-      addButton('btn-weapon-summon', 'SUMM').addEventListener('touchstart', activateWeaponSummoning);
-      addButton('btn-kunai-rain', 'RAIN').addEventListener('touchstart', activateKunaiRain);
+      // Invocación de Armas
+      let summBtn = addButton('btn-weapon-summon', 'SUMM');
+      summBtn.addEventListener('touchstart', e => {e.preventDefault(); activateWeaponSummoning();});
+      summBtn.addEventListener('click', activateWeaponSummoning);
+      
+      // Lluvia de Kunais
+      let rainBtn = addButton('btn-kunai-rain', 'RAIN');
+      rainBtn.addEventListener('touchstart', e => {e.preventDefault(); activateKunaiRain();});
+      rainBtn.addEventListener('click', activateKunaiRain);
     } else if(char === 'hinata') {
-      addButton('btn-gentle-fist', 'GENT').addEventListener('touchstart', activateGentleFist);
-      addButton('btn-twin-lions', 'LION').addEventListener('touchstart', activateTwinLionFists);
+      // Puño Suave
+      let gentleBtn = addButton('btn-gentle-fist', 'GENT');
+      gentleBtn.addEventListener('touchstart', e => {e.preventDefault(); activateGentleFist();});
+      gentleBtn.addEventListener('click', activateGentleFist);
+      
+      // Leones Gemelos
+      let lionBtn = addButton('btn-twin-lions', 'LION');
+      lionBtn.addEventListener('touchstart', e => {e.preventDefault(); activateTwinLionFists();});
+      lionBtn.addEventListener('click', activateTwinLionFists);
     } else if(char === 'temari') {
-      addButton('btn-fan-dance', 'FAN').addEventListener('touchstart', activateFanDance);
-      addButton('btn-whirlwind', 'WIND').addEventListener('touchstart', activateWhirlwind);
+      // Danza del Abanico
+      let fanBtn = addButton('btn-fan-dance', 'FAN');
+      fanBtn.addEventListener('touchstart', e => {e.preventDefault(); activateFanDance();});
+      fanBtn.addEventListener('click', activateFanDance);
+      
+      // Torbellino
+      let windBtn = addButton('btn-whirlwind', 'WIND');
+      windBtn.addEventListener('touchstart', e => {e.preventDefault(); activateWhirlwind();});
+      windBtn.addEventListener('click', activateWhirlwind);
     } else if(char === 'sasuke') {
-      addButton('btn-chidori', 'CHID').addEventListener('touchstart', activateChidori);
-      addButton('btn-kirin', 'KIRI').addEventListener('touchstart', activateKirin);
-      addButton('btn-sharingan', 'SHAR').addEventListener('touchstart', activateSharingan);
-      addButton('btn-amaterasu', 'AMAT').addEventListener('touchstart', activateAmaterasu);
+      // Chidori
+      let chidoriBtn = addButton('btn-chidori', 'CHID');
+      chidoriBtn.addEventListener('touchstart', e => {e.preventDefault(); activateChidori();});
+      chidoriBtn.addEventListener('click', activateChidori);
+      
+      // Kirin
+      let kirinBtn = addButton('btn-kirin', 'KIRI');
+      kirinBtn.addEventListener('touchstart', e => {e.preventDefault(); activateKirin();});
+      kirinBtn.addEventListener('click', activateKirin);
+      
+      // Sharingan
+      let sharinganBtn2 = addButton('btn-sharingan', 'SHAR');
+      sharinganBtn2.addEventListener('touchstart', e => {e.preventDefault(); activateSharingan();});
+      sharinganBtn2.addEventListener('click', activateSharingan);
+      
+      // Amaterasu
+      let amaterasuBtn2 = addButton('btn-amaterasu', 'AMAT');
+      amaterasuBtn2.addEventListener('touchstart', e => {e.preventDefault(); activateAmaterasu();});
+      amaterasuBtn2.addEventListener('click', activateAmaterasu);
     } else if(char === 'hashirama') {
-      addButton('btn-mokuton', 'MOKU').addEventListener('touchstart', activateMokuton);
-      addButton('btn-senjutsu', 'SENJ').addEventListener('touchstart', activateSenjutsu);
-      addButton('btn-regen', 'REGEN').addEventListener('touchstart', activateRegeneration);
-      addButton('btn-goju', 'GOJU').addEventListener('touchstart', activateGojuMokuton);
+      // Mokuton
+      let mokuBtn = addButton('btn-mokuton', 'MOKU');
+      mokuBtn.addEventListener('touchstart', e => {e.preventDefault(); activateMokuton();});
+      mokuBtn.addEventListener('click', activateMokuton);
+      
+      // Senjutsu
+      let senjBtn = addButton('btn-senjutsu', 'SENJ');
+      senjBtn.addEventListener('touchstart', e => {e.preventDefault(); activateSenjutsu();});
+      senjBtn.addEventListener('click', activateSenjutsu);
+      
+      // Regeneración
+      let regenBtn = addButton('btn-regen', 'REGEN');
+      regenBtn.addEventListener('touchstart', e => {e.preventDefault(); activateRegeneration();});
+      regenBtn.addEventListener('click', activateRegeneration);
+      
+      // Goju Mokuton
+      let gojuBtn = addButton('btn-goju', 'GOJU');
+      gojuBtn.addEventListener('touchstart', e => {e.preventDefault(); activateGojuMokuton();});
+      gojuBtn.addEventListener('click', activateGojuMokuton);
     }
 
     // Habilidades de Hashirama
@@ -2614,6 +2702,59 @@ function showCharacterName() {
     }
   }
 
+  // Controles de teclado para poderes
+  let keys = {};
+  document.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
+    
+    // Activar poderes con teclas numéricas
+    if(currentCharacter === 'neji') {
+      if(e.code === 'Digit1') activateByakugan();
+      else if(e.code === 'Digit2') activateJuken();
+      else if(e.code === 'Digit3') activate64Palms();
+      else if(e.code === 'Digit4') activate128Palms();
+      else if(e.code === 'Digit5') activateKaiten();
+      else if(e.code === 'Digit6') activateKusho();
+      else if(e.code === 'Digit7') activateDetect();
+    } else if(currentCharacter === 'itachi') {
+      if(e.code === 'Digit1') activateSharingan();
+      else if(e.code === 'Digit2') activateAmaterasu();
+      else if(e.code === 'Digit3') activateTsukuyomi();
+      else if(e.code === 'Digit4') activateSusanoo();
+    } else if(currentCharacter === 'ino') {
+      if(e.code === 'Digit1') activateMindTransfer();
+      else if(e.code === 'Digit2') activateChakraBomb();
+      else if(e.code === 'Digit3') activateMindControl();
+      else if(e.code === 'Digit4') activateHealing();
+    } else if(currentCharacter === 'shikamaru') {
+      if(e.code === 'Digit1') activateShadowPossession();
+      else if(e.code === 'Digit2') activateShadowStrangle();
+    } else if(currentCharacter === 'tenten') {
+      if(e.code === 'Digit1') activateWeaponSummoning();
+      else if(e.code === 'Digit2') activateKunaiRain();
+    } else if(currentCharacter === 'hinata') {
+      if(e.code === 'Digit1') activateGentleFist();
+      else if(e.code === 'Digit2') activateTwinLionFists();
+    } else if(currentCharacter === 'temari') {
+      if(e.code === 'Digit1') activateFanDance();
+      else if(e.code === 'Digit2') activateWhirlwind();
+    } else if(currentCharacter === 'sasuke') {
+      if(e.code === 'Digit1') activateChidori();
+      else if(e.code === 'Digit2') activateKirin();
+      else if(e.code === 'Digit3') activateSharingan();
+      else if(e.code === 'Digit4') activateAmaterasu();
+    } else if(currentCharacter === 'hashirama') {
+      if(e.code === 'Digit1') activateMokuton();
+      else if(e.code === 'Digit2') activateSenjutsu();
+      else if(e.code === 'Digit3') activateRegeneration();
+      else if(e.code === 'Digit4') activateGojuMokuton();
+    }
+  });
+  
+  document.addEventListener('keyup', (e) => {
+    keys[e.code] = false;
+  });
+
   // Función para crear el mundo de Konoha épico como en Naruto
   function createKonohaForest() {
     // MONTAÑAS HOKAGE - Como en la serie
@@ -2756,57 +2897,109 @@ function showCharacterName() {
     hokageTower.position.set(0, 0, -40);
     scene.add(hokageTower);
 
-    // ÁRBOLES NINJA GIGANTES - Como en Naruto
-    for(let i = 0; i < 30; i++) {
-      let ninjaTree = new THREE.Group();
-      ninjaTree.userData.isTree = true;
+    // SISTEMA DE ÁRBOLES REALISTAS Y VARIADOS
+    const treeTypes = [
+      { trunkWidth: 4, trunkHeight: 25, canopySize: 15, trunkColor: 0x8B4513, canopyColor: 0x228B22, branches: 8 },
+      { trunkWidth: 2, trunkHeight: 30, canopySize: 8, trunkColor: 0x654321, canopyColor: 0x006400, branches: 12 },
+      { trunkWidth: 2.5, trunkHeight: 18, canopySize: 12, trunkColor: 0x8B4513, canopyColor: 0xFFB6C1, branches: 6 },
+      { trunkWidth: 0.8, trunkHeight: 20, canopySize: 4, trunkColor: 0x9ACD32, canopyColor: 0x32CD32, branches: 0 }
+    ];
 
-      // Tronco masivo
+    // Crear bosques densos y realistas
+    for(let i = 0; i < 150; i++) {
+      let treeType = treeTypes[Math.floor(Math.random() * treeTypes.length)];
+      let tree = new THREE.Group();
+      tree.userData.isTree = true;
+
+      // Tronco con variaciones realistas
       let trunk = new THREE.Mesh(
-        new THREE.BoxGeometry(3, 20, 3),
+        new THREE.CylinderGeometry(treeType.trunkWidth * 0.8, treeType.trunkWidth, treeType.trunkHeight, 8),
         new THREE.MeshStandardMaterial({
-          color: 0x654321,
-          roughness: 0.95
+          color: treeType.trunkColor,
+          roughness: 0.9 + Math.random() * 0.1,
+          metalness: 0.1
         })
       );
-      trunk.position.y = 10;
-
-      // Copa del árbol estilo Naruto
-      let canopy = new THREE.Mesh(
-        new THREE.SphereGeometry(12, 16, 16),
-        new THREE.MeshStandardMaterial({
-          color: 0x228B22,
-          roughness: 0.9
-        })
-      );
-      canopy.position.y = 25;
-
-      // Ramas gruesas
-      for(let j = 0; j < 6; j++) {
-        let branch = new THREE.Mesh(
-          new THREE.BoxGeometry(1, 1, 8),
-          new THREE.MeshStandardMaterial({color: 0x8B4513})
+      trunk.position.y = treeType.trunkHeight / 2;
+      
+      // Copa del árbol con múltiples niveles
+      let canopyLevels = Math.floor(Math.random() * 3) + 2;
+      for(let level = 0; level < canopyLevels; level++) {
+        let levelSize = treeType.canopySize * (1 - level * 0.2);
+        let canopy = new THREE.Mesh(
+          new THREE.SphereGeometry(levelSize, 12, 8),
+          new THREE.MeshStandardMaterial({
+            color: new THREE.Color(treeType.canopyColor).multiplyScalar(0.9 + Math.random() * 0.2),
+            roughness: 0.8,
+            transparent: true,
+            opacity: 0.9
+          })
         );
-        let angle = (j / 6) * Math.PI * 2;
-        branch.position.set(
-          Math.cos(angle) * 4,
-          15 + Math.random() * 8,
-          Math.sin(angle) * 4
-        );
-        branch.rotation.y = angle;
-        ninjaTree.add(branch);
+        canopy.position.y = treeType.trunkHeight + level * 8;
+        tree.add(canopy);
       }
 
-      ninjaTree.add(trunk, canopy);
+      // Ramas realistas con hojas
+      for(let j = 0; j < treeType.branches; j++) {
+        let branchLength = 6 + Math.random() * 8;
+        let branch = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.3, 0.6, branchLength, 6),
+          new THREE.MeshStandardMaterial({
+            color: new THREE.Color(treeType.trunkColor).multiplyScalar(0.9)
+          })
+        );
+        
+        let angle = (j / treeType.branches) * Math.PI * 2 + Math.random() * 0.5;
+        let height = treeType.trunkHeight * 0.6 + Math.random() * treeType.trunkHeight * 0.3;
+        
+        branch.position.set(
+          Math.cos(angle) * (treeType.trunkWidth + 2),
+          height,
+          Math.sin(angle) * (treeType.trunkWidth + 2)
+        );
+        branch.rotation.z = Math.PI / 6 + Math.random() * Math.PI / 6;
+        branch.rotation.y = angle;
+        
+        // Hojas en las ramas
+        let leaves = new THREE.Mesh(
+          new THREE.SphereGeometry(2 + Math.random() * 2, 8, 6),
+          new THREE.MeshStandardMaterial({
+            color: treeType.canopyColor,
+            roughness: 0.9,
+            transparent: true,
+            opacity: 0.8
+          })
+        );
+        leaves.position.set(0, branchLength / 2, 0);
+        branch.add(leaves);
+        
+        tree.add(branch);
+      }
+
+      tree.add(trunk);
       
-      let angle = Math.random() * Math.PI * 2;
-      let distance = 60 + Math.random() * 300; // Distribuir en mundo más grande
-      ninjaTree.position.set(
-        Math.cos(angle) * distance,
+      // Distribución más natural en grupos de bosque
+      let forestGroup = Math.floor(i / 30);
+      let groupAngle = (forestGroup / 5) * Math.PI * 2;
+      let groupDistance = 80 + forestGroup * 60;
+      
+      let localAngle = Math.random() * Math.PI * 2;
+      let localDistance = Math.random() * 40;
+      
+      tree.position.set(
+        Math.cos(groupAngle) * groupDistance + Math.cos(localAngle) * localDistance,
         0,
-        Math.sin(angle) * distance
+        Math.sin(groupAngle) * groupDistance + Math.sin(localAngle) * localDistance
       );
-      scene.add(ninjaTree);
+      
+      // Variación en escala para mayor realismo
+      let scale = 0.8 + Math.random() * 0.6;
+      tree.scale.setScalar(scale);
+      
+      // Rotación aleatoria
+      tree.rotation.y = Math.random() * Math.PI * 2;
+      
+      scene.add(tree);
     }
     
     // ALDEAS NINJA DISPERSAS
