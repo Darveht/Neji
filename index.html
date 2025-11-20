@@ -2759,13 +2759,61 @@ function showCharacterName() {
       ninjaTree.add(trunk, canopy);
       
       let angle = Math.random() * Math.PI * 2;
-      let distance = 40 + Math.random() * 80;
+      let distance = 60 + Math.random() * 300; // Distribuir en mundo más grande
       ninjaTree.position.set(
         Math.cos(angle) * distance,
         0,
         Math.sin(angle) * distance
       );
       scene.add(ninjaTree);
+    }
+    
+    // ALDEAS NINJA DISPERSAS
+    for(let village = 0; village < 4; village++) {
+      let villageGroup = new THREE.Group();
+      villageGroup.userData.isScenery = true;
+      
+      // Casas ninja
+      for(let house = 0; house < 6; house++) {
+        let ninjaHouse = new THREE.Group();
+        
+        // Base de la casa
+        let houseBase = new THREE.Mesh(
+          new THREE.BoxGeometry(6, 4, 8),
+          new THREE.MeshStandardMaterial({
+            color: 0xD2691E,
+            roughness: 0.8
+          })
+        );
+        houseBase.position.y = 2;
+        
+        // Techo ninja
+        let roof = new THREE.Mesh(
+          new THREE.BoxGeometry(8, 2, 10),
+          new THREE.MeshStandardMaterial({
+            color: 0x8B0000,
+            roughness: 0.7
+          })
+        );
+        roof.position.y = 5;
+        
+        ninjaHouse.add(houseBase, roof);
+        ninjaHouse.position.set(
+          (house % 3) * 12 - 12,
+          0,
+          Math.floor(house / 3) * 12 - 6
+        );
+        villageGroup.add(ninjaHouse);
+      }
+      
+      // Posicionar aldea
+      let villageAngle = (village / 4) * Math.PI * 2;
+      villageGroup.position.set(
+        Math.cos(villageAngle) * 200,
+        0,
+        Math.sin(villageAngle) * 200
+      );
+      scene.add(villageGroup);
     }
 
     // POSTES DE ENTRENAMIENTO NINJA
@@ -2798,9 +2846,9 @@ function showCharacterName() {
       
       trainingPost.add(post);
       trainingPost.position.set(
-        Math.random() * 60 - 30,
+        Math.random() * 400 - 200,
         0,
-        Math.random() * 60 - 30
+        Math.random() * 400 - 200
       );
       scene.add(trainingPost);
     }
@@ -3070,41 +3118,9 @@ function showCharacterName() {
     scene.fog = new THREE.FogExp2(0x000033, 0.02);
     camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,500);
 
-    // Crear textura para las paredes con patrón pixelado
-    const wallMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a1a2e,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.9,
-      emissive: 0x004400,
-      emissiveIntensity: 0.2
-    });
-
-    // Crear paredes pixeladas
-    const wallGeometry = new THREE.PlaneGeometry(200, 20);
-
-    // Pared Norte
-    const wallNorth = new THREE.Mesh(wallGeometry, wallMaterial);
-    wallNorth.position.set(0, 10, -100);
-    scene.add(wallNorth);
-
-    // Pared Sur
-    const wallSouth = new THREE.Mesh(wallGeometry, wallMaterial);
-    wallSouth.position.set(0, 10, 100);
-    wallSouth.rotation.y = Math.PI;
-    scene.add(wallSouth);
-
-    // Pared Este
-    const wallEast = new THREE.Mesh(wallGeometry, wallMaterial);
-    wallEast.position.set(100, 10, 0);
-    wallEast.rotation.y = -Math.PI/2;
-    scene.add(wallEast);
-
-    // Pared Oeste
-    const wallWest = new THREE.Mesh(wallGeometry, wallMaterial);
-    wallWest.position.set(-100, 10, 0);
-    wallWest.rotation.y = Math.PI/2;
-    scene.add(wallWest);
+    // MUNDO ABIERTO SIN PAREDES - EXPANDIDO
+    // Crear niebla para límites naturales
+    scene.fog = new THREE.FogExp2(0x87CEEB, 0.001);
 
     camera.position.set(0,5,10);
     renderer=new THREE.WebGLRenderer({antialias:false});
@@ -3116,21 +3132,38 @@ function showCharacterName() {
     let dl=new THREE.DirectionalLight(0xffffff,0.8);
     dl.position.set(5,10,7); scene.add(dl);
 
-    // suelo pixelado
+    // SUELO EXPANDIDO - MUNDO GIGANTE
     floor=new THREE.Mesh(
-      new THREE.PlaneGeometry(200,200),
+      new THREE.PlaneGeometry(1000,1000),
       new THREE.MeshStandardMaterial({color:0x228B22})
     ); floor.rotation.x=-Math.PI/2; scene.add(floor);
+    
+    // Terreno adicional con texturas variadas
+    for(let i = 0; i < 9; i++) {
+      let terrain = new THREE.Mesh(
+        new THREE.PlaneGeometry(500, 500),
+        new THREE.MeshStandardMaterial({
+          color: i % 3 === 0 ? 0x228B22 : (i % 3 === 1 ? 0x8FBC8F : 0x9ACD32)
+        })
+      );
+      terrain.rotation.x = -Math.PI/2;
+      terrain.position.set(
+        (i % 3 - 1) * 500,
+        -0.1,
+        (Math.floor(i/3) - 1) * 500
+      );
+      scene.add(terrain);
+    }
 
-    // hierba pixelada
-    for(let i=0;i<500;i++){
-      let b=new THREE.Mesh(
+    // HIERBA EXPANDIDA POR TODO EL MUNDO
+    for(let i=0;i<2000;i++){
+      let grass=new THREE.Mesh(
         new THREE.BoxGeometry(0.04,0.6,0.04),
         new THREE.MeshStandardMaterial({color:0x00aa00})
       );
-      b.position.set(Math.random()*180-90,0.3,Math.random()*180-90);
-      b.rotation.z=(Math.random()-0.5)*0.5;
-      scene.add(b);
+      grass.position.set(Math.random()*900-450,0.3,Math.random()*900-450);
+      grass.rotation.z=(Math.random()-0.5)*0.5;
+      scene.add(grass);
     }
 
     // Crear modelo específico según el personaje seleccionado
@@ -3671,6 +3704,9 @@ function animate(){
   // ─── TÉCNICAS ───
 
   function activateByakugan(){
+    // ANIMACIÓN ÉPICA DE NEJI ACTIVANDO BYAKUGAN
+    animateNejiByakuganPose();
+    
     // Pausar YouTube mientras suena el Byakugan
     if(youtubePlayer && youtubePlayer.pauseVideo) {
       youtubePlayer.pauseVideo();
@@ -3929,6 +3965,9 @@ function animate(){
   }
 
   function activateJuken(){
+    // ANIMACIÓN ÉPICA DE JUKEN
+    animateNejiJukenPose();
+    
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
@@ -4105,6 +4144,9 @@ function animate(){
   }
 
   function activate64Palms(){
+    // ANIMACIÓN ÉPICA DE 64 PALMAS
+    animateNeji64PalmsPose();
+    
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
@@ -4331,6 +4373,9 @@ function animate(){
   }
 
   function activate128Palms(){
+    // ANIMACIÓN ÉPICA DE 128 PALMAS
+    animateNeji64PalmsPose(); // Misma animación pero más intensa
+    
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
@@ -4619,6 +4664,8 @@ function animate(){
   }
 
   function activateKaiten(){
+    // ANIMACIÓN ÉPICA DE KAITEN
+    animateNejiKaitenPose();
     // HAKKESHŌ KAITEN - ROTACIÓN CELESTIAL DE LOS 8 TRIGRAMAS
     
     // Crear sistema de rotación múltiple
@@ -4874,6 +4921,8 @@ function animate(){
   }
 
   function activateKusho(){
+    // ANIMACIÓN DE KUSHO - Palma extendida
+    animateNejiJukenPose();
     // HAKKE KŪSHŌ - PALMA DE VACÍO DE LOS 8 TRIGRAMAS
     
     // Crear campo de vacío épico
@@ -5090,6 +5139,8 @@ function animate(){
   }
 
   function activateDetect(){
+    // ANIMACIÓN DE DETECCIÓN - Pose de concentración
+    animateNejiByakuganPose();
     // BYAKUGAN: DETECCIÓN AVANZADA Y ANÁLISIS DE CHAKRA
     
     // Crear pulso de detección desde el jugador
@@ -6588,13 +6639,13 @@ function animate(){
       moveVector.add(forward.clone().multiplyScalar(moveDir.z * playerSpeed)); // Removido el negativo
       moveVector.add(right.clone().multiplyScalar(moveDir.x * playerSpeed));
 
-      // Verificar límites de las paredes
-      const WALL_LIMIT = 95;
+      // Límites naturales del mundo expandido
+      const WORLD_LIMIT = 450;
       let nextX = player.position.x + moveVector.x;
       let nextZ = player.position.z + moveVector.z;
 
-      if(Math.abs(nextX) < WALL_LIMIT) player.position.x = nextX;
-      if(Math.abs(nextZ) < WALL_LIMIT) player.position.z = nextZ;
+      if(Math.abs(nextX) < WORLD_LIMIT) player.position.x = nextX;
+      if(Math.abs(nextZ) < WORLD_LIMIT) player.position.z = nextZ;
 
       // Rotar el jugador hacia la dirección de movimiento
       if(moveVector.length() > 0) {
@@ -6846,6 +6897,158 @@ function animate(){
     document.getElementById('char-select').style.display = 'flex';
 
     console.log('🏠 Volviendo al menú de selección de personajes');
+  }
+
+  // SISTEMA DE ANIMACIONES ÉPICAS DE NEJI
+  
+  function animateNejiByakuganPose() {
+    if(!player.userData.leftArm || !player.userData.rightArm) return;
+    
+    // Pose clásica de Byakugan - manos en posición de sello
+    let animTime = 0;
+    let poseInterval = setInterval(() => {
+      animTime += 0.1;
+      
+      // Brazos en posición de sello ninja
+      player.userData.leftArm.rotation.x = -Math.PI/3;
+      player.userData.leftArm.rotation.z = Math.PI/6;
+      player.userData.rightArm.rotation.x = -Math.PI/3;
+      player.userData.rightArm.rotation.z = -Math.PI/6;
+      
+      // Inclinación hacia adelante
+      if(player.userData.body) {
+        player.userData.body.rotation.x = Math.sin(animTime * 8) * 0.1;
+      }
+      
+      // Cabeza ligeramente hacia abajo
+      if(player.userData.head) {
+        player.userData.head.rotation.x = -0.2;
+      }
+      
+      if(animTime > 2) {
+        clearInterval(poseInterval);
+        resetNejiPose();
+      }
+    }, 50);
+  }
+  
+  function animateNejiJukenPose() {
+    if(!player.userData.leftArm || !player.userData.rightArm) return;
+    
+    // Pose de Juken - palma extendida
+    let animTime = 0;
+    let poseInterval = setInterval(() => {
+      animTime += 0.15;
+      
+      // Brazo derecho extendido hacia adelante
+      player.userData.rightArm.rotation.x = -Math.PI/2;
+      player.userData.rightArm.rotation.z = 0;
+      
+      // Brazo izquierdo en guardia
+      player.userData.leftArm.rotation.x = -Math.PI/4;
+      player.userData.leftArm.rotation.z = Math.PI/4;
+      
+      // Pierna derecha adelante (stance de combate)
+      if(player.userData.rightLeg) {
+        player.userData.rightLeg.rotation.x = Math.PI/6;
+      }
+      
+      // Torso ligeramente rotado
+      if(player.userData.body) {
+        player.userData.body.rotation.y = -0.2;
+      }
+      
+      if(animTime > 1.5) {
+        clearInterval(poseInterval);
+        resetNejiPose();
+      }
+    }, 50);
+  }
+  
+  function animateNeji64PalmsPose() {
+    if(!player.userData.leftArm || !player.userData.rightArm) return;
+    
+    // Pose de 64 Palmas - brazos en movimiento rápido
+    let animTime = 0;
+    let poseInterval = setInterval(() => {
+      animTime += 0.2;
+      
+      // Movimiento rápido alternado de brazos
+      let speed = animTime * 20;
+      player.userData.leftArm.rotation.x = Math.sin(speed) * 0.8 - Math.PI/4;
+      player.userData.rightArm.rotation.x = Math.sin(speed + Math.PI) * 0.8 - Math.PI/4;
+      
+      // Rotación de muñecas
+      player.userData.leftArm.rotation.z = Math.sin(speed * 2) * 0.3;
+      player.userData.rightArm.rotation.z = Math.sin(speed * 2 + Math.PI) * 0.3;
+      
+      // Stance amplio
+      if(player.userData.leftLeg && player.userData.rightLeg) {
+        player.userData.leftLeg.rotation.z = 0.3;
+        player.userData.rightLeg.rotation.z = -0.3;
+      }
+      
+      if(animTime > 3) {
+        clearInterval(poseInterval);
+        resetNejiPose();
+      }
+    }, 30);
+  }
+  
+  function animateNejiKaitenPose() {
+    if(!player.userData.body) return;
+    
+    // Pose de Kaiten - rotación completa
+    let animTime = 0;
+    let rotationSpeed = 0.1;
+    let poseInterval = setInterval(() => {
+      animTime += 0.1;
+      rotationSpeed += 0.05;
+      
+      // Rotación completa del cuerpo
+      player.rotation.y += rotationSpeed;
+      
+      // Brazos extendidos horizontalmente
+      if(player.userData.leftArm && player.userData.rightArm) {
+        player.userData.leftArm.rotation.x = 0;
+        player.userData.leftArm.rotation.z = Math.PI/2;
+        player.userData.rightArm.rotation.x = 0;
+        player.userData.rightArm.rotation.z = -Math.PI/2;
+      }
+      
+      // Ligera inclinación
+      if(player.userData.body) {
+        player.userData.body.rotation.x = Math.sin(animTime * 4) * 0.1;
+      }
+      
+      if(animTime > 2.5) {
+        clearInterval(poseInterval);
+        player.rotation.y = 0;
+        resetNejiPose();
+      }
+    }, 40);
+  }
+  
+  function resetNejiPose() {
+    // Resetear todas las rotaciones a la posición neutral
+    if(player.userData.leftArm) {
+      player.userData.leftArm.rotation.set(0, 0, 0);
+    }
+    if(player.userData.rightArm) {
+      player.userData.rightArm.rotation.set(0, 0, 0);
+    }
+    if(player.userData.leftLeg) {
+      player.userData.leftLeg.rotation.set(0, 0, 0);
+    }
+    if(player.userData.rightLeg) {
+      player.userData.rightLeg.rotation.set(0, 0, 0);
+    }
+    if(player.userData.body) {
+      player.userData.body.rotation.set(0, 0, 0);
+    }
+    if(player.userData.head) {
+      player.userData.head.rotation.set(0, 0, 0);
+    }
   }
 
   // Add Speed Button
