@@ -1900,8 +1900,6 @@
   let enemies = [], powers = [], moveDir={x:0,z:0}, velY=0, onGround=true;
   const GRAV=-0.02, enemyHUD={};
   let playerHealth = 5; // 5 vidas
-  let playerLevel = 1;
-  let currentStage = 1;
   let gameOver = false; // Detector de muerte
 
   // Variables para cámara libre 360°
@@ -1912,9 +1910,11 @@
   let lastMouseX = 0;
   let lastMouseY = 0;
   const MAX_HEALTH = 5;
-  const STAGES = {
-    1: {name: 'Bosque de Konoha', enemies: 3, enemyHealth: 5, enemyDamage: 10},
-    2: {name: 'Aldea de la Lluvia', enemies: 4, enemyHealth: 6, enemyDamage: 12}
+  const WORLD_CONFIG = {
+    name: 'Mundo de Konoha',
+    maxEnemies: 8,
+    enemyHealth: 100,
+    respawnTime: 10000
   };
 
   
@@ -1927,7 +1927,7 @@
       heart.className = `player-heart ${i >= playerHealth ? 'heart-empty' : ''}`;
       container.appendChild(heart);
     }
-    document.getElementById('player-level').textContent = 'NIVEL ' + playerLevel;
+    document.getElementById('player-level').textContent = 'MUNDO ABIERTO - KONOHA';
   }
   let currentCharacter = '';
 let playerSpeed = 0.25; // Velocidad base aumentada
@@ -2565,47 +2565,12 @@ function showCharacterName() {
     animate();
   }
 
-  function changeStage(level) {
-    // Limpiar enemigos actuales
-    enemies.forEach(e => {
-      scene.remove(e);
-      enemyHUD[e.userData.id].remove();
-      delete enemyHUD[e.userData.id];
-    });
-    enemies = [];
-
-    // Limpiar elementos del escenario anterior
-    scene.children.filter(child => 
-      child.userData.isScenery || 
-      child.userData.isWater || 
-      child.userData.isMountain ||
-      child.userData.isTree ||
-      child.userData.isRock
-    ).forEach(child => scene.remove(child));
-
-    // Cambiar escenario según el nivel
-    switch(level) {
-      case 1: // Bosque de Konoha mejorado
-        scene.background = new THREE.Color(0x87CEEB); // Cielo azul como en Naruto
-        floor.material.color.setHex(0x228B22);
-        createKonohaForest();
-        break;
-      case 2: // Lluvia
-        scene.background = new THREE.Color(0x4A708B);
-        floor.material.color.setHex(0x4F666A);
-        // Efecto de lluvia
-        addRainEffect();
-        break;
-    }
-
-    // Añadir nuevos enemigos
-    for(let i = 0; i < STAGES[level].enemies; i++) {
+  // Sistema de respawn automático de enemigos
+  function respawnEnemies() {
+    // Mantener siempre el número máximo de enemigos
+    while(enemies.length < WORLD_CONFIG.maxEnemies) {
       addEnemy();
     }
-
-    // Restaurar algo de vida al jugador
-    playerHealth = Math.min(playerHealth + 3, MAX_HEALTH);
-    updatePlayerHUD();
   }
 
   // Función para crear el bosque de Konoha detallado
@@ -3279,8 +3244,15 @@ function showCharacterName() {
     player = createCharacterModel(currentCharacter);
     player.position.set(0,1.25,0); scene.add(player);
 
-    // enemigos
-    for(let i=0;i<5;i++) addEnemy();
+    // Crear mundo de Konoha
+    scene.background = new THREE.Color(0x87CEEB);
+    createKonohaForest();
+    
+    // enemigos iniciales
+    for(let i=0;i<WORLD_CONFIG.maxEnemies;i++) addEnemy();
+    
+    // Sistema de respawn continuo
+    setInterval(respawnEnemies, WORLD_CONFIG.respawnTime);
 
     // joystick
     const joy=document.getElementById('joystick'),
@@ -3333,7 +3305,7 @@ function showCharacterName() {
     );
 
     g.userData = {
-      hp: STAGES[currentStage].enemyHealth,
+      hp: WORLD_CONFIG.enemyHealth,
       id: THREE.MathUtils.generateUUID()
     };
     // Cabeza pixelada
@@ -3445,7 +3417,7 @@ function animate(){
       container.innerHTML = '';
       container.className = 'enemy-hearts';
       container.style.transform = `translate(${x}px,${y}px)`;
-      for(let i = 0; i < STAGES[currentStage].enemyHealth; i++) {
+      for(let i = 0; i < WORLD_CONFIG.enemyHealth; i++) {
         const heart = document.createElement('div');
         heart.className = `enemy-heart ${i >= e.userData.hp ? 'heart-empty' : ''}`;
         container.appendChild(heart);
@@ -3478,17 +3450,12 @@ function animate(){
         scene.remove(e); container.remove();
         enemies.splice(i,1); delete enemyHUD[e.userData.id];
 
-        // Verificar si pasamos de nivel
-        if(enemies.length === 0) {
-          currentStage++;
-          if(currentStage in STAGES) {
-            alert('¡NIVEL ' + currentStage + ' - ' + STAGES[currentStage].name + '!');
-            changeStage(currentStage);
-          } else {
-            alert('¡FELICIDADES! ¡HAS COMPLETADO TODOS LOS NIVELES!');
-            location.reload();
+        // Respawn automático después de un tiempo
+        setTimeout(() => {
+          if(enemies.length < WORLD_CONFIG.maxEnemies) {
+            addEnemy();
           }
-        }
+        }, WORLD_CONFIG.respawnTime);
       }
     });
     renderer.render(scene,camera);
@@ -5137,7 +5104,7 @@ function animate(){
         
         statusDisplay.innerHTML = `
           OBJETIVO: ENEMIGO ${index + 1}<br>
-          HP: ${enemy.userData.hp}/${STAGES[currentStage].enemyHealth}<br>
+          HP: ${enemy.userData.hp}/${WORLD_CONFIG.enemyHealth}<br>
           ESTADO: ${enemy.userData.hp > 50 ? 'ACTIVO' : 'DAÑADO'}<br>
           CHAKRA: ${Math.floor(Math.random() * 100)}%<br>
           DISTANCIA: ${Math.floor(enemy.position.distanceTo(player.position))}m
@@ -6548,7 +6515,7 @@ function animate(){
         text-shadow: 2px 2px 0px #000;
         margin: 0 0 40px 0;
         text-align: center;
-      ">NIVEL ${currentStage} - ${STAGES[currentStage] ? STAGES[currentStage].name : 'BATALLA FINAL'}</h2>
+      ">MUNDO ABIERTO - ${WORLD_CONFIG.name}</h2>
 
       <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;">
         <button id="retry-btn" style="
@@ -6683,10 +6650,10 @@ function animate(){
     powers.forEach(p => scene.remove(p.mesh));
     powers = [];
 
-    // Reiniciar el mismo nivel
-    changeStage(currentStage);
+    // Respawn de enemigos
+    respawnEnemies();
 
-    console.log('🔄 Nivel reiniciado - Nivel ' + currentStage);
+    console.log('🔄 Mundo reiniciado - ' + WORLD_CONFIG.name);
   }
 
   // Función para volver a la selección de personajes
@@ -6726,9 +6693,7 @@ function animate(){
 
     // Reiniciar variables
     gameOver = false; // Reiniciar detector de muerte
-    currentStage = 1;
     playerHealth = MAX_HEALTH;
-    playerLevel = 1;
     currentCharacter = '';
 
     // Mostrar pantalla de selección de personajes
