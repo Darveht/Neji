@@ -3836,30 +3836,39 @@ function showCharacterName() {
     // Eventos táctiles mejorados
     jumpBtn.addEventListener('touchstart', e => {
       e.preventDefault();
+      console.log('Botón JUMP tocado. onGround:', onGround);
       if(onGround) {
         velY = 0.6;
         onGround = false;
-        console.log('Salto táctil activado!');
+        console.log('✅ SALTO TÁCTIL ACTIVADO!');
+      } else {
+        console.log('❌ SALTO TÁCTIL BLOQUEADO');
       }
     });
     
     // Eventos de mouse para PC mejorados
     jumpBtn.addEventListener('mousedown', e => {
       e.preventDefault();
+      console.log('Botón JUMP clickeado. onGround:', onGround);
       if(onGround) {
         velY = 0.6;
         onGround = false;
-        console.log('Salto con mouse activado!');
+        console.log('✅ SALTO CON MOUSE ACTIVADO!');
+      } else {
+        console.log('❌ SALTO CON MOUSE BLOQUEADO');
       }
     });
     
     // También agregar evento click para mayor compatibilidad
     jumpBtn.addEventListener('click', e => {
       e.preventDefault();
+      console.log('Botón JUMP click. onGround:', onGround);
       if(onGround) {
         velY = 0.6;
         onGround = false;
-        console.log('Salto con click activado!');
+        console.log('✅ SALTO CON CLICK ACTIVADO!');
+      } else {
+        console.log('❌ SALTO CON CLICK BLOQUEADO');
       }
     });
     
@@ -3992,9 +4001,7 @@ function animate(){
     if(player.position.y <= GROUND_LEVEL) {
       player.position.y = GROUND_LEVEL;
       velY = 0;
-      if(!onGround) {
-        onGround = true;
-      }
+      onGround = true;
     } else {
       onGround = false;
     }
@@ -7205,10 +7212,15 @@ function animate(){
     }
 
     // SALTO MEJORADO
-    if(event.code === 'Space' && onGround) {
-      velY = 0.6; // Aumentar fuerza de salto
-      onGround = false;
-      console.log('Salto activado! velY:', velY);
+    if(event.code === 'Space') {
+      console.log('Tecla ESPACIO presionada. onGround:', onGround, 'velY:', velY, 'player.y:', player.position.y);
+      if(onGround) {
+        velY = 0.6;
+        onGround = false;
+        console.log('✅ SALTO ACTIVADO! Nueva velY:', velY);
+      } else {
+        console.log('❌ SALTO BLOQUEADO - No está en el suelo');
+      }
     }
 
     // Poderes según el personaje seleccionado
@@ -7868,6 +7880,27 @@ function animate(){
   });
 
   document.getElementById('actions').appendChild(speedButton);
+
+  // Botón de debug para salto
+  let debugJumpButton = document.createElement('div');
+  debugJumpButton.id = 'debug-jump';
+  debugJumpButton.className = 'action-btn';
+  debugJumpButton.textContent = 'DEBUG';
+  debugJumpButton.style.backgroundColor = '#FF0000';
+  debugJumpButton.addEventListener('click', function() {
+    console.log('=== DEBUG SALTO ===');
+    console.log('onGround:', onGround);
+    console.log('velY:', velY);
+    console.log('player.position.y:', player.position.y);
+    console.log('GRAV:', GRAV);
+    
+    // Forzar salto
+    velY = 0.8;
+    onGround = false;
+    console.log('SALTO FORZADO!');
+  });
+  
+  document.getElementById('actions').appendChild(debugJumpButton);
 
   </script>
 </body>
