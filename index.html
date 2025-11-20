@@ -3598,180 +3598,1658 @@ function animate(){
       }
     }, 3000);
 
-    // Activar aura de Byakugan en Neji
+    // EFECTO ÉPICO DE BYAKUGAN - COMO EN LA SERIE ORIGINAL
+    // Crear efecto de ondas de chakra expandiéndose
+    let chakraWaves = [];
+    for(let i = 0; i < 5; i++) {
+      let wave = new THREE.Mesh(
+        new THREE.RingGeometry(0.5, 1, 16),
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          transparent: true,
+          opacity: 0.8,
+          side: THREE.DoubleSide
+        })
+      );
+      wave.rotation.x = -Math.PI/2;
+      wave.position.copy(player.position);
+      wave.position.y += 0.1;
+      scene.add(wave);
+      chakraWaves.push(wave);
+    }
+
+    // Animación de ondas expandiéndose
+    let waveTime = 0;
+    let waveInterval = setInterval(() => {
+      waveTime += 0.1;
+      chakraWaves.forEach((wave, index) => {
+        let scale = 1 + (waveTime - index * 0.3) * 3;
+        if(scale > 0) {
+          wave.scale.setScalar(scale);
+          wave.material.opacity = Math.max(0, 0.8 - (scale - 1) * 0.2);
+        }
+      });
+
+      if(waveTime > 3) {
+        clearInterval(waveInterval);
+        chakraWaves.forEach(wave => scene.remove(wave));
+      }
+    }, 50);
+
+    // Activar aura de Byakugan en Neji con efectos mejorados
     if(player.userData.byakuganAura) {
       player.userData.byakuganAura.visible = true;
       let pulseTime = 0;
       let pulseInterval = setInterval(() => {
         pulseTime += 0.1;
-        player.userData.byakuganAura.material.opacity = 0.1 + Math.sin(pulseTime * 4) * 0.15;
-        player.userData.byakuganAura.scale.setScalar(1 + Math.sin(pulseTime * 2) * 0.1);
+        player.userData.byakuganAura.material.opacity = 0.2 + Math.sin(pulseTime * 6) * 0.3;
+        player.userData.byakuganAura.scale.setScalar(1.2 + Math.sin(pulseTime * 4) * 0.3);
       }, 50);
 
       setTimeout(() => {
         clearInterval(pulseInterval);
         player.userData.byakuganAura.visible = false;
-      }, 5000);
+      }, 8000);
     }
 
-    // pupilas blancas + venas (overlay CSS) mejorado
-    let ov=document.createElement('div');
-    ov.style.cssText=`
-      position:fixed;top:0;left:0;width:100%;height:100%;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 20%, transparent 70%),
+    // EFECTO VISUAL ÉPICO - VENAS BYAKUGAN
+    let byakuganOverlay = document.createElement('div');
+    byakuganOverlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.6) 10%, transparent 40%),
         repeating-linear-gradient(45deg,
-          rgba(255,255,255,0.3) 0px, rgba(255,255,255,0.3) 4px,
-          transparent 4px, transparent 8px),
+          rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px,
+          transparent 2px, transparent 6px),
         repeating-linear-gradient(-45deg,
-          rgba(200,200,255,0.2) 0px, rgba(200,200,255,0.2) 2px,
-          transparent 2px, transparent 4px);
-      pointer-events:none;
-      animation: pixel-scan 1.2s steps(4) forwards;
-      box-shadow: inset 0 0 100px rgba(255,255,255,0.3);
+          rgba(200,200,255,0.3) 0px, rgba(200,200,255,0.3) 1px,
+          transparent 1px, transparent 3px),
+        repeating-linear-gradient(0deg,
+          rgba(255,255,255,0.2) 0px, rgba(255,255,255,0.2) 1px,
+          transparent 1px, transparent 8px),
+        repeating-linear-gradient(90deg,
+          rgba(255,255,255,0.2) 0px, rgba(255,255,255,0.2) 1px,
+          transparent 1px, transparent 8px);
+      pointer-events: none;
+      animation: byakuganVeins 2s steps(8) infinite;
+      box-shadow: 
+        inset 0 0 200px rgba(255,255,255,0.4),
+        inset 0 0 100px rgba(200,200,255,0.3);
+      z-index: 1000;
     `;
-    document.body.appendChild(ov);
-    setTimeout(()=>ov.remove(),1200);
 
-    // auras en enemigos mejoradas con efecto de rayos X
-    enemies.forEach(e=>{
-      let aura=new THREE.Mesh(
-        new THREE.BoxGeometry(3,0.1,3),
-        new THREE.MeshBasicMaterial({color:0x00ffff,side:THREE.DoubleSide,transparent:true,opacity:0.3})
-      );
-      aura.rotation.x=-Math.PI/2;
-      aura.position.copy(e.position).add(new THREE.Vector3(0,1,0));
-      scene.add(aura);
+    // Añadir estilos de animación para las venas
+    let byakuganStyles = document.createElement('style');
+    byakuganStyles.textContent = `
+      @keyframes byakuganVeins {
+        0% { 
+          background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+          filter: hue-rotate(0deg) brightness(100%);
+        }
+        25% { 
+          background-position: 4px 4px, -4px 4px, 0 2px, 2px 0, 0 2px;
+          filter: hue-rotate(10deg) brightness(120%);
+        }
+        50% { 
+          background-position: 8px 8px, -8px 8px, 0 4px, 4px 0, 0 4px;
+          filter: hue-rotate(20deg) brightness(140%);
+        }
+        75% { 
+          background-position: 4px 4px, -4px 4px, 0 2px, 2px 0, 0 2px;
+          filter: hue-rotate(10deg) brightness(120%);
+        }
+        100% { 
+          background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+          filter: hue-rotate(0deg) brightness(100%);
+        }
+      }
+    `;
+    document.head.appendChild(byakuganStyles);
+    document.body.appendChild(byakuganOverlay);
 
-      // Efecto de chakra visible
-      let chakraPoints = [];
-      for(let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      byakuganOverlay.remove();
+      byakuganStyles.remove();
+    }, 8000);
+
+    // DETECCIÓN DE ENEMIGOS ÉPICA - COMO EN LA SERIE
+    enemies.forEach((e, index) => {
+      // Crear sistema de chakra visible alrededor del enemigo
+      let chakraSystem = new THREE.Group();
+      
+      // Puntos de chakra principales (como en la serie)
+      let chakraPoints = [
+        {pos: [0, 1.8, 0], size: 0.3, color: 0x00FFFF}, // Cabeza
+        {pos: [0, 1.2, 0], size: 0.25, color: 0x0080FF}, // Corazón
+        {pos: [0, 0.8, 0], size: 0.2, color: 0x4080FF}, // Estómago
+        {pos: [-0.6, 1.2, 0], size: 0.15, color: 0x8080FF}, // Brazo izq
+        {pos: [0.6, 1.2, 0], size: 0.15, color: 0x8080FF}, // Brazo der
+        {pos: [-0.3, 0.2, 0], size: 0.15, color: 0x8080FF}, // Pierna izq
+        {pos: [0.3, 0.2, 0], size: 0.15, color: 0x8080FF}  // Pierna der
+      ];
+
+      chakraPoints.forEach((point, i) => {
         let chakraPoint = new THREE.Mesh(
-          new THREE.BoxGeometry(0.2, 0.2, 0.2),
+          new THREE.SphereGeometry(point.size, 8, 8),
           new THREE.MeshBasicMaterial({
-            color: 0x00ffff,
+            color: point.color,
             transparent: true,
             opacity: 0.8
           })
         );
-        chakraPoint.position.copy(e.position).add(new THREE.Vector3(
-          Math.cos(i * Math.PI / 4) * 1.5,
-          Math.random() * 2,
-          Math.sin(i * Math.PI / 4) * 1.5
-        ));
-        scene.add(chakraPoint);
-        chakraPoints.push(chakraPoint);
-      }
+        chakraPoint.position.set(...point.pos);
+        chakraSystem.add(chakraPoint);
 
-      setTimeout(()=>{
-        scene.remove(aura);
-        chakraPoints.forEach(point => scene.remove(point));
-      }, 1200);
+        // Líneas de chakra conectando los puntos
+        if(i > 0) {
+          let lineGeometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(...chakraPoints[0].pos),
+            new THREE.Vector3(...point.pos)
+          ]);
+          let line = new THREE.Line(
+            lineGeometry,
+            new THREE.LineBasicMaterial({
+              color: 0x00FFFF,
+              transparent: true,
+              opacity: 0.6
+            })
+          );
+          chakraSystem.add(line);
+        }
+      });
+
+      chakraSystem.position.copy(e.position);
+      scene.add(chakraSystem);
+
+      // Animación del sistema de chakra
+      let chakraTime = 0;
+      let chakraInterval = setInterval(() => {
+        chakraTime += 0.1;
+        chakraSystem.children.forEach((child, i) => {
+          if(child.geometry && child.geometry.type === 'SphereGeometry') {
+            child.scale.setScalar(1 + Math.sin(chakraTime * 4 + i) * 0.3);
+            child.material.opacity = 0.6 + Math.sin(chakraTime * 6 + i) * 0.4;
+          }
+        });
+        chakraSystem.rotation.y += 0.02;
+      }, 50);
+
+      // Aura de detección expandiéndose
+      let detectionAura = new THREE.Mesh(
+        new THREE.SphereGeometry(0.5, 16, 16),
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          transparent: true,
+          opacity: 0.3,
+          wireframe: true
+        })
+      );
+      detectionAura.position.copy(e.position);
+      scene.add(detectionAura);
+
+      let auraScale = 0.5;
+      let auraInterval = setInterval(() => {
+        auraScale += 0.1;
+        detectionAura.scale.setScalar(auraScale);
+        detectionAura.material.opacity = Math.max(0, 0.5 - auraScale * 0.1);
+      }, 50);
+
+      setTimeout(() => {
+        clearInterval(chakraInterval);
+        clearInterval(auraInterval);
+        scene.remove(chakraSystem);
+        scene.remove(detectionAura);
+      }, 8000);
     });
+
+    // Aumentar temporalmente la percepción y velocidad
+    let originalSpeed = playerSpeed;
+    playerSpeed *= 1.8;
+    
+    setTimeout(() => {
+      playerSpeed = originalSpeed;
+    }, 8000);
   }
 
   function activateJuken(){
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
-    // golpe suave: pulso pixelado
-    let p=new THREE.Mesh(
-      new THREE.BoxGeometry(1,1,1),
-      new THREE.MeshBasicMaterial({color:0xffa500,transparent:true,opacity:0.8})
+    // JUKEN ÉPICO - GOLPE SUAVE CON EFECTOS VISUALES ESPECTACULARES
+    
+    // Crear aura de chakra en las manos
+    let rightHandAura = new THREE.Group();
+    let leftHandAura = new THREE.Group();
+
+    // Efectos de chakra en las palmas
+    for(let i = 0; i < 3; i++) {
+      let chakraOrb = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2 + i * 0.1, 8, 8),
+        new THREE.MeshBasicMaterial({
+          color: i === 0 ? 0x00FFFF : (i === 1 ? 0x4080FF : 0x8080FF),
+          transparent: true,
+          opacity: 0.7 - i * 0.2
+        })
+      );
+      rightHandAura.add(chakraOrb);
+      
+      let chakraOrb2 = chakraOrb.clone();
+      leftHandAura.add(chakraOrb2);
+    }
+
+    // Posicionar auras en las manos
+    rightHandAura.position.copy(player.position).add(new THREE.Vector3(0.8, 1.5, 0.3));
+    leftHandAura.position.copy(player.position).add(new THREE.Vector3(-0.8, 1.5, 0.3));
+    scene.add(rightHandAura);
+    scene.add(leftHandAura);
+
+    // Animación de las auras
+    let auraTime = 0;
+    let auraInterval = setInterval(() => {
+      auraTime += 0.2;
+      [rightHandAura, leftHandAura].forEach(aura => {
+        aura.children.forEach((orb, i) => {
+          orb.scale.setScalar(1 + Math.sin(auraTime * 4 + i) * 0.4);
+          orb.rotation.x += 0.1;
+          orb.rotation.y += 0.15;
+        });
+      });
+    }, 50);
+
+    // Crear proyectil de Juken con efectos mejorados
+    let jukenStrike = new THREE.Group();
+    
+    // Núcleo del golpe
+    let core = new THREE.Mesh(
+      new THREE.SphereGeometry(0.4, 12, 12),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FFFF,
+        transparent: true,
+        opacity: 0.9
+      })
     );
-    // Posición de la mano derecha
-    p.position.copy(player.position).add(new THREE.Vector3(0.8, 1.5, 0));
-    scene.add(p);
-    powers.push({mesh:p,vel:new THREE.Vector3(0,0,-1),life:40,damage:50});
+    jukenStrike.add(core);
+
+    // Anillos de chakra giratorios
+    for(let i = 0; i < 4; i++) {
+      let ring = new THREE.Mesh(
+        new THREE.RingGeometry(0.6 + i * 0.2, 0.8 + i * 0.2, 16),
+        new THREE.MeshBasicMaterial({
+          color: 0x4080FF,
+          transparent: true,
+          opacity: 0.6 - i * 0.1,
+          side: THREE.DoubleSide
+        })
+      );
+      ring.rotation.x = Math.random() * Math.PI;
+      ring.rotation.y = Math.random() * Math.PI;
+      jukenStrike.add(ring);
+    }
+
+    // Espirales de energía
+    for(let i = 0; i < 8; i++) {
+      let spiral = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 0.1, 1.5),
+        new THREE.MeshBasicMaterial({
+          color: 0x80FFFF,
+          transparent: true,
+          opacity: 0.8
+        })
+      );
+      spiral.position.set(
+        Math.cos(i * Math.PI / 4) * 0.8,
+        Math.sin(i * Math.PI / 4) * 0.8,
+        0
+      );
+      spiral.lookAt(new THREE.Vector3(0, 0, 1));
+      jukenStrike.add(spiral);
+    }
+
+    jukenStrike.position.copy(player.position).add(new THREE.Vector3(0, 1.5, 0));
+    scene.add(jukenStrike);
+
+    // Animación del proyectil
+    let strikeTime = 0;
+    let strikeInterval = setInterval(() => {
+      strikeTime += 0.3;
+      
+      // Rotar anillos
+      jukenStrike.children.forEach((child, i) => {
+        if(child.geometry && child.geometry.type === 'RingGeometry') {
+          child.rotation.z += 0.2 * (i % 2 ? 1 : -1);
+        }
+        if(child.geometry && child.geometry.type === 'BoxGeometry') {
+          child.rotation.z += 0.3;
+        }
+      });
+
+      // Pulso del núcleo
+      core.scale.setScalar(1 + Math.sin(strikeTime * 8) * 0.3);
+    }, 50);
+
+    // Añadir a poderes con efectos mejorados
+    powers.push({
+      mesh: jukenStrike,
+      vel: new THREE.Vector3(0, 0, -1.2),
+      life: 50,
+      damage: 75,
+      onHit: (enemy) => {
+        // Efecto especial al impactar
+        let impactEffect = new THREE.Group();
+        
+        // Explosión de chakra
+        for(let i = 0; i < 12; i++) {
+          let fragment = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 0.3, 0.3),
+            new THREE.MeshBasicMaterial({
+              color: 0x00FFFF,
+              transparent: true,
+              opacity: 0.8
+            })
+          );
+          fragment.position.copy(enemy.position);
+          fragment.velocity = new THREE.Vector3(
+            (Math.random() - 0.5) * 2,
+            Math.random() * 2,
+            (Math.random() - 0.5) * 2
+          );
+          impactEffect.add(fragment);
+        }
+        
+        scene.add(impactEffect);
+        
+        // Animar fragmentos
+        let fragmentTime = 0;
+        let fragmentInterval = setInterval(() => {
+          fragmentTime += 0.1;
+          impactEffect.children.forEach(fragment => {
+            fragment.position.add(fragment.velocity.clone().multiplyScalar(0.1));
+            fragment.velocity.y -= 0.02; // Gravedad
+            fragment.material.opacity -= 0.05;
+            fragment.rotation.x += 0.2;
+            fragment.rotation.y += 0.2;
+          });
+          
+          if(fragmentTime > 2) {
+            clearInterval(fragmentInterval);
+            scene.remove(impactEffect);
+          }
+        }, 50);
+      }
+    });
+
+    // Limpiar efectos después de un tiempo
+    setTimeout(() => {
+      clearInterval(auraInterval);
+      clearInterval(strikeInterval);
+      scene.remove(rightHandAura);
+      scene.remove(leftHandAura);
+    }, 3000);
   }
 
   function activate64Palms(){
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
-    for(let i=0;i<64;i++){
-      let a=(i/64)*Math.PI*2;
-      let orb=new THREE.Mesh(
-        new THREE.BoxGeometry(0.3,0.3,0.3),
-        new THREE.MeshBasicMaterial({color:0x66ccff})
+    // HAKKE ROKUJŪYONSHŌ - 64 PALMAS ÉPICAS
+    
+    // Crear círculo de 8 trigramas en el suelo
+    let trigramCircle = new THREE.Group();
+    
+    // Círculo base de los 8 trigramas
+    let baseCircle = new THREE.Mesh(
+      new THREE.RingGeometry(4, 4.5, 64),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FFFF,
+        transparent: true,
+        opacity: 0.8,
+        side: THREE.DoubleSide
+      })
+    );
+    baseCircle.rotation.x = -Math.PI/2;
+    trigramCircle.add(baseCircle);
+
+    // Líneas de los 8 trigramas
+    for(let i = 0; i < 8; i++) {
+      let angle = (i / 8) * Math.PI * 2;
+      let lineGeometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0.1, 0),
+        new THREE.Vector3(Math.cos(angle) * 4.2, 0.1, Math.sin(angle) * 4.2)
+      ]);
+      let line = new THREE.Line(
+        lineGeometry,
+        new THREE.LineBasicMaterial({
+          color: 0x80FFFF,
+          transparent: true,
+          opacity: 0.9
+        })
       );
-      orb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
-      scene.add(orb);
-      powers.push({
-        mesh:orb,
-        vel:new THREE.Vector3(Math.cos(a)*0.7,0,Math.sin(a)*0.7),
-        life:50,damage:10
-      });
+      trigramCircle.add(line);
+
+      // Símbolos de trigramas en cada sección
+      let symbol = new THREE.Mesh(
+        new THREE.BoxGeometry(0.3, 0.1, 0.8),
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          transparent: true,
+          opacity: 0.9
+        })
+      );
+      symbol.position.set(
+        Math.cos(angle) * 3.5,
+        0.2,
+        Math.sin(angle) * 3.5
+      );
+      symbol.rotation.y = angle;
+      trigramCircle.add(symbol);
     }
+
+    trigramCircle.position.copy(player.position);
+    scene.add(trigramCircle);
+
+    // Animación del círculo de trigramas
+    let circleTime = 0;
+    let circleInterval = setInterval(() => {
+      circleTime += 0.1;
+      trigramCircle.rotation.y += 0.05;
+      trigramCircle.children.forEach((child, i) => {
+        if(child.material) {
+          child.material.opacity = 0.6 + Math.sin(circleTime * 4 + i) * 0.3;
+        }
+      });
+    }, 50);
+
+    // Crear las 64 palmas en secuencia épica
+    let palmCount = 0;
+    let palmSequence = [
+      2, 4, 8, 16, 32, 64 // Secuencia tradicional: 2, 4, 8, 16, 32, 64 palmas
+    ];
+    
+    let currentSequence = 0;
+    let palmsInSequence = 0;
+    
+    let palmInterval = setInterval(() => {
+      if(palmCount >= 64) {
+        clearInterval(palmInterval);
+        return;
+      }
+
+      // Calcular posición de la palma
+      let sequenceAngle = (palmCount / 64) * Math.PI * 2;
+      let radius = 1.5 + (palmCount % 8) * 0.3;
+      let height = 1 + Math.sin(palmCount * 0.2) * 0.5;
+
+      // Crear efecto de palma individual
+      let palm = new THREE.Group();
+      
+      // Núcleo de la palma
+      let palmCore = new THREE.Mesh(
+        new THREE.SphereGeometry(0.25, 8, 8),
+        new THREE.MeshBasicMaterial({
+          color: 0x00FFFF,
+          transparent: true,
+          opacity: 0.9
+        })
+      );
+      palm.add(palmCore);
+
+      // Ondas de chakra alrededor de la palma
+      for(let i = 0; i < 3; i++) {
+        let wave = new THREE.Mesh(
+          new THREE.RingGeometry(0.3 + i * 0.2, 0.4 + i * 0.2, 12),
+          new THREE.MeshBasicMaterial({
+            color: 0x4080FF,
+            transparent: true,
+            opacity: 0.6 - i * 0.15,
+            side: THREE.DoubleSide
+          })
+        );
+        wave.rotation.x = Math.random() * Math.PI;
+        palm.add(wave);
+      }
+
+      // Posicionar palma
+      palm.position.copy(player.position).add(new THREE.Vector3(
+        Math.cos(sequenceAngle) * radius,
+        height,
+        Math.sin(sequenceAngle) * radius
+      ));
+      
+      scene.add(palm);
+
+      // Dirección hacia el enemigo más cercano o hacia adelante
+      let targetDirection = new THREE.Vector3(0, 0, -1);
+      if(enemies.length > 0) {
+        let closestEnemy = enemies[0];
+        let minDist = player.position.distanceTo(closestEnemy.position);
+        enemies.forEach(enemy => {
+          let dist = player.position.distanceTo(enemy.position);
+          if(dist < minDist) {
+            minDist = dist;
+            closestEnemy = enemy;
+          }
+        });
+        targetDirection = closestEnemy.position.clone().sub(palm.position).normalize();
+      }
+
+      // Añadir a poderes
+      powers.push({
+        mesh: palm,
+        vel: targetDirection.multiplyScalar(0.8),
+        life: 60,
+        damage: 15,
+        palmIndex: palmCount,
+        onHit: (enemy) => {
+          // Efecto especial de impacto de palma
+          let impactRing = new THREE.Mesh(
+            new THREE.RingGeometry(0.5, 1.5, 16),
+            new THREE.MeshBasicMaterial({
+              color: 0x00FFFF,
+              transparent: true,
+              opacity: 0.8,
+              side: THREE.DoubleSide
+            })
+          );
+          impactRing.position.copy(enemy.position);
+          impactRing.lookAt(camera.position);
+          scene.add(impactRing);
+
+          // Animar anillo de impacto
+          let impactTime = 0;
+          let impactInterval = setInterval(() => {
+            impactTime += 0.2;
+            impactRing.scale.setScalar(1 + impactTime);
+            impactRing.material.opacity = Math.max(0, 0.8 - impactTime);
+            
+            if(impactTime > 1) {
+              clearInterval(impactInterval);
+              scene.remove(impactRing);
+            }
+          }, 50);
+        }
+      });
+
+      palmCount++;
+      palmsInSequence++;
+
+      // Verificar si completamos una secuencia
+      if(currentSequence < palmSequence.length && palmsInSequence >= palmSequence[currentSequence]) {
+        currentSequence++;
+        palmsInSequence = 0;
+        
+        // Efecto especial al completar cada secuencia
+        let sequenceEffect = new THREE.Mesh(
+          new THREE.RingGeometry(2, 3, 32),
+          new THREE.MeshBasicMaterial({
+            color: 0xFFFFFF,
+            transparent: true,
+            opacity: 0.9,
+            side: THREE.DoubleSide
+          })
+        );
+        sequenceEffect.position.copy(player.position);
+        sequenceEffect.rotation.x = -Math.PI/2;
+        scene.add(sequenceEffect);
+
+        // Animar efecto de secuencia
+        let seqTime = 0;
+        let seqInterval = setInterval(() => {
+          seqTime += 0.3;
+          sequenceEffect.scale.setScalar(1 + seqTime * 2);
+          sequenceEffect.material.opacity = Math.max(0, 0.9 - seqTime);
+          
+          if(seqTime > 0.8) {
+            clearInterval(seqInterval);
+            scene.remove(sequenceEffect);
+          }
+        }, 50);
+      }
+    }, 80); // Una palma cada 80ms para efecto rápido
+
+    // Limpiar círculo de trigramas después de la técnica
+    setTimeout(() => {
+      clearInterval(circleInterval);
+      scene.remove(trigramCircle);
+    }, 8000);
   }
 
   function activate128Palms(){
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
-    for(let i=0;i<128;i++){      let a=(i/128)*Math.PI*2;
-      let orb=new THREE.Mesh(
-        new THREE.BoxGeometry(0.24,0.24,0.24),
-        new THREE.MeshBasicMaterial({color:0x00ffff})
+    // HAKKE HYAKUNIJŪHACHISHŌ - 128 PALMAS DEFINITIVAS
+    
+    // Crear campo de batalla de 8 trigramas expandido
+    let ultimateField = new THREE.Group();
+    
+    // Círculo exterior más grande
+    let outerCircle = new THREE.Mesh(
+      new THREE.RingGeometry(6, 7, 128),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FFFF,
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide
+      })
+    );
+    outerCircle.rotation.x = -Math.PI/2;
+    ultimateField.add(outerCircle);
+
+    // Círculo interior
+    let innerCircle = new THREE.Mesh(
+      new THREE.RingGeometry(3, 4, 64),
+      new THREE.MeshBasicMaterial({
+        color: 0x80FFFF,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide
+      })
+    );
+    innerCircle.rotation.x = -Math.PI/2;
+    ultimateField.add(innerCircle);
+
+    // 16 líneas de poder (doble de las normales)
+    for(let i = 0; i < 16; i++) {
+      let angle = (i / 16) * Math.PI * 2;
+      let lineGeometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0.1, 0),
+        new THREE.Vector3(Math.cos(angle) * 6.5, 0.1, Math.sin(angle) * 6.5)
+      ]);
+      let line = new THREE.Line(
+        lineGeometry,
+        new THREE.LineBasicMaterial({
+          color: i % 2 ? 0x00FFFF : 0xFFFFFF,
+          transparent: true,
+          opacity: 0.8
+        })
       );
-      orb.position.copy(player.position).add(new THREE.Vector3(0,1,0));
-      scene.add(orb);
-      powers.push({
-        mesh:orb,
-        vel:new THREE.Vector3(Math.cos(a)*0.9,0,Math.sin(a)*0.9),
-        life:40,damage:8
-      });
+      ultimateField.add(line);
+
+      // Símbolos de poder en cada línea
+      for(let j = 0; j < 3; j++) {
+        let symbol = new THREE.Mesh(
+          new THREE.BoxGeometry(0.2, 0.1, 0.6),
+          new THREE.MeshBasicMaterial({
+            color: 0xFFFFFF,
+            transparent: true,
+            opacity: 0.9
+          })
+        );
+        symbol.position.set(
+          Math.cos(angle) * (2 + j * 1.5),
+          0.2,
+          Math.sin(angle) * (2 + j * 1.5)
+        );
+        symbol.rotation.y = angle;
+        ultimateField.add(symbol);
+      }
     }
+
+    ultimateField.position.copy(player.position);
+    scene.add(ultimateField);
+
+    // Animación del campo definitivo
+    let fieldTime = 0;
+    let fieldInterval = setInterval(() => {
+      fieldTime += 0.15;
+      ultimateField.rotation.y += 0.08;
+      
+      // Pulso de energía
+      outerCircle.scale.setScalar(1 + Math.sin(fieldTime * 3) * 0.1);
+      innerCircle.scale.setScalar(1 + Math.sin(fieldTime * 4) * 0.15);
+      
+      ultimateField.children.forEach((child, i) => {
+        if(child.material) {
+          child.material.opacity = 0.5 + Math.sin(fieldTime * 5 + i) * 0.4;
+        }
+      });
+    }, 50);
+
+    // Crear las 128 palmas en formación épica
+    let palmCount = 0;
+    let waveCount = 0;
+    const PALMS_PER_WAVE = 16;
+    const TOTAL_WAVES = 8;
+    
+    let palmInterval = setInterval(() => {
+      if(palmCount >= 128) {
+        clearInterval(palmInterval);
+        return;
+      }
+
+      // Crear oleada de palmas simultáneas
+      for(let i = 0; i < PALMS_PER_WAVE && palmCount < 128; i++) {
+        let waveAngle = (i / PALMS_PER_WAVE) * Math.PI * 2;
+        let spiralRadius = 2 + (waveCount * 0.5);
+        let height = 1.5 + Math.sin(waveAngle * 2) * 0.8;
+
+        // Crear palma definitiva
+        let ultimatePalm = new THREE.Group();
+        
+        // Núcleo de poder intensificado
+        let palmCore = new THREE.Mesh(
+          new THREE.SphereGeometry(0.3, 12, 12),
+          new THREE.MeshBasicMaterial({
+            color: 0x00FFFF,
+            transparent: true,
+            opacity: 1.0
+          })
+        );
+        ultimatePalm.add(palmCore);
+
+        // Múltiples anillos de chakra
+        for(let j = 0; j < 5; j++) {
+          let ring = new THREE.Mesh(
+            new THREE.RingGeometry(0.4 + j * 0.15, 0.5 + j * 0.15, 16),
+            new THREE.MeshBasicMaterial({
+              color: j % 2 ? 0x4080FF : 0x80FFFF,
+              transparent: true,
+              opacity: 0.8 - j * 0.1,
+              side: THREE.DoubleSide
+            })
+          );
+          ring.rotation.x = Math.random() * Math.PI;
+          ring.rotation.y = Math.random() * Math.PI;
+          ultimatePalm.add(ring);
+        }
+
+        // Rayos de energía
+        for(let k = 0; k < 6; k++) {
+          let ray = new THREE.Mesh(
+            new THREE.BoxGeometry(0.05, 0.05, 1.2),
+            new THREE.MeshBasicMaterial({
+              color: 0xFFFFFF,
+              transparent: true,
+              opacity: 0.9
+            })
+          );
+          ray.position.set(
+            Math.cos(k * Math.PI / 3) * 0.6,
+            Math.sin(k * Math.PI / 3) * 0.6,
+            0
+          );
+          ray.rotation.z = k * Math.PI / 3;
+          ultimatePalm.add(ray);
+        }
+
+        // Posicionar palma en espiral
+        ultimatePalm.position.copy(player.position).add(new THREE.Vector3(
+          Math.cos(waveAngle) * spiralRadius,
+          height,
+          Math.sin(waveAngle) * spiralRadius
+        ));
+        
+        scene.add(ultimatePalm);
+
+        // Dirección inteligente hacia enemigos
+        let targetDirection = new THREE.Vector3(
+          Math.cos(waveAngle),
+          0,
+          Math.sin(waveAngle)
+        ).normalize();
+
+        if(enemies.length > 0) {
+          // Distribuir palmas entre todos los enemigos
+          let targetEnemy = enemies[i % enemies.length];
+          targetDirection = targetEnemy.position.clone().sub(ultimatePalm.position).normalize();
+        }
+
+        // Añadir a poderes con efectos mejorados
+        powers.push({
+          mesh: ultimatePalm,
+          vel: targetDirection.multiplyScalar(1.2),
+          life: 70,
+          damage: 12,
+          palmIndex: palmCount,
+          waveIndex: waveCount,
+          onHit: (enemy) => {
+            // Efecto de impacto definitivo
+            let ultimateImpact = new THREE.Group();
+            
+            // Explosión central
+            let explosion = new THREE.Mesh(
+              new THREE.SphereGeometry(1, 16, 16),
+              new THREE.MeshBasicMaterial({
+                color: 0x00FFFF,
+                transparent: true,
+                opacity: 0.8,
+                wireframe: true
+              })
+            );
+            ultimateImpact.add(explosion);
+
+            // Ondas de choque
+            for(let wave = 0; wave < 4; wave++) {
+              let shockwave = new THREE.Mesh(
+                new THREE.RingGeometry(0.5 + wave * 0.5, 1 + wave * 0.5, 24),
+                new THREE.MeshBasicMaterial({
+                  color: 0x80FFFF,
+                  transparent: true,
+                  opacity: 0.6 - wave * 0.1,
+                  side: THREE.DoubleSide
+                })
+              );
+              shockwave.rotation.x = -Math.PI/2;
+              shockwave.position.y = wave * 0.2;
+              ultimateImpact.add(shockwave);
+            }
+
+            ultimateImpact.position.copy(enemy.position);
+            scene.add(ultimateImpact);
+
+            // Animar impacto definitivo
+            let impactTime = 0;
+            let impactInterval = setInterval(() => {
+              impactTime += 0.2;
+              
+              explosion.scale.setScalar(1 + impactTime * 2);
+              explosion.material.opacity = Math.max(0, 0.8 - impactTime);
+              
+              ultimateImpact.children.forEach((child, index) => {
+                if(child.geometry && child.geometry.type === 'RingGeometry') {
+                  child.scale.setScalar(1 + impactTime * (index + 1));
+                  child.material.opacity = Math.max(0, 0.6 - impactTime * (index + 1) * 0.3);
+                }
+              });
+              
+              if(impactTime > 1.5) {
+                clearInterval(impactInterval);
+                scene.remove(ultimateImpact);
+              }
+            }, 50);
+          }
+        });
+
+        palmCount++;
+      }
+
+      waveCount++;
+
+      // Efecto especial cada oleada completa
+      let waveEffect = new THREE.Mesh(
+        new THREE.RingGeometry(4, 5, 64),
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          transparent: true,
+          opacity: 1.0,
+          side: THREE.DoubleSide
+        })
+      );
+      waveEffect.position.copy(player.position);
+      waveEffect.rotation.x = -Math.PI/2;
+      scene.add(waveEffect);
+
+      // Animar efecto de oleada
+      let waveTime = 0;
+      let waveInterval = setInterval(() => {
+        waveTime += 0.4;
+        waveEffect.scale.setScalar(1 + waveTime * 3);
+        waveEffect.material.opacity = Math.max(0, 1.0 - waveTime);
+        
+        if(waveTime > 1) {
+          clearInterval(waveInterval);
+          scene.remove(waveEffect);
+        }
+      }, 50);
+
+    }, 200); // Una oleada cada 200ms
+
+    // Limpiar campo definitivo
+    setTimeout(() => {
+      clearInterval(fieldInterval);
+      scene.remove(ultimateField);
+    }, 12000);
   }
 
   function activateKaiten(){
-    let t=new THREE.Mesh(
-      new THREE.BoxGeometry(6,0.8,6),
-      new THREE.MeshBasicMaterial({color:0x99ccff,transparent:true,opacity:0.4})
+    // HAKKESHŌ KAITEN - ROTACIÓN CELESTIAL DE LOS 8 TRIGRAMAS
+    
+    // Crear sistema de rotación múltiple
+    let kaitenSystem = new THREE.Group();
+    
+    // Domo principal de protección
+    let mainDome = new THREE.Mesh(
+      new THREE.SphereGeometry(4, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FFFF,
+        transparent: true,
+        opacity: 0.6,
+        side: THREE.DoubleSide,
+        wireframe: true
+      })
     );
-    t.rotation.x=Math.PI/2; player.add(t);
-    let cnt=0, iv=setInterval(()=>{
-      t.rotation.z+=0.6;
-      enemies.forEach(e=>{
-        if(t.getWorldPosition(new THREE.Vector3()).distanceTo(e.position)<3)
-          e.userData.hp-=3;
+    kaitenSystem.add(mainDome);
+
+    // Anillos de chakra giratorios
+    let rings = [];
+    for(let i = 0; i < 6; i++) {
+      let ring = new THREE.Mesh(
+        new THREE.RingGeometry(2 + i * 0.5, 2.3 + i * 0.5, 32),
+        new THREE.MeshBasicMaterial({
+          color: i % 2 ? 0x4080FF : 0x80FFFF,
+          transparent: true,
+          opacity: 0.8 - i * 0.1,
+          side: THREE.DoubleSide
+        })
+      );
+      
+      // Diferentes orientaciones para cada anillo
+      if(i % 3 === 0) ring.rotation.x = Math.PI / 2;
+      else if(i % 3 === 1) ring.rotation.y = Math.PI / 2;
+      else ring.rotation.z = Math.PI / 2;
+      
+      kaitenSystem.add(ring);
+      rings.push(ring);
+    }
+
+    // Espirales de energía
+    let spirals = [];
+    for(let i = 0; i < 12; i++) {
+      let spiral = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 0.1, 3),
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          transparent: true,
+          opacity: 0.9
+        })
+      );
+      
+      let angle = (i / 12) * Math.PI * 2;
+      spiral.position.set(
+        Math.cos(angle) * 2.5,
+        Math.sin(i * 0.5) * 1.5,
+        Math.sin(angle) * 2.5
+      );
+      spiral.lookAt(new THREE.Vector3(0, 0, 0));
+      
+      kaitenSystem.add(spiral);
+      spirals.push(spiral);
+    }
+
+    // Puntos de chakra orbitales
+    let chakraOrbs = [];
+    for(let i = 0; i < 8; i++) {
+      let orb = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2, 8, 8),
+        new THREE.MeshBasicMaterial({
+          color: 0x00FFFF,
+          transparent: true,
+          opacity: 0.9
+        })
+      );
+      
+      let angle = (i / 8) * Math.PI * 2;
+      orb.position.set(
+        Math.cos(angle) * 3.5,
+        Math.sin(angle * 2) * 0.5,
+        Math.sin(angle) * 3.5
+      );
+      
+      kaitenSystem.add(orb);
+      chakraOrbs.push(orb);
+    }
+
+    // Posicionar sistema en el jugador
+    kaitenSystem.position.copy(player.position);
+    scene.add(kaitenSystem);
+
+    // Variables de animación
+    let rotationSpeed = 0.1;
+    let kaitenTime = 0;
+    let maxSpeed = 1.2;
+    let acceleration = 0.05;
+    
+    let kaitenInterval = setInterval(() => {
+      kaitenTime += 0.1;
+      
+      // Acelerar gradualmente
+      if(rotationSpeed < maxSpeed) {
+        rotationSpeed += acceleration;
+      }
+      
+      // Rotar sistema principal
+      kaitenSystem.rotation.y += rotationSpeed;
+      kaitenSystem.rotation.x += rotationSpeed * 0.3;
+      
+      // Rotar anillos individuales
+      rings.forEach((ring, i) => {
+        if(i % 3 === 0) {
+          ring.rotation.z += rotationSpeed * (i % 2 ? 1 : -1);
+        } else if(i % 3 === 1) {
+          ring.rotation.x += rotationSpeed * (i % 2 ? 1 : -1);
+        } else {
+          ring.rotation.y += rotationSpeed * (i % 2 ? 1 : -1);
+        }
+        
+        // Efecto de pulso
+        ring.scale.setScalar(1 + Math.sin(kaitenTime * 8 + i) * 0.1);
       });
-      if(++cnt>30){ clearInterval(iv); player.remove(t); }
-    },40);
+      
+      // Animar espirales
+      spirals.forEach((spiral, i) => {
+        spiral.rotation.z += rotationSpeed * 2;
+        spiral.material.opacity = 0.7 + Math.sin(kaitenTime * 6 + i) * 0.3;
+      });
+      
+      // Orbitar chakra orbs
+      chakraOrbs.forEach((orb, i) => {
+        let angle = (i / 8) * Math.PI * 2 + kaitenTime * rotationSpeed * 4;
+        orb.position.set(
+          Math.cos(angle) * 3.5,
+          Math.sin(angle * 2 + kaitenTime) * 0.8,
+          Math.sin(angle) * 3.5
+        );
+        orb.scale.setScalar(1 + Math.sin(kaitenTime * 10 + i) * 0.4);
+      });
+      
+      // Efecto de pulso en el domo
+      mainDome.scale.setScalar(1 + Math.sin(kaitenTime * 4) * 0.15);
+      mainDome.material.opacity = 0.4 + Math.sin(kaitenTime * 6) * 0.3;
+      
+      // Mantener posición con el jugador
+      kaitenSystem.position.copy(player.position);
+      
+      // Daño y repulsión a enemigos
+      enemies.forEach(enemy => {
+        let distance = enemy.position.distanceTo(kaitenSystem.position);
+        if(distance < 4.5) {
+          // Daño continuo
+          enemy.userData.hp -= 5;
+          
+          // Efecto de repulsión
+          let repelDirection = enemy.position.clone().sub(kaitenSystem.position).normalize();
+          enemy.position.add(repelDirection.multiplyScalar(0.3));
+          
+          // Efecto visual de impacto
+          let impactSpark = new THREE.Mesh(
+            new THREE.SphereGeometry(0.3, 8, 8),
+            new THREE.MeshBasicMaterial({
+              color: 0xFFFFFF,
+              transparent: true,
+              opacity: 0.8
+            })
+          );
+          impactSpark.position.copy(enemy.position);
+          scene.add(impactSpark);
+          
+          // Animar chispa de impacto
+          let sparkTime = 0;
+          let sparkInterval = setInterval(() => {
+            sparkTime += 0.3;
+            impactSpark.scale.setScalar(1 + sparkTime * 2);
+            impactSpark.material.opacity = Math.max(0, 0.8 - sparkTime);
+            
+            if(sparkTime > 0.8) {
+              clearInterval(sparkInterval);
+              scene.remove(impactSpark);
+            }
+          }, 50);
+          
+          // Hacer que el enemigo gire por el impacto
+          enemy.rotation.y += rotationSpeed * 0.5;
+        }
+      });
+      
+    }, 40);
+    
+    // Crear ondas de choque periódicas
+    let shockwaveInterval = setInterval(() => {
+      let shockwave = new THREE.Mesh(
+        new THREE.RingGeometry(0.5, 1, 32),
+        new THREE.MeshBasicMaterial({
+          color: 0x00FFFF,
+          transparent: true,
+          opacity: 0.8,
+          side: THREE.DoubleSide
+        })
+      );
+      shockwave.position.copy(kaitenSystem.position);
+      shockwave.rotation.x = -Math.PI/2;
+      scene.add(shockwave);
+      
+      // Animar onda de choque
+      let shockTime = 0;
+      let shockInterval = setInterval(() => {
+        shockTime += 0.2;
+        shockwave.scale.setScalar(1 + shockTime * 8);
+        shockwave.material.opacity = Math.max(0, 0.8 - shockTime);
+        
+        if(shockTime > 1) {
+          clearInterval(shockInterval);
+          scene.remove(shockwave);
+        }
+      }, 50);
+    }, 800);
+    
+    // Duración total del Kaiten
+    setTimeout(() => {
+      clearInterval(kaitenInterval);
+      clearInterval(shockwaveInterval);
+      
+      // Efecto de finalización
+      let finalBurst = new THREE.Mesh(
+        new THREE.SphereGeometry(6, 32, 32),
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          transparent: true,
+          opacity: 0.6,
+          wireframe: true
+        })
+      );
+      finalBurst.position.copy(kaitenSystem.position);
+      scene.add(finalBurst);
+      
+      // Animar explosión final
+      let burstTime = 0;
+      let burstInterval = setInterval(() => {
+        burstTime += 0.3;
+        finalBurst.scale.setScalar(1 + burstTime * 2);
+        finalBurst.material.opacity = Math.max(0, 0.6 - burstTime * 0.5);
+        
+        if(burstTime > 1.2) {
+          clearInterval(burstInterval);
+          scene.remove(finalBurst);
+        }
+      }, 50);
+      
+      scene.remove(kaitenSystem);
+    }, 5000);
   }
 
   function activateKusho(){
-    // onda de vacío pixelada
-    let ring=new THREE.Mesh(
-      new THREE.BoxGeometry(1.4,0.2,1.4),
-      new THREE.MeshBasicMaterial({color:0xff00ff,side:THREE.DoubleSide,transparent:true,opacity:0.6})
+    // HAKKE KŪSHŌ - PALMA DE VACÍO DE LOS 8 TRIGRAMAS
+    
+    // Crear campo de vacío épico
+    let vacuumField = new THREE.Group();
+    
+    // Núcleo de vacío
+    let vacuumCore = new THREE.Mesh(
+      new THREE.SphereGeometry(0.5, 16, 16),
+      new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        transparent: true,
+        opacity: 0.9
+      })
     );
-    ring.rotation.x=-Math.PI/2;
-    ring.position.copy(player.position);
-    scene.add(ring);
-    let scale=1, iv=setInterval(()=>{
-      scale+=0.5;
-      ring.scale.set(scale,scale,scale);
-      ring.material.opacity-=0.05;
-      enemies.forEach(e=>{
-        if(e.position.distanceTo(player.position)<scale*1.2)
-          e.userData.hp-=4;
+    vacuumField.add(vacuumCore);
+    
+    // Anillos de distorsión espacial
+    let distortionRings = [];
+    for(let i = 0; i < 8; i++) {
+      let ring = new THREE.Mesh(
+        new THREE.RingGeometry(1 + i * 0.8, 1.3 + i * 0.8, 32),
+        new THREE.MeshBasicMaterial({
+          color: i % 2 ? 0xFF00FF : 0x8000FF,
+          transparent: true,
+          opacity: 0.7 - i * 0.08,
+          side: THREE.DoubleSide
+        })
+      );
+      ring.rotation.x = -Math.PI/2 + (Math.random() - 0.5) * 0.4;
+      ring.rotation.z = Math.random() * Math.PI * 2;
+      vacuumField.add(ring);
+      distortionRings.push(ring);
+    }
+    
+    // Espirales de absorción
+    let absorptionSpirals = [];
+    for(let i = 0; i < 12; i++) {
+      let spiral = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 0.1, 2),
+        new THREE.MeshBasicMaterial({
+          color: 0xFF00FF,
+          transparent: true,
+          opacity: 0.8
+        })
+      );
+      
+      let angle = (i / 12) * Math.PI * 2;
+      spiral.position.set(
+        Math.cos(angle) * 3,
+        Math.sin(i * 0.3) * 0.5,
+        Math.sin(angle) * 3
+      );
+      spiral.lookAt(vacuumCore.position);
+      
+      vacuumField.add(spiral);
+      absorptionSpirals.push(spiral);
+    }
+    
+    vacuumField.position.copy(player.position).add(new THREE.Vector3(0, 1, 0));
+    scene.add(vacuumField);
+    
+    // Variables de expansión
+    let expansionScale = 0.5;
+    let maxScale = 8;
+    let expansionSpeed = 0.3;
+    let vacuumTime = 0;
+    
+    let vacuumInterval = setInterval(() => {
+      vacuumTime += 0.1;
+      expansionScale += expansionSpeed;
+      
+      // Expandir anillos de distorsión
+      distortionRings.forEach((ring, i) => {
+        let ringScale = expansionScale * (1 + i * 0.1);
+        ring.scale.setScalar(ringScale);
+        ring.material.opacity = Math.max(0, (0.7 - i * 0.08) * (1 - expansionScale / maxScale));
+        
+        // Rotación de distorsión
+        ring.rotation.z += 0.1 * (i % 2 ? 1 : -1);
       });
-      if(scale>6){ clearInterval(iv); scene.remove(ring); }
-    },50);
+      
+      // Animar núcleo de vacío
+      vacuumCore.scale.setScalar(expansionScale * 0.3);
+      vacuumCore.material.opacity = 0.9 + Math.sin(vacuumTime * 10) * 0.1;
+      
+      // Animar espirales de absorción
+      absorptionSpirals.forEach((spiral, i) => {
+        let angle = (i / 12) * Math.PI * 2 + vacuumTime * 2;
+        let radius = 4 - (expansionScale * 0.3); // Se acercan al centro
+        
+        spiral.position.set(
+          Math.cos(angle) * Math.max(0.5, radius),
+          Math.sin(i * 0.3 + vacuumTime * 3) * 0.8,
+          Math.sin(angle) * Math.max(0.5, radius)
+        );
+        spiral.lookAt(vacuumCore.getWorldPosition(new THREE.Vector3()));
+        spiral.material.opacity = 0.8 * (1 - expansionScale / maxScale);
+      });
+      
+      // Efectos en enemigos
+      enemies.forEach(enemy => {
+        let distance = enemy.position.distanceTo(vacuumField.position);
+        let effectRadius = expansionScale * 1.5;
+        
+        if(distance < effectRadius) {
+          // Daño basado en proximidad
+          let damage = Math.max(1, 8 - Math.floor(distance));
+          enemy.userData.hp -= damage;
+          
+          // Efecto de absorción - atraer hacia el centro
+          let pullDirection = vacuumField.position.clone().sub(enemy.position).normalize();
+          let pullStrength = Math.max(0, 1 - distance / effectRadius) * 0.2;
+          enemy.position.add(pullDirection.multiplyScalar(pullStrength));
+          
+          // Efecto visual de absorción en el enemigo
+          if(Math.random() < 0.3) {
+            let absorptionEffect = new THREE.Mesh(
+              new THREE.BoxGeometry(0.2, 0.2, 0.2),
+              new THREE.MeshBasicMaterial({
+                color: 0xFF00FF,
+                transparent: true,
+                opacity: 0.8
+              })
+            );
+            absorptionEffect.position.copy(enemy.position).add(new THREE.Vector3(
+              (Math.random() - 0.5) * 2,
+              Math.random() * 2,
+              (Math.random() - 0.5) * 2
+            ));
+            scene.add(absorptionEffect);
+            
+            // Animar partícula hacia el centro
+            let particleVel = vacuumField.position.clone().sub(absorptionEffect.position).normalize().multiplyScalar(0.3);
+            let particleInterval = setInterval(() => {
+              absorptionEffect.position.add(particleVel);
+              absorptionEffect.material.opacity -= 0.1;
+              absorptionEffect.scale.multiplyScalar(0.95);
+              
+              if(absorptionEffect.material.opacity <= 0 || 
+                 absorptionEffect.position.distanceTo(vacuumField.position) < 0.5) {
+                clearInterval(particleInterval);
+                scene.remove(absorptionEffect);
+              }
+            }, 50);
+          }
+          
+          // Distorsión visual del enemigo
+          enemy.rotation.y += 0.2;
+          enemy.scale.setScalar(1 + Math.sin(vacuumTime * 8) * 0.1);
+        }
+      });
+      
+      // Crear ondas de choque periódicas
+      if(Math.floor(vacuumTime * 10) % 15 === 0) {
+        let shockwave = new THREE.Mesh(
+          new THREE.RingGeometry(0.2, 0.8, 32),
+          new THREE.MeshBasicMaterial({
+            color: 0x8000FF,
+            transparent: true,
+            opacity: 0.9,
+            side: THREE.DoubleSide
+          })
+        );
+        shockwave.position.copy(vacuumField.position);
+        shockwave.rotation.x = -Math.PI/2;
+        scene.add(shockwave);
+        
+        let shockTime = 0;
+        let shockInterval = setInterval(() => {
+          shockTime += 0.4;
+          shockwave.scale.setScalar(1 + shockTime * 6);
+          shockwave.material.opacity = Math.max(0, 0.9 - shockTime);
+          
+          if(shockTime > 1) {
+            clearInterval(shockInterval);
+            scene.remove(shockwave);
+          }
+        }, 50);
+      }
+      
+      // Terminar cuando alcance el tamaño máximo
+      if(expansionScale >= maxScale) {
+        clearInterval(vacuumInterval);
+        
+        // Efecto de colapso final
+        let collapseEffect = new THREE.Mesh(
+          new THREE.SphereGeometry(expansionScale * 2, 32, 32),
+          new THREE.MeshBasicMaterial({
+            color: 0xFF00FF,
+            transparent: true,
+            opacity: 0.3,
+            wireframe: true
+          })
+        );
+        collapseEffect.position.copy(vacuumField.position);
+        scene.add(collapseEffect);
+        
+        // Animar colapso
+        let collapseTime = 0;
+        let collapseInterval = setInterval(() => {
+          collapseTime += 0.5;
+          collapseEffect.scale.setScalar(1 - collapseTime * 0.8);
+          collapseEffect.material.opacity = Math.max(0, 0.3 + collapseTime * 0.7);
+          
+          if(collapseTime > 1.2) {
+            clearInterval(collapseInterval);
+            scene.remove(collapseEffect);
+          }
+        }, 50);
+        
+        scene.remove(vacuumField);
+      }
+    }, 80);
   }
 
   function activateDetect(){
-    // identifica clones/ilusiones: parpadea a los enemigos ocultos
-    enemies.forEach(e=>{
-      let highlight=new THREE.Mesh(
-        new THREE.BoxGeometry(3.6,3.6,3.6),
-        new THREE.MeshBasicMaterial({color:0xffff00,wireframe:true,transparent:true,opacity:0.5})
+    // BYAKUGAN: DETECCIÓN AVANZADA Y ANÁLISIS DE CHAKRA
+    
+    // Crear pulso de detección desde el jugador
+    let detectionPulse = new THREE.Group();
+    
+    // Onda de escaneo principal
+    let scanWave = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 32, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FFFF,
+        transparent: true,
+        opacity: 0.3,
+        wireframe: true
+      })
+    );
+    detectionPulse.add(scanWave);
+    
+    // Anillos de análisis
+    let analysisRings = [];
+    for(let i = 0; i < 5; i++) {
+      let ring = new THREE.Mesh(
+        new THREE.RingGeometry(2 + i, 2.5 + i, 32),
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          transparent: true,
+          opacity: 0.6 - i * 0.1,
+          side: THREE.DoubleSide
+        })
       );
-      highlight.position.copy(e.position);
-      scene.add(highlight);
-      setTimeout(()=>scene.remove(highlight),1500);
+      ring.rotation.x = -Math.PI/2;
+      detectionPulse.add(ring);
+      analysisRings.push(ring);
+    }
+    
+    detectionPulse.position.copy(player.position);
+    scene.add(detectionPulse);
+    
+    // Expandir pulso de detección
+    let pulseScale = 1;
+    let maxPulseScale = 15;
+    let pulseTime = 0;
+    
+    let pulseInterval = setInterval(() => {
+      pulseTime += 0.1;
+      pulseScale += 0.8;
+      
+      // Expandir onda de escaneo
+      scanWave.scale.setScalar(pulseScale);
+      scanWave.material.opacity = Math.max(0, 0.3 * (1 - pulseScale / maxPulseScale));
+      
+      // Animar anillos de análisis
+      analysisRings.forEach((ring, i) => {
+        ring.scale.setScalar(pulseScale * (1 + i * 0.1));
+        ring.material.opacity = Math.max(0, (0.6 - i * 0.1) * (1 - pulseScale / maxPulseScale));
+        ring.rotation.z += 0.05 * (i % 2 ? 1 : -1);
+      });
+      
+      if(pulseScale >= maxPulseScale) {
+        clearInterval(pulseInterval);
+        scene.remove(detectionPulse);
+      }
+    }, 50);
+    
+    // Análisis detallado de cada enemigo
+    enemies.forEach((enemy, index) => {
+      setTimeout(() => {
+        // Sistema de análisis completo
+        let analysisSystem = new THREE.Group();
+        
+        // Holograma de análisis
+        let hologram = new THREE.Mesh(
+          new THREE.BoxGeometry(2.5, 4, 2.5),
+          new THREE.MeshBasicMaterial({
+            color: 0x00FFFF,
+            transparent: true,
+            opacity: 0.2,
+            wireframe: true
+          })
+        );
+        analysisSystem.add(hologram);
+        
+        // Líneas de escaneo
+        for(let i = 0; i < 8; i++) {
+          let scanLine = new THREE.Mesh(
+            new THREE.BoxGeometry(0.05, 4, 0.05),
+            new THREE.MeshBasicMaterial({
+              color: 0xFFFF00,
+              transparent: true,
+              opacity: 0.8
+            })
+          );
+          
+          let angle = (i / 8) * Math.PI * 2;
+          scanLine.position.set(
+            Math.cos(angle) * 1.2,
+            0,
+            Math.sin(angle) * 1.2
+          );
+          analysisSystem.add(scanLine);
+        }
+        
+        // Puntos de chakra detectados
+        let chakraPoints = [
+          {pos: [0, 1.5, 0], color: 0xFF0000, size: 0.2}, // Cabeza
+          {pos: [0, 0.8, 0], color: 0x00FF00, size: 0.25}, // Corazón
+          {pos: [0, 0.2, 0], color: 0x0000FF, size: 0.2}, // Dantian
+          {pos: [-0.5, 0.8, 0], color: 0xFFFF00, size: 0.15}, // Brazo izq
+          {pos: [0.5, 0.8, 0], color: 0xFFFF00, size: 0.15}, // Brazo der
+          {pos: [-0.2, -0.5, 0], color: 0xFF00FF, size: 0.15}, // Pierna izq
+          {pos: [0.2, -0.5, 0], color: 0xFF00FF, size: 0.15}  // Pierna der
+        ];
+        
+        chakraPoints.forEach(point => {
+          let chakraPoint = new THREE.Mesh(
+            new THREE.SphereGeometry(point.size, 8, 8),
+            new THREE.MeshBasicMaterial({
+              color: point.color,
+              transparent: true,
+              opacity: 0.9
+            })
+          );
+          chakraPoint.position.set(...point.pos);
+          analysisSystem.add(chakraPoint);
+          
+          // Conexiones de chakra
+          if(point !== chakraPoints[0]) {
+            let connection = new THREE.BufferGeometry().setFromPoints([
+              new THREE.Vector3(...chakraPoints[1].pos), // Corazón como centro
+              new THREE.Vector3(...point.pos)
+            ]);
+            let line = new THREE.Line(
+              connection,
+              new THREE.LineBasicMaterial({
+                color: 0x00FFFF,
+                transparent: true,
+                opacity: 0.6
+              })
+            );
+            analysisSystem.add(line);
+          }
+        });
+        
+        // Información de estado flotante
+        let statusDisplay = document.createElement('div');
+        statusDisplay.style.cssText = `
+          position: fixed;
+          background: rgba(0,0,0,0.8);
+          color: #00FFFF;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 8px;
+          padding: 8px;
+          border: 2px solid #00FFFF;
+          border-radius: 0px;
+          z-index: 1000;
+          pointer-events: none;
+          box-shadow: 0 0 10px rgba(0,255,255,0.5);
+        `;
+        
+        statusDisplay.innerHTML = `
+          OBJETIVO: ENEMIGO ${index + 1}<br>
+          HP: ${enemy.userData.hp}/${STAGES[currentStage].enemyHealth}<br>
+          ESTADO: ${enemy.userData.hp > 50 ? 'ACTIVO' : 'DAÑADO'}<br>
+          CHAKRA: ${Math.floor(Math.random() * 100)}%<br>
+          DISTANCIA: ${Math.floor(enemy.position.distanceTo(player.position))}m
+        `;
+        
+        document.body.appendChild(statusDisplay);
+        
+        analysisSystem.position.copy(enemy.position);
+        scene.add(analysisSystem);
+        
+        // Animación del sistema de análisis
+        let analysisTime = 0;
+        let analysisInterval = setInterval(() => {
+          analysisTime += 0.1;
+          
+          // Rotar holograma
+          hologram.rotation.y += 0.05;
+          hologram.material.opacity = 0.2 + Math.sin(analysisTime * 6) * 0.1;
+          
+          // Animar líneas de escaneo
+          analysisSystem.children.forEach((child, i) => {
+            if(child.geometry && child.geometry.parameters && child.geometry.parameters.height === 4) {
+              child.position.y = Math.sin(analysisTime * 4 + i) * 0.3;
+              child.material.opacity = 0.6 + Math.sin(analysisTime * 8 + i) * 0.3;
+            }
+          });
+          
+          // Pulso de puntos de chakra
+          chakraPoints.forEach((point, i) => {
+            let chakraNode = analysisSystem.children.find(child => 
+              child.geometry && child.geometry.type === 'SphereGeometry' && 
+              child.position.equals(new THREE.Vector3(...point.pos))
+            );
+            if(chakraNode) {
+              chakraNode.scale.setScalar(1 + Math.sin(analysisTime * 8 + i) * 0.4);
+            }
+          });
+          
+          // Actualizar posición del display
+          let screenPos = enemy.position.clone().project(camera);
+          let x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+          let y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight - 100;
+          statusDisplay.style.transform = `translate(${x}px, ${y}px)`;
+          
+        }, 50);
+        
+        // Limpiar análisis después de 5 segundos
+        setTimeout(() => {
+          clearInterval(analysisInterval);
+          scene.remove(analysisSystem);
+          statusDisplay.remove();
+        }, 5000);
+        
+        // Efecto de marcado permanente
+        let marker = new THREE.Mesh(
+          new THREE.RingGeometry(1.5, 2, 16),
+          new THREE.MeshBasicMaterial({
+            color: 0xFFFF00,
+            transparent: true,
+            opacity: 0.7,
+            side: THREE.DoubleSide
+          })
+        );
+        marker.rotation.x = -Math.PI/2;
+        marker.position.copy(enemy.position);
+        marker.position.y += 0.1;
+        scene.add(marker);
+        
+        // Animar marcador
+        let markerTime = 0;
+        let markerInterval = setInterval(() => {
+          markerTime += 0.1;
+          marker.rotation.z += 0.1;
+          marker.scale.setScalar(1 + Math.sin(markerTime * 4) * 0.2);
+          marker.material.opacity = 0.5 + Math.sin(markerTime * 6) * 0.3;
+          
+          // Mantener posición con el enemigo
+          marker.position.copy(enemy.position);
+          marker.position.y += 0.1;
+        }, 50);
+        
+        // Limpiar marcador después de 10 segundos
+        setTimeout(() => {
+          clearInterval(markerInterval);
+          scene.remove(marker);
+        }, 10000);
+        
+      }, index * 300); // Escalonar el análisis de cada enemigo
     });
+    
+    // Efecto de mejora temporal de percepción
+    let perceptionBoost = document.createElement('div');
+    perceptionBoost.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,255,255,0.2);
+      color: #FFFFFF;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 10px;
+      padding: 10px 20px;
+      border: 2px solid #00FFFF;
+      z-index: 1000;
+      animation: pixelBlink 1s steps(2) infinite;
+    `;
+    perceptionBoost.textContent = 'BYAKUGAN: PERCEPCIÓN MEJORADA ACTIVA';
+    document.body.appendChild(perceptionBoost);
+    
+    setTimeout(() => {
+      perceptionBoost.remove();
+    }, 8000);
   }
 
   // Nuevos poderes de Itachi
