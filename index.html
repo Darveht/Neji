@@ -2646,7 +2646,7 @@ function showCharacterName() {
         clearInterval(pathInterval);
         scene.remove(mainWood);
         woodPath.forEach(w => scene.remove(w));
-        player.position.y = originalY;
+        player.position.y = 1.25; // Volver al suelo
       }, 3000);
     }
 
@@ -3992,7 +3992,9 @@ function animate(){
     if(player.position.y <= GROUND_LEVEL) {
       player.position.y = GROUND_LEVEL;
       velY = 0;
-      onGround = true;
+      if(!onGround) {
+        onGround = true;
+      }
     } else {
       onGround = false;
     }
@@ -5999,17 +6001,39 @@ function animate(){
     // Reproducir sonido de poder a distancia
     playProjectileSound();
 
-    let flame = new THREE.Mesh(
-      new THREE.BoxGeometry(1,1,1),
-      new THREE.MeshBasicMaterial({color:0x000000})
+    // LLAMAS NEGRAS DE AMATERASU
+    let amaterasuFlame = new THREE.Group();
+    
+    // Núcleo de llama negra
+    let flameCore = new THREE.Mesh(
+      new THREE.BoxGeometry(1.5, 1.5, 1.5),
+      new THREE.MeshBasicMaterial({color: 0x000000})
     );
-    flame.position.copy(player.position).add(new THREE.Vector3(0,1,0));
-    scene.add(flame);
+    amaterasuFlame.add(flameCore);
+    
+    // Llamas exteriores
+    for(let i = 0; i < 6; i++) {
+      let outerFlame = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 2, 0.8),
+        new THREE.MeshBasicMaterial({color: 0x330000, transparent: true, opacity: 0.8})
+      );
+      let angle = (i / 6) * Math.PI * 2;
+      outerFlame.position.set(
+        Math.cos(angle) * 1.2,
+        Math.sin(i * 0.5) * 0.5,
+        Math.sin(angle) * 1.2
+      );
+      amaterasuFlame.add(outerFlame);
+    }
+    
+    amaterasuFlame.position.copy(player.position).add(new THREE.Vector3(0, 1, 0));
+    scene.add(amaterasuFlame);
+    
     powers.push({
-      mesh: flame,
-      vel: new THREE.Vector3(0,0,-1),
-      life: 60,
-      damage: 100
+      mesh: amaterasuFlame,
+      vel: new THREE.Vector3(0, 0, -1.5),
+      life: 80,
+      damage: 150
     });
   }
 
@@ -7787,7 +7811,7 @@ function animate(){
       if(animTime > 2.5) {
         clearInterval(poseInterval);
         player.rotation.y = 0;
-        resetNejiPose();
+        resetCharacterPose();
       }
     }, 40);
   }
