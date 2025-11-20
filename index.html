@@ -1942,6 +1942,18 @@
       container.appendChild(heart);
     }
     document.getElementById('player-level').textContent = 'MUNDO ABIERTO - KONOHA';
+    
+    // Agregar indicador de salto
+    let jumpIndicator = document.createElement('div');
+    jumpIndicator.id = 'jump-indicator';
+    jumpIndicator.style.cssText = `
+      font-size: 6px;
+      color: #00FF00;
+      text-shadow: 1px 1px 0px #000;
+      margin-top: 4px;
+    `;
+    jumpIndicator.textContent = 'SUELO: SÍ';
+    document.getElementById('player-hud').appendChild(jumpIndicator);
   }
   let currentCharacter = '';
 let playerSpeed = 0.25; // Velocidad base aumentada
@@ -2702,58 +2714,7 @@ function showCharacterName() {
     }
   }
 
-  // Controles de teclado para poderes
-  let keys = {};
-  document.addEventListener('keydown', (e) => {
-    keys[e.code] = true;
-    
-    // Activar poderes con teclas numéricas
-    if(currentCharacter === 'neji') {
-      if(e.code === 'Digit1') activateByakugan();
-      else if(e.code === 'Digit2') activateJuken();
-      else if(e.code === 'Digit3') activate64Palms();
-      else if(e.code === 'Digit4') activate128Palms();
-      else if(e.code === 'Digit5') activateKaiten();
-      else if(e.code === 'Digit6') activateKusho();
-      else if(e.code === 'Digit7') activateDetect();
-    } else if(currentCharacter === 'itachi') {
-      if(e.code === 'Digit1') activateSharingan();
-      else if(e.code === 'Digit2') activateAmaterasu();
-      else if(e.code === 'Digit3') activateTsukuyomi();
-      else if(e.code === 'Digit4') activateSusanoo();
-    } else if(currentCharacter === 'ino') {
-      if(e.code === 'Digit1') activateMindTransfer();
-      else if(e.code === 'Digit2') activateChakraBomb();
-      else if(e.code === 'Digit3') activateMindControl();
-      else if(e.code === 'Digit4') activateHealing();
-    } else if(currentCharacter === 'shikamaru') {
-      if(e.code === 'Digit1') activateShadowPossession();
-      else if(e.code === 'Digit2') activateShadowStrangle();
-    } else if(currentCharacter === 'tenten') {
-      if(e.code === 'Digit1') activateWeaponSummoning();
-      else if(e.code === 'Digit2') activateKunaiRain();
-    } else if(currentCharacter === 'hinata') {
-      if(e.code === 'Digit1') activateGentleFist();
-      else if(e.code === 'Digit2') activateTwinLionFists();
-    } else if(currentCharacter === 'temari') {
-      if(e.code === 'Digit1') activateFanDance();
-      else if(e.code === 'Digit2') activateWhirlwind();
-    } else if(currentCharacter === 'sasuke') {
-      if(e.code === 'Digit1') activateChidori();
-      else if(e.code === 'Digit2') activateKirin();
-      else if(e.code === 'Digit3') activateSharingan();
-      else if(e.code === 'Digit4') activateAmaterasu();
-    } else if(currentCharacter === 'hashirama') {
-      if(e.code === 'Digit1') activateMokuton();
-      else if(e.code === 'Digit2') activateSenjutsu();
-      else if(e.code === 'Digit3') activateRegeneration();
-      else if(e.code === 'Digit4') activateGojuMokuton();
-    }
-  });
-  
-  document.addEventListener('keyup', (e) => {
-    keys[e.code] = false;
-  });
+
 
   // Función para crear el mundo de Konoha épico como en Naruto
   function createKonohaForest() {
@@ -3730,16 +3691,34 @@ function showCharacterName() {
     // BOTONES MÓVILES MEJORADOS
     const jumpBtn = document.getElementById('jump');
     
-    // Eventos táctiles
+    // Eventos táctiles mejorados
     jumpBtn.addEventListener('touchstart', e => {
       e.preventDefault();
-      if(onGround){velY=0.5;onGround=false;}
+      if(onGround) {
+        velY = 0.6;
+        onGround = false;
+        console.log('Salto táctil activado!');
+      }
     });
     
-    // Eventos de mouse para PC
+    // Eventos de mouse para PC mejorados
     jumpBtn.addEventListener('mousedown', e => {
       e.preventDefault();
-      if(onGround){velY=0.5;onGround=false;}
+      if(onGround) {
+        velY = 0.6;
+        onGround = false;
+        console.log('Salto con mouse activado!');
+      }
+    });
+    
+    // También agregar evento click para mayor compatibilidad
+    jumpBtn.addEventListener('click', e => {
+      e.preventDefault();
+      if(onGround) {
+        velY = 0.6;
+        onGround = false;
+        console.log('Salto con click activado!');
+      }
     });
     
     // Hacer botones más grandes en móvil
@@ -3862,8 +3841,26 @@ function animate(){
     // movimiento + salto + colisiones con paredes (ahora relativo a la cámara)
     updateMovementDirection();
 
-    velY+=GRAV; player.position.y+=velY;
-    if(player.position.y<=1.25){player.position.y=1.25;velY=0;onGround=true;}
+    // Sistema de física mejorado
+    velY += GRAV;
+    player.position.y += velY;
+    
+    // Detección del suelo mejorada
+    const GROUND_LEVEL = 1.25;
+    if(player.position.y <= GROUND_LEVEL) {
+      player.position.y = GROUND_LEVEL;
+      velY = 0;
+      onGround = true;
+    } else {
+      onGround = false;
+    }
+    
+    // Actualizar indicador de salto
+    const jumpIndicator = document.getElementById('jump-indicator');
+    if(jumpIndicator) {
+      jumpIndicator.textContent = onGround ? 'SUELO: SÍ' : 'AIRE: VOLANDO';
+      jumpIndicator.style.color = onGround ? '#00FF00' : '#FF4500';
+    }
     // Cámara libre 360° tipo Roblox
     updateFreeCamera();
     // poderes y colisiones (como antes)...
@@ -7041,10 +7038,11 @@ function animate(){
       event.preventDefault();
     }
 
-    // Activar poderes con teclas numéricas
+    // SALTO MEJORADO
     if(event.code === 'Space' && onGround) {
-      velY = 0.5;
+      velY = 0.6; // Aumentar fuerza de salto
       onGround = false;
+      console.log('Salto activado! velY:', velY);
     }
 
     // Poderes según el personaje seleccionado
