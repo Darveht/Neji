@@ -2718,39 +2718,69 @@ function showCharacterName() {
 
   // Función para crear el mundo de Konoha épico como en Naruto
   function createKonohaForest() {
-    // MONTAÑAS HOKAGE - Como en la serie
+    // HOKAGE ROCK - MONTAÑA DE LOS HOKAGE COMPLETA
+    let hokageRock = new THREE.Group();
+    hokageRock.userData.isHokageRock = true;
+
+    // Base de la montaña más realista
+    let mountainBase = new THREE.Mesh(
+      new THREE.ConeGeometry(80, 120, 8),
+      new THREE.MeshStandardMaterial({
+        color: 0x8B7355,
+        roughness: 0.9,
+        metalness: 0.1
+      })
+    );
+    mountainBase.position.y = 60;
+
+    // Caras de los 4 Hokage talladas
     for(let i = 0; i < 4; i++) {
-      let hokageMountain = new THREE.Group();
-      hokageMountain.userData.isMountain = true;
-
-      // Base rocosa de la montaña Hokage
-      let mountainBase = new THREE.Mesh(
-        new THREE.BoxGeometry(40, 60, 25),
-        new THREE.MeshStandardMaterial({
-          color: 0x8B7355,
-          roughness: 0.95,
-          metalness: 0.05
-        })
-      );
-
-      // Cara tallada del Hokage (simulada)
-      let hokageFace = new THREE.Mesh(
-        new THREE.BoxGeometry(35, 45, 2),
+      let hokageFace = new THREE.Group();
+      
+      // Cara principal
+      let face = new THREE.Mesh(
+        new THREE.BoxGeometry(25, 30, 8),
         new THREE.MeshStandardMaterial({
           color: 0xD2B48C,
-          roughness: 0.8
+          roughness: 0.7
         })
       );
-      hokageFace.position.set(0, 15, 12);
-
-      hokageMountain.add(mountainBase, hokageFace);
-      hokageMountain.position.set(
-        Math.cos(i * Math.PI / 2) * 180,
-        30,
-        Math.sin(i * Math.PI / 2) * 180
+      
+      // Detalles faciales
+      let eyes = new THREE.Mesh(
+        new THREE.BoxGeometry(8, 3, 1),
+        new THREE.MeshStandardMaterial({color: 0x000000})
       );
-      scene.add(hokageMountain);
+      eyes.position.set(0, 5, 4);
+      
+      let nose = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 4, 2),
+        new THREE.MeshStandardMaterial({color: 0xC8A882})
+      );
+      nose.position.set(0, 0, 4);
+      
+      let mouth = new THREE.Mesh(
+        new THREE.BoxGeometry(6, 2, 1),
+        new THREE.MeshStandardMaterial({color: 0x8B4513})
+      );
+      mouth.position.set(0, -8, 4);
+      
+      hokageFace.add(face, eyes, nose, mouth);
+      
+      let angle = (i / 4) * Math.PI * 2;
+      hokageFace.position.set(
+        Math.cos(angle) * 60,
+        80 + i * 15,
+        Math.sin(angle) * 60
+      );
+      hokageFace.lookAt(new THREE.Vector3(0, 80, 0));
+      
+      hokageRock.add(hokageFace);
     }
+
+    hokageRock.add(mountainBase);
+    hokageRock.position.set(-200, 0, -300);
+    scene.add(hokageRock);
 
     // Crear cascada principal
     let waterfall = new THREE.Group();
@@ -2858,109 +2888,221 @@ function showCharacterName() {
     hokageTower.position.set(0, 0, -40);
     scene.add(hokageTower);
 
-    // SISTEMA DE ÁRBOLES REALISTAS Y VARIADOS
-    const treeTypes = [
-      { trunkWidth: 4, trunkHeight: 25, canopySize: 15, trunkColor: 0x8B4513, canopyColor: 0x228B22, branches: 8 },
-      { trunkWidth: 2, trunkHeight: 30, canopySize: 8, trunkColor: 0x654321, canopyColor: 0x006400, branches: 12 },
-      { trunkWidth: 2.5, trunkHeight: 18, canopySize: 12, trunkColor: 0x8B4513, canopyColor: 0xFFB6C1, branches: 6 },
-      { trunkWidth: 0.8, trunkHeight: 20, canopySize: 4, trunkColor: 0x9ACD32, canopyColor: 0x32CD32, branches: 0 }
-    ];
+    // ACADEMIA NINJA COMPLETA
+    let ninjaAcademy = new THREE.Group();
+    
+    // Edificio principal de la academia
+    let academyMain = new THREE.Mesh(
+      new THREE.BoxGeometry(25, 15, 40),
+      new THREE.MeshStandardMaterial({color: 0xDEB887, roughness: 0.8})
+    );
+    academyMain.position.y = 7.5;
+    
+    // Techo de la academia
+    let academyRoof = new THREE.Mesh(
+      new THREE.BoxGeometry(28, 3, 43),
+      new THREE.MeshStandardMaterial({color: 0x8B0000, roughness: 0.7})
+    );
+    academyRoof.position.y = 16.5;
+    
+    // Aulas (ventanas)
+    for(let i = 0; i < 8; i++) {
+      let classroom = new THREE.Mesh(
+        new THREE.BoxGeometry(4, 3, 0.2),
+        new THREE.MeshStandardMaterial({color: 0x87CEEB, transparent: true, opacity: 0.6})
+      );
+      classroom.position.set(
+        -10 + (i % 4) * 6,
+        10,
+        i < 4 ? 20.1 : -20.1
+      );
+      ninjaAcademy.add(classroom);
+    }
+    
+    // Campo de entrenamiento
+    let trainingField = new THREE.Mesh(
+      new THREE.BoxGeometry(50, 0.2, 30),
+      new THREE.MeshStandardMaterial({color: 0x8FBC8F, roughness: 0.9})
+    );
+    trainingField.position.set(0, 0.1, 50);
+    
+    // Postes de entrenamiento
+    for(let i = 0; i < 6; i++) {
+      let post = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 6, 0.8),
+        new THREE.MeshStandardMaterial({color: 0x8B4513, roughness: 0.9})
+      );
+      post.position.set(
+        -15 + (i % 3) * 15,
+        3,
+        40 + Math.floor(i / 3) * 20
+      );
+      ninjaAcademy.add(post);
+    }
+    
+    ninjaAcademy.add(academyMain, academyRoof, trainingField);
+    ninjaAcademy.position.set(80, 0, 20);
+    scene.add(ninjaAcademy);
 
-    // Crear bosques densos y realistas
-    for(let i = 0; i < 150; i++) {
-      let treeType = treeTypes[Math.floor(Math.random() * treeTypes.length)];
+    // CASAS RESIDENCIALES DE KONOHA
+    for(let i = 0; i < 30; i++) {
+      let house = new THREE.Group();
+      
+      // Base de la casa
+      let houseBase = new THREE.Mesh(
+        new THREE.BoxGeometry(8, 6, 10),
+        new THREE.MeshStandardMaterial({color: 0xD2691E, roughness: 0.8})
+      );
+      houseBase.position.y = 3;
+      
+      // Techo
+      let houseRoof = new THREE.Mesh(
+        new THREE.BoxGeometry(10, 2, 12),
+        new THREE.MeshStandardMaterial({color: 0x8B0000, roughness: 0.7})
+      );
+      houseRoof.position.y = 7;
+      
+      // Puerta
+      let door = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 4, 0.2),
+        new THREE.MeshStandardMaterial({color: 0x654321, roughness: 0.9})
+      );
+      door.position.set(0, 2, 5.1);
+      
+      // Ventanas
+      for(let j = 0; j < 2; j++) {
+        let window = new THREE.Mesh(
+          new THREE.BoxGeometry(1.5, 1.5, 0.2),
+          new THREE.MeshStandardMaterial({color: 0x87CEEB, transparent: true, opacity: 0.6})
+        );
+        window.position.set(j === 0 ? -2.5 : 2.5, 4, 5.1);
+        house.add(window);
+      }
+      
+      house.add(houseBase, houseRoof, door);
+      
+      // Distribución en calles
+      let row = Math.floor(i / 6);
+      let col = i % 6;
+      house.position.set(
+        -60 + col * 20,
+        0,
+        20 + row * 25
+      );
+      
+      scene.add(house);
+    }
+
+    // ÁRBOLES REALISTAS DEL ANIME DE NARUTO - SIN ESFERAS
+    for(let i = 0; i < 200; i++) {
       let tree = new THREE.Group();
       tree.userData.isTree = true;
-
-      // Tronco con variaciones realistas
-      let trunk = new THREE.Mesh(
-        new THREE.CylinderGeometry(treeType.trunkWidth * 0.8, treeType.trunkWidth, treeType.trunkHeight, 8),
-        new THREE.MeshStandardMaterial({
-          color: treeType.trunkColor,
-          roughness: 0.9 + Math.random() * 0.1,
-          metalness: 0.1
-        })
-      );
-      trunk.position.y = treeType.trunkHeight / 2;
       
-      // Copa del árbol con múltiples niveles
-      let canopyLevels = Math.floor(Math.random() * 3) + 2;
-      for(let level = 0; level < canopyLevels; level++) {
-        let levelSize = treeType.canopySize * (1 - level * 0.2);
-        let canopy = new THREE.Mesh(
-          new THREE.SphereGeometry(levelSize, 12, 8),
-          new THREE.MeshStandardMaterial({
-            color: new THREE.Color(treeType.canopyColor).multiplyScalar(0.9 + Math.random() * 0.2),
-            roughness: 0.8,
-            transparent: true,
-            opacity: 0.9
-          })
+      let treeType = Math.random();
+      
+      if(treeType < 0.15) {
+        // ÁRBOLES GIGANTES COMO EN EL ANIME
+        let trunk = new THREE.Mesh(
+          new THREE.BoxGeometry(6, 40, 6),
+          new THREE.MeshStandardMaterial({color: 0x8B4513, roughness: 0.9})
         );
-        canopy.position.y = treeType.trunkHeight + level * 8;
-        tree.add(canopy);
+        trunk.position.y = 20;
+        
+        // Copa irregular con bloques
+        for(let j = 0; j < 12; j++) {
+          let leafBlock = new THREE.Mesh(
+            new THREE.BoxGeometry(
+              8 + Math.random() * 6,
+              6 + Math.random() * 4,
+              8 + Math.random() * 6
+            ),
+            new THREE.MeshStandardMaterial({color: 0x228B22, roughness: 0.8})
+          );
+          let angle = (j / 12) * Math.PI * 2;
+          leafBlock.position.set(
+            Math.cos(angle) * (15 + Math.random() * 8),
+            35 + Math.random() * 15,
+            Math.sin(angle) * (15 + Math.random() * 8)
+          );
+          tree.add(leafBlock);
+        }
+        
+        tree.add(trunk);
+        tree.scale.setScalar(1.2 + Math.random() * 0.5);
+        
+      } else if(treeType < 0.8) {
+        // ÁRBOLES NORMALES PIXELADOS
+        let trunk = new THREE.Mesh(
+          new THREE.BoxGeometry(2.5, 25, 2.5),
+          new THREE.MeshStandardMaterial({color: 0x8B4513, roughness: 0.9})
+        );
+        trunk.position.y = 12.5;
+        
+        // Copa con bloques irregulares
+        for(let j = 0; j < 8; j++) {
+          let leafPart = new THREE.Mesh(
+            new THREE.BoxGeometry(
+              5 + Math.random() * 4,
+              4 + Math.random() * 3,
+              5 + Math.random() * 4
+            ),
+            new THREE.MeshStandardMaterial({color: 0x228B22, roughness: 0.8})
+          );
+          leafPart.position.set(
+            (Math.random() - 0.5) * 12,
+            22 + Math.random() * 8,
+            (Math.random() - 0.5) * 12
+          );
+          tree.add(leafPart);
+        }
+        
+        tree.add(trunk);
+        tree.scale.setScalar(0.7 + Math.random() * 0.6);
+        
+      } else {
+        // CEREZOS CON FLORES ROSAS
+        let trunk = new THREE.Mesh(
+          new THREE.BoxGeometry(1.8, 18, 1.8),
+          new THREE.MeshStandardMaterial({color: 0x8B4513, roughness: 0.9})
+        );
+        trunk.position.y = 9;
+        
+        // Flores de cerezo en bloques
+        for(let j = 0; j < 15; j++) {
+          let blossom = new THREE.Mesh(
+            new THREE.BoxGeometry(
+              3 + Math.random() * 2,
+              2.5 + Math.random(),
+              3 + Math.random() * 2
+            ),
+            new THREE.MeshStandardMaterial({color: 0xFFB6C1, roughness: 0.7})
+          );
+          let angle = (j / 15) * Math.PI * 2;
+          blossom.position.set(
+            Math.cos(angle) * (5 + Math.random() * 4),
+            15 + Math.random() * 6,
+            Math.sin(angle) * (5 + Math.random() * 4)
+          );
+          tree.add(blossom);
+        }
+        
+        tree.add(trunk);
+        tree.scale.setScalar(0.6 + Math.random() * 0.4);
       }
-
-      // Ramas realistas con hojas
-      for(let j = 0; j < treeType.branches; j++) {
-        let branchLength = 6 + Math.random() * 8;
-        let branch = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.3, 0.6, branchLength, 6),
-          new THREE.MeshStandardMaterial({
-            color: new THREE.Color(treeType.trunkColor).multiplyScalar(0.9)
-          })
-        );
-        
-        let angle = (j / treeType.branches) * Math.PI * 2 + Math.random() * 0.5;
-        let height = treeType.trunkHeight * 0.6 + Math.random() * treeType.trunkHeight * 0.3;
-        
-        branch.position.set(
-          Math.cos(angle) * (treeType.trunkWidth + 2),
-          height,
-          Math.sin(angle) * (treeType.trunkWidth + 2)
-        );
-        branch.rotation.z = Math.PI / 6 + Math.random() * Math.PI / 6;
-        branch.rotation.y = angle;
-        
-        // Hojas en las ramas
-        let leaves = new THREE.Mesh(
-          new THREE.SphereGeometry(2 + Math.random() * 2, 8, 6),
-          new THREE.MeshStandardMaterial({
-            color: treeType.canopyColor,
-            roughness: 0.9,
-            transparent: true,
-            opacity: 0.8
-          })
-        );
-        leaves.position.set(0, branchLength / 2, 0);
-        branch.add(leaves);
-        
-        tree.add(branch);
-      }
-
-      tree.add(trunk);
       
-      // Distribución más natural en grupos de bosque
-      let forestGroup = Math.floor(i / 30);
-      let groupAngle = (forestGroup / 5) * Math.PI * 2;
-      let groupDistance = 80 + forestGroup * 60;
-      
-      let localAngle = Math.random() * Math.PI * 2;
-      let localDistance = Math.random() * 40;
+      // Distribución natural
+      let angle = Math.random() * Math.PI * 2;
+      let distance = 60 + Math.random() * 350;
       
       tree.position.set(
-        Math.cos(groupAngle) * groupDistance + Math.cos(localAngle) * localDistance,
+        Math.cos(angle) * distance,
         0,
-        Math.sin(groupAngle) * groupDistance + Math.sin(localAngle) * localDistance
+        Math.sin(angle) * distance
       );
       
-      // Variación en escala para mayor realismo
-      let scale = 0.8 + Math.random() * 0.6;
-      tree.scale.setScalar(scale);
-      
-      // Rotación aleatoria
       tree.rotation.y = Math.random() * Math.PI * 2;
-      
       scene.add(tree);
+    }
     }
     
     // ALDEAS NINJA DISPERSAS
