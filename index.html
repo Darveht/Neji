@@ -1718,7 +1718,8 @@
 
   // Función para avanzar al siguiente paso
   function nextStep() {
-    if(!canSkip && currentStep < 5) return; // No permitir skip si no está habilitado
+    console.log('nextStep() llamado. currentStep:', currentStep);
+    // Quitar verificación de canSkip - siempre permitir avanzar
 
     // DETENER Y SILENCIAR VIDEO SI ESTÁ REPRODUCIÉNDOSE
     if(introVideo && !introVideo.paused) {
@@ -1746,56 +1747,56 @@
     }
   }
 
-  // Event listeners para saltar - SOLO cuando canSkip es true
+  // Event listeners para saltar - ARREGLADOS
   glamSkip.addEventListener('click', () => {
-    if(canSkip) nextStep();
+    console.log('Botón GLAM SKIP clickeado! canSkip:', canSkip, 'currentStep:', currentStep);
+    nextStep(); // Quitar verificación de canSkip
   });
 
   videoSkipButton.addEventListener('click', () => {
-    if(canSkip) {
-      // Detener video inmediatamente cuando se presiona skip
-      if(introVideo && !introVideo.paused) {
-        introVideo.pause();
-        introVideo.currentTime = 0;
-        introVideo.muted = true;
-      }
-      nextStep();
+    console.log('Botón VIDEO SKIP clickeado! canSkip:', canSkip);
+    // Detener video inmediatamente
+    if(introVideo && !introVideo.paused) {
+      introVideo.pause();
+      introVideo.currentTime = 0;
+      introVideo.muted = true;
     }
+    nextStep(); // Quitar verificación de canSkip
   });
 
-  // Clicks en las pantallas - SOLO cuando canSkip es true
+  // Clicks en las pantallas - ARREGLADOS
   glamCredits.addEventListener('click', () => {
-    if(canSkip) nextStep();
+    console.log('Pantalla GLAM clickeada! canSkip:', canSkip);
+    nextStep(); // Quitar verificación de canSkip
   });
 
   videoIntro.addEventListener('click', () => {
-    if(canSkip) {
-      // Detener video inmediatamente cuando se hace clic para skip
-      if(introVideo && !introVideo.paused) {
-        introVideo.pause();
-        introVideo.currentTime = 0;
-        introVideo.muted = true;
-      }
-      nextStep();
+    console.log('Pantalla VIDEO clickeada! canSkip:', canSkip);
+    // Detener video inmediatamente
+    if(introVideo && !introVideo.paused) {
+      introVideo.pause();
+      introVideo.currentTime = 0;
+      introVideo.muted = true;
     }
+    nextStep(); // Quitar verificación de canSkip
   });
 
   // Agregar click handlers para las nuevas pantallas
   document.addEventListener('click', (e) => {
-    if(canSkip) {
-      if(e.target.closest('#game-init-screen')) {
-        nextStep();
-      } else if(e.target.closest('#title-screen') && !e.target.closest('#play-game-btn')) {
-        nextStep();
-      }
+    if(e.target.closest('#game-init-screen')) {
+      console.log('Click en pantalla de inicialización');
+      nextStep();
+    } else if(e.target.closest('#title-screen') && !e.target.closest('#play-game-btn')) {
+      console.log('Click en pantalla de título');
+      nextStep();
     }
   });
 
-  // CONTROLES DE TECLADO PARA SKIP
+  // CONTROLES DE TECLADO PARA SKIP - SIEMPRE ACTIVOS
   document.addEventListener('keydown', (e) => {
-    if(canSkip && (e.code === 'Space' || e.code === 'Enter' || e.code === 'Escape')) {
+    if(e.code === 'Space' || e.code === 'Enter' || e.code === 'Escape') {
       e.preventDefault();
-      console.log('Tecla de skip presionada:', e.code);
+      console.log('Tecla de skip presionada:', e.code, 'currentStep:', currentStep);
       nextStep();
     }
   });
