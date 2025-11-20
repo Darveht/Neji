@@ -753,6 +753,9 @@
       position:absolute;bottom:15px;left:15px;width:100px;height:100px;
       touch-action:none;z-index:10;
       filter: drop-shadow(2px 2px 0px #000);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
     #joy-base,#joy-thumb{
@@ -808,6 +811,17 @@
       box-shadow: 
         0 0 0 1px #000,
         2px 2px 0px #000;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      cursor: pointer;
+    }
+    
+    .action-btn:active {
+      transform: scale(0.95);
+      box-shadow: 
+        0 0 0 1px #000,
+        1px 1px 0px #000;
     }
 
     #jump{
@@ -2354,13 +2368,40 @@ function showCharacterName() {
     addButton('jump', 'JUMP');
 
     if(char === 'neji') {
-      addButton('btn-byak', 'BYAK').addEventListener('touchstart', activateByakugan);
-      addButton('btn-juken', 'JUKEN').addEventListener('touchstart', activateJuken);
-      addButton('btn-64', '64P').addEventListener('touchstart', activate64Palms);
-      addButton('btn-128', '128P').addEventListener('touchstart', activate128Palms);
-      addButton('btn-kaiten', 'KAIT').addEventListener('touchstart', activateKaiten);
-      addButton('btn-kusho', 'KUSH').addEventListener('touchstart', activateKusho);
-      addButton('btn-det', 'DET').addEventListener('touchstart', activateDetect);
+      // Byakugan
+      let byakBtn = addButton('btn-byak', 'BYAK');
+      byakBtn.addEventListener('touchstart', e => {e.preventDefault(); activateByakugan();});
+      byakBtn.addEventListener('click', activateByakugan);
+      
+      // Juken
+      let jukenBtn = addButton('btn-juken', 'JUKEN');
+      jukenBtn.addEventListener('touchstart', e => {e.preventDefault(); activateJuken();});
+      jukenBtn.addEventListener('click', activateJuken);
+      
+      // 64 Palmas
+      let palm64Btn = addButton('btn-64', '64P');
+      palm64Btn.addEventListener('touchstart', e => {e.preventDefault(); activate64Palms();});
+      palm64Btn.addEventListener('click', activate64Palms);
+      
+      // 128 Palmas
+      let palm128Btn = addButton('btn-128', '128P');
+      palm128Btn.addEventListener('touchstart', e => {e.preventDefault(); activate128Palms();});
+      palm128Btn.addEventListener('click', activate128Palms);
+      
+      // Kaiten
+      let kaitenBtn = addButton('btn-kaiten', 'KAIT');
+      kaitenBtn.addEventListener('touchstart', e => {e.preventDefault(); activateKaiten();});
+      kaitenBtn.addEventListener('click', activateKaiten);
+      
+      // Kusho
+      let kushoBtn = addButton('btn-kusho', 'KUSH');
+      kushoBtn.addEventListener('touchstart', e => {e.preventDefault(); activateKusho();});
+      kushoBtn.addEventListener('click', activateKusho);
+      
+      // Detección
+      let detectBtn = addButton('btn-det', 'DET');
+      detectBtn.addEventListener('touchstart', e => {e.preventDefault(); activateDetect();});
+      detectBtn.addEventListener('click', activateDetect);
     } else if(char === 'itachi') {
       addButton('btn-sharingan', 'SHAR').addEventListener('touchstart', activateSharingan);
       addButton('btn-amaterasu', 'AMAT').addEventListener('touchstart', activateAmaterasu);
@@ -3433,36 +3474,98 @@ function showCharacterName() {
     // Sistema de respawn continuo
     setInterval(respawnEnemies, WORLD_CONFIG.respawnTime);
 
-    // joystick
+    // JOYSTICK MÓVIL MEJORADO
     const joy=document.getElementById('joystick'),
           thumb=document.getElementById('joy-thumb');
     let origin={x:0,y:0}, tracking=false;
+    
+    // Eventos táctiles
     joy.addEventListener('touchstart',e=>{
+      e.preventDefault();
       let t=e.touches[0];
       const rect=joy.getBoundingClientRect();
       origin={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
       tracking=true;
     });
+    
     joy.addEventListener('touchmove',e=>{
+      e.preventDefault();
       if(!tracking) return;
       let t=e.touches[0],
           dx=t.clientX-origin.x,
           dy=t.clientY-origin.y,
           dist=Math.hypot(dx,dy),
-          max=50;
+          max=40;
       if(dist>max){ dx*=max/dist; dy*=max/dist; }
       thumb.style.transform=`translate(${dx}px,${dy}px)`;
-      moveDir.x=dx/max*0.25; moveDir.z=dy/max*0.25;
+      moveDir.x=dx/max*playerSpeed; 
+      moveDir.z=dy/max*playerSpeed;
     });
-    joy.addEventListener('touchend',()=>{
+    
+    joy.addEventListener('touchend',e=>{
+      e.preventDefault();
+      tracking=false;
+      thumb.style.transform='translate(0,0)';
+      moveDir={x:0,z:0};
+    });
+    
+    // Eventos de mouse para PC
+    joy.addEventListener('mousedown',e=>{
+      const rect=joy.getBoundingClientRect();
+      origin={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
+      tracking=true;
+    });
+    
+    joy.addEventListener('mousemove',e=>{
+      if(!tracking) return;
+      let dx=e.clientX-origin.x,
+          dy=e.clientY-origin.y,
+          dist=Math.hypot(dx,dy),
+          max=40;
+      if(dist>max){ dx*=max/dist; dy*=max/dist; }
+      thumb.style.transform=`translate(${dx}px,${dy}px)`;
+      moveDir.x=dx/max*playerSpeed;
+      moveDir.z=dy/max*playerSpeed;
+    });
+    
+    joy.addEventListener('mouseup',()=>{
       tracking=false;
       thumb.style.transform='translate(0,0)';
       moveDir={x:0,z:0};
     });
 
-    // botones
-    document.getElementById('jump')
-      .addEventListener('touchstart',_=>{ if(onGround){velY=0.5;onGround=false;}});
+    // BOTONES MÓVILES MEJORADOS
+    const jumpBtn = document.getElementById('jump');
+    
+    // Eventos táctiles
+    jumpBtn.addEventListener('touchstart', e => {
+      e.preventDefault();
+      if(onGround){velY=0.5;onGround=false;}
+    });
+    
+    // Eventos de mouse para PC
+    jumpBtn.addEventListener('mousedown', e => {
+      e.preventDefault();
+      if(onGround){velY=0.5;onGround=false;}
+    });
+    
+    // Hacer botones más grandes en móvil
+    if(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.style.width = '60px';
+        btn.style.height = '60px';
+        btn.style.fontSize = '10px';
+        btn.style.lineHeight = '60px';
+      });
+      
+      // Joystick más grande en móvil
+      joy.style.width = '120px';
+      joy.style.height = '120px';
+      thumb.style.width = '50px';
+      thumb.style.height = '50px';
+      thumb.style.top = '35px';
+      thumb.style.left = '35px';
+    }
 
     window.addEventListener('resize',()=>{
       camera.aspect=innerWidth/innerHeight;
