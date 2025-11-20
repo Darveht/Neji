@@ -2573,50 +2573,40 @@ function showCharacterName() {
     }
   }
 
-  // Función para crear el bosque de Konoha detallado
+  // Función para crear el mundo de Konoha épico como en Naruto
   function createKonohaForest() {
-    // Crear montañas de fondo pixeladas
-    for(let i = 0; i < 8; i++) {
-      let mountain = new THREE.Group();
-      mountain.userData.isMountain = true;
+    // MONTAÑAS HOKAGE - Como en la serie
+    for(let i = 0; i < 4; i++) {
+      let hokageMountain = new THREE.Group();
+      hokageMountain.userData.isMountain = true;
 
-      // Base de la montaña
+      // Base rocosa de la montaña Hokage
       let mountainBase = new THREE.Mesh(
-        new THREE.BoxGeometry(30, 40, 20),
+        new THREE.BoxGeometry(40, 60, 25),
         new THREE.MeshStandardMaterial({
-          color: 0x696969,
-          roughness: 0.9,
-          metalness: 0.1
+          color: 0x8B7355,
+          roughness: 0.95,
+          metalness: 0.05
         })
       );
 
-      // Pico de la montaña
-      let mountainPeak = new THREE.Mesh(
-        new THREE.BoxGeometry(20, 25, 15),
+      // Cara tallada del Hokage (simulada)
+      let hokageFace = new THREE.Mesh(
+        new THREE.BoxGeometry(35, 45, 2),
         new THREE.MeshStandardMaterial({
-          color: 0x778899,
-          roughness: 0.9
-        })
-      );
-      mountainPeak.position.y = 32;
-
-      // Nieve en la cima
-      let snow = new THREE.Mesh(
-        new THREE.BoxGeometry(15, 8, 12),
-        new THREE.MeshStandardMaterial({
-          color: 0xFFFAFA,
+          color: 0xD2B48C,
           roughness: 0.8
         })
       );
-      snow.position.y = 42;
+      hokageFace.position.set(0, 15, 12);
 
-      mountain.add(mountainBase, mountainPeak, snow);
-      mountain.position.set(
-        Math.cos(i * Math.PI / 4) * 150,
-        20,
-        Math.sin(i * Math.PI / 4) * 150
+      hokageMountain.add(mountainBase, hokageFace);
+      hokageMountain.position.set(
+        Math.cos(i * Math.PI / 2) * 180,
+        30,
+        Math.sin(i * Math.PI / 2) * 180
       );
-      scene.add(mountain);
+      scene.add(hokageMountain);
     }
 
     // Crear cascada principal
@@ -2686,67 +2676,133 @@ function showCharacterName() {
       scene.add(riverSegment);
     }
 
-    // Crear árboles más detallados tipo Konoha
-    for(let i = 0; i < 50; i++) {
-      let tree = new THREE.Group();
-      tree.userData.isTree = true;
+    // TORRE HOKAGE - Edificio icónico de Konoha
+    let hokageTower = new THREE.Group();
+    hokageTower.userData.isScenery = true;
+    
+    // Base de la torre
+    let towerBase = new THREE.Mesh(
+      new THREE.BoxGeometry(8, 25, 8),
+      new THREE.MeshStandardMaterial({
+        color: 0xD2691E,
+        roughness: 0.8
+      })
+    );
+    towerBase.position.y = 12.5;
+    
+    // Techo rojo tradicional
+    let roof = new THREE.Mesh(
+      new THREE.BoxGeometry(12, 3, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0x8B0000,
+        roughness: 0.7
+      })
+    );
+    roof.position.y = 26.5;
+    
+    // Símbolo de Konoha en la torre
+    let konohaSymbol = new THREE.Mesh(
+      new THREE.BoxGeometry(4, 4, 0.2),
+      new THREE.MeshStandardMaterial({
+        color: 0xFFD700,
+        metalness: 0.8,
+        roughness: 0.2
+      })
+    );
+    konohaSymbol.position.set(0, 20, 4.1);
+    
+    hokageTower.add(towerBase, roof, konohaSymbol);
+    hokageTower.position.set(0, 0, -40);
+    scene.add(hokageTower);
 
-      // Tronco del árbol
+    // ÁRBOLES NINJA GIGANTES - Como en Naruto
+    for(let i = 0; i < 30; i++) {
+      let ninjaTree = new THREE.Group();
+      ninjaTree.userData.isTree = true;
+
+      // Tronco masivo
       let trunk = new THREE.Mesh(
-        new THREE.BoxGeometry(1.5, 12, 1.5),
+        new THREE.BoxGeometry(3, 20, 3),
+        new THREE.MeshStandardMaterial({
+          color: 0x654321,
+          roughness: 0.95
+        })
+      );
+      trunk.position.y = 10;
+
+      // Copa del árbol estilo Naruto
+      let canopy = new THREE.Mesh(
+        new THREE.SphereGeometry(12, 16, 16),
+        new THREE.MeshStandardMaterial({
+          color: 0x228B22,
+          roughness: 0.9
+        })
+      );
+      canopy.position.y = 25;
+
+      // Ramas gruesas
+      for(let j = 0; j < 6; j++) {
+        let branch = new THREE.Mesh(
+          new THREE.BoxGeometry(1, 1, 8),
+          new THREE.MeshStandardMaterial({color: 0x8B4513})
+        );
+        let angle = (j / 6) * Math.PI * 2;
+        branch.position.set(
+          Math.cos(angle) * 4,
+          15 + Math.random() * 8,
+          Math.sin(angle) * 4
+        );
+        branch.rotation.y = angle;
+        ninjaTree.add(branch);
+      }
+
+      ninjaTree.add(trunk, canopy);
+      
+      let angle = Math.random() * Math.PI * 2;
+      let distance = 40 + Math.random() * 80;
+      ninjaTree.position.set(
+        Math.cos(angle) * distance,
+        0,
+        Math.sin(angle) * distance
+      );
+      scene.add(ninjaTree);
+    }
+
+    // POSTES DE ENTRENAMIENTO NINJA
+    for(let i = 0; i < 12; i++) {
+      let trainingPost = new THREE.Group();
+      trainingPost.userData.isScenery = true;
+      
+      let post = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 6, 0.8),
         new THREE.MeshStandardMaterial({
           color: 0x8B4513,
           roughness: 0.9
         })
       );
-      trunk.position.y = 6;
-
-      // Follaje en capas (típico de árboles de Naruto)
-      for(let layer = 0; layer < 3; layer++) {
-        let foliage = new THREE.Mesh(
-          new THREE.BoxGeometry(
-            8 - layer * 1.5,
-            4,
-            8 - layer * 1.5
-          ),
-          new THREE.MeshStandardMaterial({
-            color: layer === 0 ? 0x228B22 : (layer === 1 ? 0x32CD32 : 0x00FF00),
-            roughness: 0.8
-          })
+      post.position.y = 3;
+      
+      // Marcas de kunai en el poste
+      for(let j = 0; j < 5; j++) {
+        let mark = new THREE.Mesh(
+          new THREE.BoxGeometry(0.1, 0.3, 0.1),
+          new THREE.MeshStandardMaterial({color: 0x2F4F4F})
         );
-        foliage.position.y = 10 + layer * 3;
-        tree.add(foliage);
+        mark.position.set(
+          0.45,
+          1 + j * 1.2,
+          Math.random() * 0.4 - 0.2
+        );
+        trainingPost.add(mark);
       }
-
-      // Ramas salientes
-      for(let branch = 0; branch < 4; branch++) {
-        let branchMesh = new THREE.Mesh(
-          new THREE.BoxGeometry(0.5, 0.5, 3),
-          new THREE.MeshStandardMaterial({color: 0x8B4513})
-        );
-        branchMesh.position.set(
-          Math.cos(branch * Math.PI / 2) * 2,
-          8 + Math.random() * 4,
-          Math.sin(branch * Math.PI / 2) * 2
-        );
-        branchMesh.rotation.y = branch * Math.PI / 2;
-        tree.add(branchMesh);
-      }
-
-      tree.add(trunk);
-
-      // Posicionar árboles aleatoriamente evitando el centro
-      let angle = Math.random() * Math.PI * 2;
-      let distance = 30 + Math.random() * 60;
-      tree.position.set(
-        Math.cos(angle) * distance,
+      
+      trainingPost.add(post);
+      trainingPost.position.set(
+        Math.random() * 60 - 30,
         0,
-        Math.sin(angle) * distance
+        Math.random() * 60 - 30
       );
-
-      // Rotar aleatoriamente
-      tree.rotation.y = Math.random() * Math.PI * 2;
-      scene.add(tree);
+      scene.add(trainingPost);
     }
 
     // Crear rocas dispersas
@@ -2828,39 +2884,129 @@ function showCharacterName() {
       }
     }
 
-    // Crear postes de madera ninja (típicos de Konoha)
-    for(let i = 0; i < 6; i++) {
-      let post = new THREE.Mesh(
-        new THREE.BoxGeometry(1, 8, 1),
+    // PUENTE NINJA DE MADERA - Como en las misiones
+    let ninjaBridge = new THREE.Group();
+    ninjaBridge.userData.isScenery = true;
+    
+    // Tablones del puente
+    for(let i = 0; i < 20; i++) {
+      let plank = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.3, 8),
         new THREE.MeshStandardMaterial({
           color: 0x8B4513,
           roughness: 0.9
         })
       );
-      post.userData.isScenery = true;
-
-      // Cuerda entre postes
-      if(i > 0) {
-        let rope = new THREE.Mesh(
-          new THREE.BoxGeometry(0.2, 0.2, 10),
+      plank.position.set(i * 2 - 20, 2, 60);
+      ninjaBridge.add(plank);
+    }
+    
+    // Barandillas del puente
+    for(let side = 0; side < 2; side++) {
+      for(let i = 0; i < 10; i++) {
+        let rail = new THREE.Mesh(
+          new THREE.BoxGeometry(0.2, 2, 0.2),
           new THREE.MeshStandardMaterial({color: 0x654321})
         );
-        rope.position.set(
-          Math.cos(i * Math.PI / 3) * 45 - 5,
-          6,
-          Math.sin(i * Math.PI / 3) * 45
+        rail.position.set(
+          i * 4 - 18,
+          3,
+          60 + (side ? 3.5 : -3.5)
         );
-        rope.rotation.y = i * Math.PI / 3;
-        rope.userData.isScenery = true;
-        scene.add(rope);
+        ninjaBridge.add(rail);
       }
+    }
+    scene.add(ninjaBridge);
 
-      post.position.set(
-        Math.cos(i * Math.PI / 3) * 45,
-        4,
-        Math.sin(i * Math.PI / 3) * 45
+    // SANTUARIO NINJA - Lugar sagrado
+    let ninjaShrine = new THREE.Group();
+    ninjaShrine.userData.isScenery = true;
+    
+    // Base del santuario
+    let shrineBase = new THREE.Mesh(
+      new THREE.BoxGeometry(6, 1, 6),
+      new THREE.MeshStandardMaterial({
+        color: 0x696969,
+        roughness: 0.8
+      })
+    );
+    shrineBase.position.y = 0.5;
+    
+    // Estructura principal
+    let shrineMain = new THREE.Mesh(
+      new THREE.BoxGeometry(4, 4, 4),
+      new THREE.MeshStandardMaterial({
+        color: 0x8B0000,
+        roughness: 0.7
+      })
+    );
+    shrineMain.position.y = 3;
+    
+    // Techo del santuario
+    let shrineRoof = new THREE.Mesh(
+      new THREE.BoxGeometry(5, 1, 5),
+      new THREE.MeshStandardMaterial({
+        color: 0x2F4F4F,
+        roughness: 0.8
+      })
+    );
+    shrineRoof.position.y = 5.5;
+    
+    // Torii (puerta tradicional)
+    let torii = new THREE.Group();
+    
+    // Postes verticales
+    for(let i = 0; i < 2; i++) {
+      let post = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 6, 0.5),
+        new THREE.MeshStandardMaterial({color: 0x8B0000})
       );
-      scene.add(post);
+      post.position.set(i ? 3 : -3, 3, -8);
+      torii.add(post);
+    }
+    
+    // Viga horizontal superior
+    let beam = new THREE.Mesh(
+      new THREE.BoxGeometry(8, 0.8, 0.8),
+      new THREE.MeshStandardMaterial({color: 0x8B0000})
+    );
+    beam.position.set(0, 6, -8);
+    torii.add(beam);
+    
+    ninjaShrine.add(shrineBase, shrineMain, shrineRoof, torii);
+    ninjaShrine.position.set(-60, 0, -20);
+    scene.add(ninjaShrine);
+
+    // CAMPO DE ENTRENAMIENTO CON DIANAS
+    for(let i = 0; i < 8; i++) {
+      let target = new THREE.Group();
+      target.userData.isScenery = true;
+      
+      // Poste de la diana
+      let targetPost = new THREE.Mesh(
+        new THREE.BoxGeometry(0.3, 4, 0.3),
+        new THREE.MeshStandardMaterial({color: 0x8B4513})
+      );
+      targetPost.position.y = 2;
+      
+      // Diana circular
+      let targetBoard = new THREE.Mesh(
+        new THREE.RingGeometry(0.5, 1.5, 16),
+        new THREE.MeshStandardMaterial({
+          color: i % 2 ? 0xFF0000 : 0xFFFFFF,
+          side: THREE.DoubleSide
+        })
+      );
+      targetBoard.position.y = 3;
+      targetBoard.rotation.y = Math.PI;
+      
+      target.add(targetPost, targetBoard);
+      target.position.set(
+        Math.cos(i * Math.PI / 4) * 25,
+        0,
+        Math.sin(i * Math.PI / 4) * 25 + 30
+      );
+      scene.add(target);
     }
 
     // Animar la cascada
